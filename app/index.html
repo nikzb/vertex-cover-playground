@@ -11,7 +11,7 @@
   <style type="text/css">
     #my-network {
       width: 600px;
-      height: 400px;
+      height: 600px;
       border: 1px solid lightgray;
     }
   </style>
@@ -22,18 +22,19 @@
 <p>Try to use the minimum number of hotspots necessary to ensure that every node has service.</p>
 <p>Key:</p>
 <ul>
-  <li>Blue - No service</li>
-  <li>Yellow - Hotspot</li>
-  <li>Red - Receiving service from a hotspot</li>
+  <li>Red - No service</li>
+  <li>Orange - Hotspot</li>
+  <li>Yellow - Receiving service from a hotspot</li>
 
 
 <div id="my-network"></div>
+<button type="button" name="reset">Start Over</button>
 <div id="optimal-message"></div>
 <pre id="eventSpan"></pre>
 <pre id="eventSpan2"></pre>
 
 <script type="text/javascript">
-  // create an array with nodes
+  // create an array with nodes - this was the original small graph
   // var nodes = new vis.DataSet([
   //   {id: 1, label: 'Node 1', group: 'noService', original: false},
   //   {id: 2, label: 'Node 2', group: 'noService', original: true},
@@ -43,29 +44,47 @@
   //   {id: 6, label: 'Node 6', group: 'noService', original: false}
   // ]);
 
-  // Without labels
-  var nodes = new vis.DataSet([
-    {id: 1, group: 'noService', original: false},
-    {id: 2, group: 'noService', original: true},
-    {id: 3, group: 'noService', original: true},
-    {id: 4, group: 'noService', original: false},
-    {id: 5, group: 'noService', original: false},
-    {id: 6, group: 'noService', original: false}
-  ]);
+  var nodesArray = [];
+  var originals = [6, 12, 15, 17, 20];
+  for (var i = 1; i <= 21; i++) {
+    var isOriginal = false;
+    if (originals.includes(i)) {
+      isOriginal = true;
+      console.log(i);
+    }
+    nodesArray.push({id: i, group: 'noService', label: i, original: isOriginal});
+  }
+
+  console.log(nodesArray);
+
+  var nodes = new vis.DataSet(nodesArray);
 
   var optimalAnswer = nodes.get().reduce(function(total, node) {
     return node.original ? total + 1 : total;
   }, 0);
 
   console.log(`Optimal: ${optimalAnswer}`);
-  // create an array with edges
-  var edges = new vis.DataSet([
-    {from: 1, to: 3},
-    {from: 1, to: 2},
-    {from: 2, to: 4},
-    {from: 2, to: 5},
-    {from: 3, to: 6}
-  ]);
+
+  var edgePairs = [[1,2],[1,15],[1,13],[2,15],[2,3],[2,16],[3,4],[3,17],[5,18],
+                   [5,6],[6,8],[6,7],[7,9],[8,9],[9,10],[9,20],[10,11],[10,12],
+                   [11,12],[12,13],[13,14],[14,15],[14,21],[15,16],[16,21],
+                   [17,18],[18,19],[18,21],[19,20],[20,21],[4,5],[4,17]];
+
+  var edgeArray = [];
+
+  edgePairs.forEach(function(edgePair) {
+    edgeArray.push({from: edgePair[0], to: edgePair[1]});
+  });
+  // create an array with edges - original small graph
+  // var edges = new vis.DataSet([
+  //   {from: 1, to: 3},
+  //   {from: 1, to: 2},
+  //   {from: 2, to: 4},
+  //   {from: 2, to: 5},
+  //   {from: 3, to: 6}
+  // ]);
+
+  var edges = new vis.DataSet(edgeArray);
 
   // create a network
   var container = document.getElementById('my-network');
@@ -156,6 +175,13 @@
     });
   }
 
+  var resetAllNodes = function() {
+    nodes.forEach(function(node) {
+      node.group = 'noService';
+      nodes.update(node);
+    });
+  }
+
   var allNodesHaveWifi = function() {
     return nodes.get().every(function(node) {
       return node.group !== 'noService';
@@ -214,6 +240,10 @@
 
       console.log(node);
 
+  });
+
+  document.querySelector('button[name="reset"]').addEventListener("click", function() {
+    resetAllNodes();
   });
 </script>
 
