@@ -45,7 +45,7 @@
 
   // Without labels
   var nodes = new vis.DataSet([
-    {id: 1, group: 4, original: false},
+    {id: 1, group: 'noService', original: false},
     {id: 2, group: 'noService', original: true},
     {id: 3, group: 'noService', original: true},
     {id: 4, group: 'noService', original: false},
@@ -91,12 +91,29 @@
           inherit: 'both'
         }
     },
-    // interaction:{hover:true},
+    interaction:{
+      // hover:true,
+    },
     groups: {
-      // useDefaultGroups: false,
-      noService: {color:{background:'red'}},
-      hotspot: {color:{background:'orange'}},
-      service: {color:{background:'yellow'}}
+      useDefaultGroups: false,
+      noService: {
+        color: {
+          background:'red',
+          highlight: { background: 'red' }
+        }
+      },
+      hotspot: {
+        color: {
+          background:'orange',
+          highlight: { background: 'orange' }
+        }
+      },
+      service: {
+        color: {
+          background:'yellow',
+          highlight: { background: 'yellow' }
+        }
+      }
     }
 
   };
