@@ -1,6 +1,106 @@
+html {
+  box-sizing: border-box;
+  font-family: monospace;
+}
 
-#my-network {
-  width: 600px;
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  /*background-image: linear-gradient(220deg, rgba(235,235,235,1) 0%, rgba(245,245,245,1) 100%);*/
+}
+
+
+
+.main-wrap {
+  display: flex;
+  flex-direction: column;
+  max-width: 1200px;
+
+}
+
+.main-header {
+  display: flex;
+  /*max-height: 80px;*/
+  flex: 0 0 60px;
+  /*background-image: linear-gradient(260deg, #FFFF00 0%, #FFCC00 100%);*/
+}
+
+.main-header > .title {
+  margin-left: 20px;
+}
+
+.second-wrap {
+  display: flex;
+  flex: 1 1 auto;
+}
+
+.graph-wrap {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 70%;
+  margin: 0 20px;
+}
+
+.graph-header {
+  display: flex;
+  justify-content: space-between;
+}
+
+.hotspot-count-wrap {
+  display: flex;
+  align-items: center;
+  position: relative;
+  top: 60px;
+  font-size: 1.15em;
+}
+
+.graph-header > .title {
+  margin-left: 20px;
+}
+
+.hotspot-count-label {
+  margin-right: 30px;
+}
+
+button[name='reset'] {
+  font-size: 1.5em;
+}
+
+.guide-wrap {
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 30%;
+}
+
+.guide-wrap li {
+  font-size: 1.2em;
+  margin: 1.2em 0;
+}
+
+.to-do {
+  font-style: italic;
+  padding: 20px 20px;
+  font-weight: normal;
+  border: 3px inset darkgrey;
+}
+
+
+
+
+/*.instruct-wrap {
+  display: flex;
+  flex-direction: column;
+}*/
+
+.graph {
+  width: 100%;
   height: 600px;
   border: 1px solid lightgray;
+  background-color: white;
 }

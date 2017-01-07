@@ -12,21 +12,56 @@
 </head>
 <body>
 
-<p>Click a node to make it a hotspot. Click it again to undo it.</p>
-<p>Try to use the minimum number of hotspots necessary to ensure that every node has service.</p>
-<p>Key:</p>
-<ul>
-  <li>Red - No service</li>
-  <li>Orange - Hotspot</li>
-  <li>Yellow - Receiving service from a hotspot</li>
+<div class='main-wrap'>
+  <div class='main-header'>
+    <h1 class='title'>Wireless Hotspot Challenge</h1>
+    <nav class='main-nav'></nav>
+  </div>
+  <div class='second-wrap'>
+    <div class='graph-wrap'>
+      <div class='graph-header'>
+        <h2 class='title'>Graph</h2>
+        <div class='hotspot-count-wrap'>
+          <h2 class='hotspot-count-label'>Hotspots: <span class="hotspot-count">0</span></h2>
+        </div>
+      </div>
+      <div class='graph'></div>
+      <button type="button" name="reset">Start Over</button>
+      <h2 class='optimal-message'></h2>
+    </div>
+    <div class='guide-wrap'>
+      <div class='challenge-wrap'>
+        <h2 class='title'>The Challenge</h2>
+        <div class='challenge'>
+          <ul class='challenge-details'>
+            <li>The nodes in the graph represent zones in need of WIFI.</li>
+            <li>A hotspot can be placed at any node and will serve that node and all the nodes connected to it.</li>
+          </ul>
+          <h3 class='to-do'>Find the optimal locations for the hotspots in order to minimize the number of hotspots needed in order to provide service to all the zones.</h3>
 
-
-<div id="my-network"></div>
-<div id="info-and-controls">
-  <p id="hotspot-count-label">Hotspots: <span id="hotspot-count">0</span></p>
-  <button type="button" name="reset">Start Over</button>
+        </div>
+      </div>
+      <div class='instruct-wrap'>
+        <h2 class='title'>Instructions</h2>
+        <div class='instruct'>
+          <ul class='instruct-details'>
+            <li>Click a node to make it a hotspot. Click it again to undo it.</li>
+            <li>Only nodes that do not already have service can become hotspots.</li>
+          </ul>
+        </div>
+      </div>
+      <div class='key-wrap'>
+        <h2 class='title'>Key</h2>
+        <ul class='key'>
+          <li>Red Circle Here - No Service</li>
+          <li>Orange Circle Here - Hotspot</li>
+          <li>Yellow Circle Here - Receiving Service</li>
+        </ul>
+      </div>
+    </div>
+  </div>
 </div>
-<div id="optimal-message"></div>
+
 <pre id="eventSpan"></pre>
 <pre id="eventSpan2"></pre>
 

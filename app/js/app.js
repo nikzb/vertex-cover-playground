@@ -51,7 +51,7 @@ edgePairs.forEach(function(edgePair) {
 var edges = new vis.DataSet(edgeArray);
 
 // create a network
-var container = document.getElementById('my-network');
+var container = document.querySelector('.graph');
 var data = {
   nodes: nodes,
   edges: edges
@@ -63,15 +63,16 @@ var options = {
       font: {
           size: 32
       },
-      borderWidth: 2,
+      borderWidth: 0,
       shadow:true,
       fixed: true
   },
   edges: {
       width: 2,
-      shadow:true,
+      shadow:false,
       color: {
-        inherit: 'both'
+        color: 'darkgrey'
+        // inherit: 'both'
       }
   },
   interaction:{
@@ -82,25 +83,28 @@ var options = {
     noService: {
       color: {
         background:'red',
-        highlight: { background: 'red' }
+        highlight: { background: 'red', border: 'red', borderWidth: 0 }
       }
     },
     hotspot: {
       color: {
         background:'orange',
-        highlight: { background: 'orange' }
-      }
+        highlight: { background: 'orange', border: 'orange', borderWidth: 0 }
+      },
     },
     service: {
       color: {
         background:'yellow',
-        highlight: { background: 'yellow' }
+        highlight: { background: 'yellow', border: 'yellow', borderWidth: 0 }
       }
     }
   }
 
 };
 
+console.log(container);
+console.log(data);
+console.log(options);
 var network = new vis.Network(container, data, options);
 
 var updateConnectedNodes = function() {
@@ -165,7 +169,7 @@ var countHotspots = function() {
 }
 
 var updateHotspotCount = function() {
-  document.getElementById('hotspot-count').innerHTML = countHotspots();
+  document.querySelector('.hotspot-count').innerHTML = countHotspots();
 }
 
 var checkForCompletion = function() {
@@ -173,16 +177,14 @@ var checkForCompletion = function() {
     // Display a message telling whether optimization is complete
     if (countHotspots() === optimalAnswer) {
       // Success!
-      document.getElementById('optimal-message').innerHTML = '<h2>You have found an optimal solution!</h2>';
-      console.log("You have found an optimal solution!");
+      document.querySelector('.optimal-message').innerHTML = 'You have found an optimal solution!';
     }
     else {
-      document.getElementById('optimal-message').innerHTML = '<h2>You can further optimize the solution. Keep at it, you can do it!</h2>';
-      console.log("You can further optimize the solution. Keep at it, you can do it!");
+      document.querySelector('.optimal-message').innerHTML = 'You can further optimize the solution. Keep at it, you can do it!';
     }
   }
   else {
-    document.getElementById('optimal-message').innerHTML = '';
+    document.querySelector('.optimal-message').innerHTML = '';
   }
 }
 
