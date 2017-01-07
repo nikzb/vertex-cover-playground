@@ -1,0 +1,14 @@
+{
+  "name": "vertex-cover-problem",
+  "version": "1.0.0",
+  "description": "Tool for interactively solving and creating vertex cover problems",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Nik Baltatzis <nikbaltatzis@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "vis": "^4.17.0"
+  }
+}

@@ -1,0 +1,205 @@
+<!doctype html>
+<html>
+<head>
+  <title>Network | Basic usage example modified</title>
+
+  <!-- Documentation for VisJS: http://visjs.org/ -->
+
+  <script type="text/javascript" src="../node_modules/vis/dist/vis.js"></script>
+  <link href="../node_modules/vis/dist/vis-network.min.css" rel="stylesheet" type="text/css" />
+
+  <style type="text/css">
+    #my-network {
+      width: 600px;
+      height: 400px;
+      border: 1px solid lightgray;
+    }
+  </style>
+</head>
+<body>
+
+<p>Click a node to make it a hotspot. Click it again to undo it.</p>
+<p>Try to use the minimum number of hotspots necessary to ensure that every node has service.</p>
+<p>Key:</p>
+<ul>
+  <li>Blue - No service</li>
+  <li>Yellow - Hotspot</li>
+  <li>Red - Receiving service from a hotspot</li>
+
+
+<div id="my-network"></div>
+<div id="optimal-message"></div>
+<pre id="eventSpan"></pre>
+<pre id="eventSpan2"></pre>
+
+<script type="text/javascript">
+  // create an array with nodes
+  // var nodes = new vis.DataSet([
+  //   {id: 1, label: 'Node 1', group: 'noService', original: false},
+  //   {id: 2, label: 'Node 2', group: 'noService', original: true},
+  //   {id: 3, label: 'Node 3', group: 'noService', original: true},
+  //   {id: 4, label: 'Node 4', group: 'noService', original: false},
+  //   {id: 5, label: 'Node 5', group: 'noService', original: false},
+  //   {id: 6, label: 'Node 6', group: 'noService', original: false}
+  // ]);
+
+  // Without labels
+  var nodes = new vis.DataSet([
+    {id: 1, group: 4, original: false},
+    {id: 2, group: 'noService', original: true},
+    {id: 3, group: 'noService', original: true},
+    {id: 4, group: 'noService', original: false},
+    {id: 5, group: 'noService', original: false},
+    {id: 6, group: 'noService', original: false}
+  ]);
+
+  var optimalAnswer = nodes.get().reduce(function(total, node) {
+    return node.original ? total + 1 : total;
+  }, 0);
+
+  console.log(`Optimal: ${optimalAnswer}`);
+  // create an array with edges
+  var edges = new vis.DataSet([
+    {from: 1, to: 3},
+    {from: 1, to: 2},
+    {from: 2, to: 4},
+    {from: 2, to: 5},
+    {from: 3, to: 6}
+  ]);
+
+  // create a network
+  var container = document.getElementById('my-network');
+  var data = {
+    nodes: nodes,
+    edges: edges
+  };
+  var options = {
+    nodes: {
+        shape: 'dot',
+        size: 30,
+        font: {
+            size: 32
+        },
+        borderWidth: 2,
+        shadow:true,
+        fixed: true
+    },
+    edges: {
+        width: 2,
+        shadow:true,
+        color: {
+          inherit: 'both'
+        }
+    },
+    // interaction:{hover:true},
+    groups: {
+      // useDefaultGroups: false,
+      noService: {color:{background:'red'}},
+      hotspot: {color:{background:'orange'}},
+      service: {color:{background:'yellow'}}
+    }
+
+  };
+
+  var network = new vis.Network(container, data, options);
+
+  var updateConnectedNodes = function() {
+    // Reset all serviced nodes to nodes to unserviced
+    nodes.forEach(function(node) {
+      if (node.group === 'service') {
+        node.group = 'noService';
+        nodes.update(node);
+      }
+    });
+
+    // Find all the hotspot nodes and have them service all the connected non-hotspot nodes
+    nodes.forEach(function(node) {
+      if (node.group === 'hotspot') {
+        console.log(`found hotspot at node ${node.id}`);
+        edges.forEach(function(edge) {
+          var servicedId = 0;
+          if (edge.from === node.id) {
+            servicedId = edge.to;
+          }
+          else if (edge.to === node.id) {
+            servicedId = edge.from;
+          }
+          console.log(`Serviced ID: ${servicedId}`);
+          if (servicedId) {
+            var servicedNode = nodes.get(servicedId);
+            console.log(`Before: ${servicedNode.group}`);
+            if (servicedNode.group === 'noService') {
+              servicedNode.group = 'service';
+              nodes.update(servicedNode);
+            }
+            console.log(`After: ${servicedNode.group}`);
+          }
+        });
+      }
+    });
+  }
+
+  var allNodesHaveWifi = function() {
+    return nodes.get().every(function(node) {
+      return node.group !== 'noService';
+    });
+  }
+
+  var countHotspots = function() {
+    var hotspots = 0;
+
+    nodes.forEach(function(node) {
+      if (node.group === 'hotspot') {
+        hotspots += 1;
+      }
+    });
+
+    return hotspots;
+  }
+
+  var checkForCompletion = function() {
+    if (allNodesHaveWifi()) {
+      // Display a message telling whether optimization is complete
+      if (countHotspots() === optimalAnswer) {
+        // Success!
+        document.getElementById('optimal-message').innerHTML = '<h2>You have found an optimal solution!</h2>';
+        console.log("You have found an optimal solution!");
+      }
+      else {
+        document.getElementById('optimal-message').innerHTML = '<h2>You can further optimize the solution. Keep at it, you can do it!</h2>';
+        console.log("You can further optimize the solution. Keep at it, you can do it!");
+      }
+    }
+    else {
+      document.getElementById('optimal-message').innerHTML = '';
+    }
+  }
+
+  network.on("click", function (params) {
+      params.event = "[original event]";
+      //document.getElementById('eventSpan').innerHTML = '<h2>Click event:</h2>' + JSON.stringify(params, null, 4);
+
+      var id = params.nodes[0];
+      var node = nodes.get(id);
+      //document.getElementById('eventSpan2').innerHTML = '<h2>Node info:</h2>' + JSON.stringify(node, null, 4);
+      if (node.group === 'noService') {
+        nodes.update({id: id, group: 'hotspot'});
+        // Then update which nodes should be in group 'service'
+        updateConnectedNodes();
+      }
+      else if (node.group === 'hotspot') {
+        nodes.update({id: id, group: 'noService'});
+        // Then update which nodes should be in group 'service'
+        updateConnectedNodes();
+      }
+
+      checkForCompletion();
+
+      console.log(node);
+
+  });
+</script>
+
+<!-- <script src="../googleAnalytics.js"></script> -->
+</body>
+</html>
