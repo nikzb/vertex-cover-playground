@@ -7,6 +7,11 @@
 //   {id: 5, label: 'Node 5', group: 'noService', original: false},
 //   {id: 6, label: 'Node 6', group: 'noService', original: false}
 // ]);
+var coordsArray = [
+  [0,0],[2,0],[3,0],[4,0],[4,2],[4,3],[4,4],[3,4],[2,4],[1,4],[0,4],[0,3],[0,2],
+  [1,2],[1,1],[2,1],[3,1],[3,2],[3,3],[2,3],[2,2]
+];
+var scaleFactor = 200;
 
 var nodesArray = [];
 var originals = [6, 12, 15, 17, 20];
@@ -16,8 +21,19 @@ for (var i = 1; i <= 21; i++) {
     isOriginal = true;
     console.log(i);
   }
-  nodesArray.push({id: i, group: 'noService', label: i, original: isOriginal});
+  nodesArray.push(
+    {
+      id: i,
+      group: 'noService',
+      label: i,
+      original: isOriginal,
+      x: coordsArray[i-1][0] * scaleFactor,
+      y: coordsArray[i-1][1] * scaleFactor
+    }
+  );
 }
+
+
 
 console.log(nodesArray);
 
@@ -182,7 +198,7 @@ var checkForCompletion = function() {
     // Display a message telling whether optimization is complete
     if (countHotspots() === optimalAnswer) {
       // Success!
-      document.querySelector('.optimal-message').innerHTML = 'You have found an optimal solution!';
+      document.querySelector('.optimal-message').innerHTML = 'You found an optimal solution!';
     }
     else {
       document.querySelector('.optimal-message').innerHTML = 'It is possible to use less hotspots. Try again. You can do it!';
