@@ -8,3 +8,8 @@ As of right now, it allows users to solve the main example problem that is inclu
 
 # In Development
 The main reason for this tool is to allow students to create their own vertex-cover problem and understand how it exemplifies a one-way function. This feature is currently in development.
+
+# License
+MIT License
+
+Uses Vis.js under MIT License
