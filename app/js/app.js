@@ -65,7 +65,8 @@ var options = {
       },
       borderWidth: 0,
       shadow:true,
-      fixed: true
+      fixed: true,
+      labelHighlightBold: false
   },
   edges: {
       width: 2,
@@ -73,7 +74,8 @@ var options = {
       color: {
         color: 'darkgrey'
         // inherit: 'both'
-      }
+      },
+      selectionWidth: 0
   },
   interaction:{
     // hover:true,
@@ -84,19 +86,22 @@ var options = {
       color: {
         background:'red',
         highlight: { background: 'red', border: 'red', borderWidth: 0 }
-      }
+      },
+      size:30
     },
     hotspot: {
       color: {
         background:'orange',
         highlight: { background: 'orange', border: 'orange', borderWidth: 0 }
       },
+      size:37
     },
     service: {
       color: {
         background:'yellow',
         highlight: { background: 'yellow', border: 'yellow', borderWidth: 0 }
-      }
+      },
+      size:30
     }
   }
 
@@ -180,7 +185,7 @@ var checkForCompletion = function() {
       document.querySelector('.optimal-message').innerHTML = 'You have found an optimal solution!';
     }
     else {
-      document.querySelector('.optimal-message').innerHTML = 'You can further optimize the solution. Keep at it, you can do it!';
+      document.querySelector('.optimal-message').innerHTML = 'It is possible to use less hotspots. Try again. You can do it!';
     }
   }
   else {
@@ -217,4 +222,5 @@ network.on("click", function (params) {
 document.querySelector('button[name="reset"]').addEventListener("click", function() {
   resetAllNodes();
   updateHotspotCount();
+  document.querySelector('.optimal-message').innerHTML = '';
 });

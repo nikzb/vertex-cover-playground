@@ -15,7 +15,9 @@ body {
   /*background-image: linear-gradient(220deg, rgba(235,235,235,1) 0%, rgba(245,245,245,1) 100%);*/
 }
 
-
+.title, .to-do {
+  text-shadow: 0.05em 0.05em #DDD;
+}
 
 .main-wrap {
   display: flex;
@@ -72,10 +74,15 @@ button[name='reset'] {
   font-size: 1.5em;
 }
 
+.optimal-message {
+  font-size: 2em;
+}
+
 .guide-wrap {
   display: flex;
   flex-direction: column;
   flex: 0 0 30%;
+  margin: 50px 20px 20px 20px;
 }
 
 .guide-wrap li {
@@ -85,12 +92,46 @@ button[name='reset'] {
 
 .to-do {
   font-style: italic;
-  padding: 20px 20px;
+  padding: 10px;
   font-weight: normal;
+  font-size: 1.5em;
+
   border: 3px inset darkgrey;
 }
 
+.circle {
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+}
 
+.circle.no-service {
+  background: red;
+}
+
+.circle.hotspot {
+  background: orange;
+}
+
+.circle.service {
+  background: yellow;
+}
+
+.key-wrap {
+  display: flex;
+  padding: 0 20px;
+  background-image: linear-gradient(300deg, #D8D8D8, #EEEEEE);
+  border: 1px solid darkgray;
+}
+
+.key li {
+  display: flex;
+  align-items: center;
+}
+
+li > span {
+  margin-left: 15px;
+}
 
 
 /*.instruct-wrap {
