@@ -15,6 +15,10 @@ body {
   /*background-image: linear-gradient(220deg, rgba(235,235,235,1) 0%, rgba(245,245,245,1) 100%);*/
 }
 
+li {
+  list-style-type: none;
+}
+
 .title, .to-do {
   text-shadow: 0.05em 0.05em #DDD;
 }
@@ -104,6 +108,10 @@ button[name='reset'] {
 
 .challenge-wrap > .title {
   margin-top: 5px;
+}
+
+ul.challenge-details, ul.instruct-details {
+  padding-left: 20px;
 }
 
 .to-do {
