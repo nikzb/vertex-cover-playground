@@ -15,6 +15,7 @@ var scaleFactor = 200;
 
 var nodesArray = [];
 var originals = [6, 12, 15, 17, 20];
+
 for (var i = 1; i <= 21; i++) {
   var isOriginal = false;
   if (originals.includes(i)) {
@@ -32,8 +33,6 @@ for (var i = 1; i <= 21; i++) {
     }
   );
 }
-
-
 
 console.log(nodesArray);
 
@@ -123,9 +122,10 @@ var options = {
 
 };
 
-console.log(container);
-console.log(data);
-console.log(options);
+// console.log(container);
+// console.log(data);
+// console.log(options);
+
 var network = new vis.Network(container, data, options);
 
 var updateConnectedNodes = function() {

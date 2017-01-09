@@ -1,0 +1,492 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <title>Network | Manipulation</title>
+
+  <style type="text/css">
+    body, select {
+      font: 10pt sans;
+    }
+    #mynetwork {
+      position:relative;
+      width: 800px;
+      height: 600px;
+      border: 1px solid lightgray;
+    }
+    table.legend_table {
+      font-size: 11px;
+      border-width:1px;
+      border-color:#d3d3d3;
+      border-style:solid;
+    }
+    table.legend_table,td {
+      border-width:1px;
+      border-color:#d3d3d3;
+      border-style:solid;
+      padding: 2px;
+    }
+    div.table_content {
+      width:80px;
+      text-align:center;
+    }
+    div.table_description {
+      width:100px;
+    }
+
+    #operation {
+      font-size:28px;
+    }
+
+  </style>
+  <!-- <script type="text/javascript" src="./exampleUtil.js"></script> -->
+  <script type="text/javascript" src="../node_modules/vis/dist/vis.js"></script>
+  <!-- <script type="text/javascript" src="../node_modules/lodash/lodash.js"></script> -->
+  <link href="../node_modules/vis/dist/vis-network.min.css" rel="stylesheet" type="text/css" />
+
+  <script type="text/javascript">
+    var nodes = null;
+    var edges = null;
+    var network = null;
+
+    // Stages are
+      // 1: add-hotspots
+      // 2: add-serviced-nodes
+      // 3: make-clusters
+      // 4: connect-clusters
+      // 5: finished
+    var stage = 'add-hotspots';
+    var options;
+
+    function updateNetworkOptions() {
+
+      network.setOptions(options);
+    }
+
+    function setUpOptionsForAddHotspots() {
+      options.manipulation.addNode = getAddNodeFunc('hotspot');
+      options.manipulation.addEdge = false;
+      options.manipulation.deleteNode = true;
+      updateNetworkOptions();
+      network.addNodeMode();
+    }
+
+    function setUpOptionsForAddServicedNodes() {
+      options.manipulation.addNode = getAddNodeFunc('service');
+      options.manipulation.addEdge = false;
+      options.manipulation.deleteNode = true;
+      updateNetworkOptions();
+      network.addNodeMode();
+    }
+
+    function setUpOptionsForMakeClusters() {
+      options.manipulation.addNode = false;
+      options.manipulation.deleteNode = false;
+      options.manipulation.editEdge = false;
+      options.manipulation.addEdge = function (data, callback) {
+        // Need to ensure that new edge connects a lonely service node to a hotspot
+        var from = nodes.get(data.from);
+        var to = nodes.get(data.to);
+
+        if (from.group !== to.group) { // data.from != data.to
+          console.log('Nodes not in same group');
+          var serviceNode;
+          var hotspot;
+          if (from.group === 'service') {
+            serviceNode = from;
+            hotspot = to;
+          }
+          else {
+            serviceNode = to;
+            hotspot = from;
+          }
+          if (serviceNode.connectedToWithinCluster.length === 0) {
+            serviceNode.connectedToWithinCluster.push(hotspot);
+            hotspot.connectedToWithinCluster.push(serviceNode);
+            callback(data);
+            network.addEdgeMode();
+          }
+        }
+      };
+      updateNetworkOptions();
+      network.addEdgeMode();
+    }
+
+    function setUpOptionsForConnectClusters() {
+      options.manipulation.addNode = false;
+      options.manipulation.deleteNode = false;
+      options.manipulation.editEdge = false;
+      options.manipulation.addEdge = function (data, callback) {
+        // Need to ensure that new edge connects a lonely service node to a hotspot
+        var from = nodes.get(data.from);
+        var to = nodes.get(data.to);
+
+        if (data.to !== data.from &&
+            from.group === 'service' &&
+            to.group === 'service' &&
+            !InSameCluster(from, to)) { // data.from != data.to
+          console.log('Nodes are service nodes and not in the same cluster');
+          data.dashes = 'true';
+          callback(data);
+          network.addEdgeMode();
+        }
+      };
+      updateNetworkOptions();
+      network.addEdgeMode();
+    }
+
+    function InSameCluster(nodeA, nodeB) {
+      console.log("Node A");
+      console.log(nodeA);
+      console.log("Node B");
+      console.log(nodeB);
+      console.log("Hotspot");
+      console.log(nodeA.connectedToWithinCluster[0]);
+      var hotspot = nodeA.connectedToWithinCluster[0];
+
+      for (var i = 0; i < hotspot.connectedToWithinCluster.length; i += 1) {
+        console.log(hotspot.connectedToWithinCluster[i].id === nodeB.id);
+        if (hotspot.connectedToWithinCluster[i].id === nodeB.id) {
+          return true;
+        }
+      }
+
+      return false;
+    }
+
+    function setUpOptionsForFinished() {
+      options.manipulation.addNode = false;
+      options.manipulation.deleteNode = false;
+      options.manipulation.editEdge = false;
+      options.manipulation.addEdge = false;
+      options.manipulation.deleteEdge = false;
+      updateNetworkOptions();
+
+    }
+
+    function goToNextStage() {
+      if (stage === 'add-hotspots') {
+        stage = 'add-serviced-nodes';
+        setUpOptionsForAddServicedNodes();
+      } else if (stage === 'add-serviced-nodes') {
+        stage = 'make-clusters';
+        setUpOptionsForMakeClusters();
+      } else if (stage === 'make-clusters') {
+        stage = 'connect-clusters';
+        setUpOptionsForConnectClusters();
+      } else if (stage === 'connect-clusters') {
+        stage = 'finished';
+        setUpOptionsForFinished();
+      } else if (stage === 'finished') {
+        setUpProblem();
+      }
+      console.log(stage);
+    }
+
+    function goToPrevStage() {
+      if (stage === 'add-serviced-nodes') {
+        stage = 'add-hotspots';
+        setUpOptionsForAddHotspots();
+      } else if (stage === 'make-clusters') {
+        stage = 'add-serviced-nodes';
+        setUpOptionsForAddServicedNodes();
+      } else if (stage === 'connect-clusters') {
+        stage = 'make-clusters';
+        setUpOptionsForMakeClusters();
+      } else if (stage === 'finished') {
+        stage = 'connect-clusters';
+        setUpOptionsForConnectClusters();
+      }
+      console.log(stage);
+    }
+
+    function getAddNodeFunc(group) {
+      return function (data, callback) {
+        data.label = '';
+        data.original = (group === 'hotspot');
+        data.group = group;
+        data.connectedToWithinCluster = [];
+        callback(data);
+        network.addNodeMode();
+      }
+    }
+
+    function draw() {
+      // Create a network
+
+      var container = document.getElementById('mynetwork');
+
+      options = {
+        manipulation: {
+          // enabled: true, //set to false to hide edit button
+          // initiallyActive: true,
+          addNode: getAddNodeFunc('hotspot'),
+          addEdge: false,
+          deleteNode: true,
+        },
+        groups: {
+          useDefaultGroups: false,
+          hotspot: {
+            color: {
+              background:'black',
+              highlight: { background: 'orange', border: 'lightskyblue', borderWidth: 4 }
+            },
+            border: 'black',
+            size:20
+          },
+          service: {
+            color: {
+              background:'white',
+              border:'black',
+              highlight: { background: 'yellow', border: 'lightskyblue', borderWidth: 4 }
+            },
+            size:20
+          }
+        },
+        edges: {
+          smooth: {
+            type: 'continuous',
+            forceDirection: 'none',
+            roundness: 0
+          }
+        },
+        physics: {
+          enabled: false
+        }
+      };
+
+      nodes = new vis.DataSet();
+      edges = new vis.DataSet();
+
+      data = {
+          nodes: nodes,
+          edges: edges
+      };
+
+      network = new vis.Network(container, data, options);
+
+      network.on("dragEnd", function (params) {
+        console.log('drag end');
+        console.log(JSON.stringify(params,null,4));
+
+        console.log(JSON.stringify(data, null, 4));
+
+        // id of node that was moved
+        // params.nodes[0]
+
+        // new location
+        // params.pointer.canvas //.x and .y
+
+          // params.event = "[original event]";
+          // document.getElementById('eventSpan').innerHTML = '<h2>dragEnd event:</h2>' + JSON.stringify(params, null, 4);
+      });
+
+      console.log('Network has been initialized');
+      network.addNodeMode();
+    }
+
+    function setUpProblem() {
+
+      var container = document.getElementById('mynetwork');
+
+      var optimalAnswer = nodes.get().reduce(function(total, node) {
+        return node.original ? total + 1 : total;
+      }, 0);
+
+      options = {
+        nodes: {
+            shape: 'dot',
+            size: 30,
+            font: {
+                size: 32
+            },
+            borderWidth: 0,
+            shadow:true,
+            fixed: true,
+            labelHighlightBold: false
+        },
+        edges: {
+            width: 2,
+            shadow:false,
+            color: {
+              color: 'darkgrey'
+              // inherit: 'both'
+            },
+            selectionWidth: 0
+        },
+        interaction:{
+          // hover:true,
+        },
+        groups: {
+          useDefaultGroups: false,
+          noService: {
+            color: {
+              background:'red',
+              highlight: { background: 'red', border: 'red', borderWidth: 0 }
+            },
+            size:30
+          },
+          hotspot: {
+            color: {
+              background:'orange',
+              highlight: { background: 'orange', border: 'orange', borderWidth: 0 }
+            },
+            size:37
+          },
+          service: {
+            color: {
+              background:'yellow',
+              highlight: { background: 'yellow', border: 'yellow', borderWidth: 0 }
+            },
+            size:30
+          }
+        }
+      };
+
+      network = new vis.Network(container, data, options);
+
+      var updateConnectedNodes = function() {
+        // Reset all serviced nodes to nodes to unserviced
+        nodes.forEach(function(node) {
+          if (node.group === 'service') {
+            node.group = 'noService';
+            nodes.update(node);
+          }
+        });
+
+        // Find all the hotspot nodes and have them service all the connected non-hotspot nodes
+        nodes.forEach(function(node) {
+          if (node.group === 'hotspot') {
+            console.log(`found hotspot at node ${node.id}`);
+            edges.forEach(function(edge) {
+              var servicedId = 0;
+              if (edge.from === node.id) {
+                servicedId = edge.to;
+              }
+              else if (edge.to === node.id) {
+                servicedId = edge.from;
+              }
+              console.log(`Serviced ID: ${servicedId}`);
+              if (servicedId) {
+                var servicedNode = nodes.get(servicedId);
+                console.log(`Before: ${servicedNode.group}`);
+                if (servicedNode.group === 'noService') {
+                  servicedNode.group = 'service';
+                  nodes.update(servicedNode);
+                }
+                console.log(`After: ${servicedNode.group}`);
+              }
+            });
+          }
+        });
+      }
+
+      var resetAllNodes = function() {
+        nodes.forEach(function(node) {
+          node.group = 'noService';
+          nodes.update(node);
+        });
+      }
+
+      var allNodesHaveWifi = function() {
+        return nodes.get().every(function(node) {
+          return node.group !== 'noService';
+        });
+      }
+
+      var countHotspots = function() {
+        var hotspots = 0;
+
+        nodes.forEach(function(node) {
+          if (node.group === 'hotspot') {
+            hotspots += 1;
+          }
+        });
+
+        return hotspots;
+      }
+
+      var updateHotspotCount = function() {
+        document.querySelector('.hotspot-count').innerHTML = countHotspots();
+      }
+
+      var checkForCompletion = function() {
+        if (allNodesHaveWifi()) {
+          // Display a message telling whether optimization is complete
+          if (countHotspots() === optimalAnswer) {
+            // Success!
+            document.querySelector('.optimal-message').innerHTML = 'You found an optimal solution!';
+          }
+          else {
+            document.querySelector('.optimal-message').innerHTML = 'It is possible to use less hotspots. Try again. You can do it!';
+          }
+        }
+        else {
+          document.querySelector('.optimal-message').innerHTML = '';
+        }
+      }
+
+      network.on("click", function (params) {
+          params.event = "[original event]";
+          //document.getElementById('eventSpan').innerHTML = '<h2>Click event:</h2>' + JSON.stringify(params, null, 4);
+
+          var id = params.nodes[0];
+          var node = nodes.get(id);
+          //document.getElementById('eventSpan2').innerHTML = '<h2>Node info:</h2>' + JSON.stringify(node, null, 4);
+          if (node.group === 'noService') {
+            nodes.update({id: id, group: 'hotspot'});
+            updateHotspotCount();
+            // Then update which nodes should be in group 'service'
+            updateConnectedNodes();
+          }
+          else if (node.group === 'hotspot') {
+            nodes.update({id: id, group: 'noService'});
+            // Then update which nodes should be in group 'service'
+            updateHotspotCount();
+            updateConnectedNodes();
+          }
+
+          checkForCompletion();
+
+          console.log(node);
+
+      });
+
+    }
+
+    function init() {
+      document.querySelector('button[name="next"]').addEventListener('click', goToNextStage);
+      document.querySelector('button[name="prev"]').addEventListener('click', goToPrevStage);
+
+      draw();
+    }
+
+    /* To Do
+
+    -Integration
+      -When the user created graph is created, the options must be set as follows:
+        -All nodes put in group 'no-service'
+        -All edges must have options that have solid lines
+
+    -Try turning off physics / animations
+      -See if you can manually adjust positions to your liking
+
+    -Add proper deleteNode functions
+    -Add proper deleteEdge functions
+
+    -
+
+    */
+
+  </script>
+  <!-- <script src="../../googleAnalytics.js"></script> -->
+</head>
+
+<body onload="init();">
+
+<div id="mynetwork"></div>
+<button type="button" name="next">Next</button>
+<button type="button" name="prev">Prev</button>
+
+</body>
+</html>
