@@ -91,6 +91,10 @@ button[name='reset'] {
   border: 1px solid lightgray;
 }
 
+button:focus {
+  outline: none;
+}
+
 .button-wrap {
   display: flex;
 }

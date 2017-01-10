@@ -60,9 +60,9 @@ function populateStageInstructions() {
   stageInstructions[3] = `
     <h2 class='step-label'>Step <span class='step-number'>3</span>: Make Clusters</h2>
     <ul class='instruct-details'>
-      <li>Click a white node and drag to connect it to a black node.</li>
-      <li>Each white node should be connected to exactly one black node to form clusters.</li>
-      <li>Black nodes can be connected to multiple white nodes.</li>
+      <li>Click the white nodes and drag to connect them to a black node.</li>
+      <li>Each white node should be connected to exactly one black node.</li>
+      <li>Black nodes can be connected to multiple white nodes to form a cluster of nodes.</li>
     </ul>
   `
 
@@ -71,13 +71,15 @@ function populateStageInstructions() {
     <ul class='instruct-details'>
       <li>Connect white nodes from difference clusters.</li>
       <li>You can connect nodes to multiple other nodes, as long as they are from different clusters.</li>
+      <li>You will be able to adjust the positions of the nodes in the next step</li>
     </ul>
   `
 
   stageInstructions[5] = `
     <h2 class='step-label'>Step <span class='step-number'>5</span>: Finish Up</h2>
     <ul class='instruct-details'>
-      <li>Click Next to create your puzzle!</li>
+      <li>Ajdust the final positioning of the nodes.</li>
+      <li>Then click Next to create your puzzle!</li>
     </ul>
   `
 
@@ -111,7 +113,7 @@ function setUpOptionsForAddHotspots() {
   options.manipulation.addNode = getAddNodeFunc('hotspot');
   options.manipulation.addEdge = false;
   options.manipulation.deleteNode = true;
-  options.manipulation.enabled = true;
+  // options.manipulation.enabled = true;
   updateNetworkOptions();
   network.addNodeMode();
 }
@@ -205,6 +207,21 @@ function setUpOptionsForFinished() {
 
 }
 
+function removeLonelyNodes() {
+  var i = 0;
+
+  var nodesArray = nodes.get();
+
+  while (i < nodesArray.length) {
+    if (nodesArray[i].connectedToWithinCluster.length === 0) {
+      nodes.remove(nodesArray[i].id);
+      console.log(nodesArray.length);
+    }
+    i++;
+  }
+
+}
+
 function goToNextStage() {
   if (stage === 'intro') {
     stage = 'add-hotspots';
@@ -215,16 +232,19 @@ function goToNextStage() {
     stage = 'add-serviced-nodes';
     setUpOptionsForAddServicedNodes();
     instruct.innerHTML = stageInstructions[2];
+    prevButton.style.visibility = 'visible';
   } else if (stage === 'add-serviced-nodes') {
     stage = 'make-clusters';
     setUpOptionsForMakeClusters();
     instruct.innerHTML = stageInstructions[3];
   } else if (stage === 'make-clusters') {
     stage = 'connect-clusters';
+    removeLonelyNodes();
     setUpOptionsForConnectClusters();
     instruct.innerHTML = stageInstructions[4];
   } else if (stage === 'connect-clusters') {
     stage = 'finished';
+    removeLonelyNodes();
     setUpOptionsForFinished();
     instruct.innerHTML = stageInstructions[5];
   } else if (stage === 'finished') {
@@ -236,7 +256,6 @@ function goToNextStage() {
     instruct.innerHTML = stageInstructions[6];
     instructDiv.querySelector('.title').textContent = 'Instructions';
     hotspotCountDiv.style.visibility = 'visible';
-
   }
   console.log(stage);
 }
@@ -245,15 +264,20 @@ function goToPrevStage() {
   if (stage === 'add-serviced-nodes') {
     stage = 'add-hotspots';
     setUpOptionsForAddHotspots();
+    instruct.innerHTML = stageInstructions[1];
+    prevButton.style.visibility = 'hidden';
   } else if (stage === 'make-clusters') {
     stage = 'add-serviced-nodes';
     setUpOptionsForAddServicedNodes();
+    instruct.innerHTML = stageInstructions[2];
   } else if (stage === 'connect-clusters') {
     stage = 'make-clusters';
     setUpOptionsForMakeClusters();
+    instruct.innerHTML = stageInstructions[3];
   } else if (stage === 'finished') {
     stage = 'connect-clusters';
     setUpOptionsForConnectClusters();
+    instruct.innerHTML = stageInstructions[4];
   }
   console.log(stage);
 }
@@ -288,6 +312,7 @@ function draw() {
       hotspot: {
         color: {
           background:'black',
+          border: 'black',
           highlight: { background: 'orange', border: 'lightskyblue', borderWidth: 4 }
         },
         border: 'black',
@@ -507,13 +532,13 @@ function setUpProblem() {
       var id = params.nodes[0];
       var node = nodes.get(id);
       //document.getElementById('eventSpan2').innerHTML = '<h2>Node info:</h2>' + JSON.stringify(node, null, 4);
-      if (node.group === 'noService') {
+      if (node.group !== 'hotspot') {
         nodes.update({id: id, group: 'hotspot'});
         updateHotspotCount(nodes);
         // Then update which nodes should be in group 'service'
         updateConnectedNodes(nodes, edges);
       }
-      else if (node.group === 'hotspot') {
+      else {// f (node.group === 'hotspot') {
         nodes.update({id: id, group: 'noService'});
         // Then update which nodes should be in group 'service'
         updateHotspotCount(nodes);
