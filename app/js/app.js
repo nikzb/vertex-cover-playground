@@ -205,24 +205,25 @@ var checkForCompletion = function() {
 network.on("click", function (params) {
     params.event = "[original event]";
     //document.getElementById('eventSpan').innerHTML = '<h2>Click event:</h2>' + JSON.stringify(params, null, 4);
+    if (params.nodes.length > 0) {
+      var id = params.nodes[0];
+      var node = nodes.get(id);
+      //document.getElementById('eventSpan2').innerHTML = '<h2>Node info:</h2>' + JSON.stringify(node, null, 4);
+      if (node.group !== 'hotspot') {
+        nodes.update({id: id, group: 'hotspot'});
+        updateHotspotCount();
+        // Then update which nodes should be in group 'service'
+        updateConnectedNodes();
+      }
+      else if (node.group === 'hotspot') {
+        nodes.update({id: id, group: 'noService'});
+        // Then update which nodes should be in group 'service'
+        updateHotspotCount();
+        updateConnectedNodes();
+      }
 
-    var id = params.nodes[0];
-    var node = nodes.get(id);
-    //document.getElementById('eventSpan2').innerHTML = '<h2>Node info:</h2>' + JSON.stringify(node, null, 4);
-    if (node.group !== 'hotspot') {
-      nodes.update({id: id, group: 'hotspot'});
-      updateHotspotCount();
-      // Then update which nodes should be in group 'service'
-      updateConnectedNodes();
+      checkForCompletion();
     }
-    else if (node.group === 'hotspot') {
-      nodes.update({id: id, group: 'noService'});
-      // Then update which nodes should be in group 'service'
-      updateHotspotCount();
-      updateConnectedNodes();
-    }
-
-    checkForCompletion();
 });
 
 document.querySelector('button[name="reset"]').addEventListener("click", function() {
