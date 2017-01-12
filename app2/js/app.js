@@ -92,14 +92,11 @@ function populateStageInstructions() {
 }
 
 function resetPuzzleBuilder() {
-  console.log('reset puzzle buider');
-  console.log(network);
   network.destroy();
   nodes = new vis.DataSet();
   edges = new vis.DataSet();
   data = {nodes: nodes, edges, edges};
   network = new vis.Network(container, data, options);
-  console.log(network);
   stage = 'add-hotspots';
   instruct.innerHTML = stageInstructions[1];
   prevButton.style.visibility = 'hidden';
@@ -137,8 +134,7 @@ function setUpOptionsForMakeClusters() {
     var from = nodes.get(data.from);
     var to = nodes.get(data.to);
 
-    if (from.group !== to.group) { // data.from != data.to
-      console.log('Nodes not in same group');
+    if (from.group !== to.group) {
       var serviceNode;
       var hotspot;
       if (from.group === 'service') {
@@ -173,10 +169,8 @@ function setUpOptionsForConnectClusters() {
     if (data.to !== data.from &&
         from.group === 'service' &&
         to.group === 'service' &&
-        !InSameCluster(from, to)) { // data.from != data.to
-      console.log('Nodes are service nodes and not in the same cluster');
+        !InSameCluster(from, to)) {
       data.dashes = 'true';
-      console.log(data);
       callback(data);
       network.addEdgeMode();
     }
@@ -190,7 +184,6 @@ function InSameCluster(nodeA, nodeB) {
   var hotspot = nodeA.connectedToWithinCluster[0];
 
   for (var i = 0; i < hotspot.connectedToWithinCluster.length; i += 1) {
-    console.log(hotspot.connectedToWithinCluster[i].id === nodeB.id);
     if (hotspot.connectedToWithinCluster[i].id === nodeB.id) {
       return true;
     }
@@ -217,7 +210,6 @@ function removeLonelyNodes() {
   while (i < nodesArray.length) {
     if (nodesArray[i].connectedToWithinCluster.length === 0) {
       nodes.remove(nodesArray[i].id);
-      console.log(nodesArray.length);
     }
     i++;
   }
@@ -250,16 +242,14 @@ function goToNextStage() {
     setUpOptionsForFinished();
     instruct.innerHTML = stageInstructions[5];
   } else if (stage === 'finished') {
-
-    setUpProblem();
     challengeDiv.style.display = 'initial';
     buttonDiv.style.display = 'none';
     keyDiv.style.display = 'initial';
     instruct.innerHTML = stageInstructions[6];
     instructDiv.querySelector('.title').textContent = 'Instructions';
     hotspotCountDiv.style.visibility = 'visible';
+    setUpProblem();
   }
-  console.log(stage);
 }
 
 function goToPrevStage() {
@@ -281,7 +271,6 @@ function goToPrevStage() {
     setUpOptionsForConnectClusters();
     instruct.innerHTML = stageInstructions[4];
   }
-  console.log(stage);
 }
 
 function getAddNodeFunc(group) {
@@ -369,19 +358,13 @@ function setUpProblem() {
     return node.original ? total + 1 : total;
   }, 0);
 
-  // nodes.forEach(function(node) {
-  //   console.log(node);
-  //   node.group = 'noService';
-  //   nodes.update(node);
-  // });
-
   options = {
     nodes: {
         shape: 'dot',
         size: 15,
-        font: {
-            size: 32
-        },
+        // font: {
+        //     size: 32
+        // },
         borderWidth: 0,
         shadow:true,
         fixed: true,
@@ -454,7 +437,6 @@ function setUpProblem() {
     // Find all the hotspot nodes and have them service all the connected non-hotspot nodes
     nodes.forEach(function(node) {
       if (node.group === 'hotspot') {
-        console.log(`found hotspot at node ${node.id}`);
         edges.forEach(function(edge) {
           var servicedId = 0;
           if (edge.from === node.id) {
@@ -463,15 +445,15 @@ function setUpProblem() {
           else if (edge.to === node.id) {
             servicedId = edge.from;
           }
-          console.log(`Serviced ID: ${servicedId}`);
+
           if (servicedId) {
             var servicedNode = nodes.get(servicedId);
-            console.log(`Before: ${servicedNode.group}`);
+
             if (servicedNode.group === 'noService') {
               servicedNode.group = 'service';
               nodes.update(servicedNode);
             }
-            console.log(`After: ${servicedNode.group}`);
+
           }
         });
       }
@@ -554,7 +536,6 @@ function setUpProblem() {
   });
 
   function resetPuzzle() {
-    console.log('reset puzzle');
     resetAllNodes(nodes);
     updateHotspotCount(nodes);
     document.querySelector('.optimal-message').innerHTML = '';

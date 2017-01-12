@@ -209,7 +209,7 @@ network.on("click", function (params) {
     var id = params.nodes[0];
     var node = nodes.get(id);
     //document.getElementById('eventSpan2').innerHTML = '<h2>Node info:</h2>' + JSON.stringify(node, null, 4);
-    if (node.group === 'noService') {
+    if (node.group !== 'hotspot') {
       nodes.update({id: id, group: 'hotspot'});
       updateHotspotCount();
       // Then update which nodes should be in group 'service'
