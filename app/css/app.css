@@ -129,6 +129,7 @@ ul.challenge-details, ul.instruct-details {
   border-radius: 50%;
   width: 40px;
   height: 40px;
+  flex: 0 0 40px;
 }
 
 .circle.no-service {
@@ -163,10 +164,32 @@ li > span {
   margin-left: 15px;
 }
 
+@media all and (max-width: 800px) {
+  .second-wrap {
+    flex-direction: column;
+  }
 
+  .guide-wrap {
+    order: -1;
+  }
 
+  ul.key {
+    display: flex;
+    padding: 0;
+  }
 
-/*.instruct-wrap {
-  display: flex;
-  flex-direction: column;
-}*/
+  .circle {
+    margin-left: 20px;
+  }
+
+  .main-header > .title {
+    margin: auto;
+  }
+
+  /* To Do:
+
+   Make Challenge and Instructions be able to be clicked to toggle it out of view
+
+   */
+
+}
