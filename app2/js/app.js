@@ -50,9 +50,9 @@ function populateStageInstructions() {
   `
 
   stageInstructions[2] = `
-    <h2 class='step-label'>Step <span class='step-number'>2</span>: Add More Nodes</h2>
+    <h2 class='step-label'>Step <span class='step-number'>2</span>: Add The Remaining Nodes</h2>
     <ul class='instruct-details'>
-      <li>Click in the graph canvas to add additional nodes.</li>
+      <li>Click in the graph canvas to add the nodes that will receive service from the hotspots.</li>
       <li>You will connect the nodes in the next steps.</li>
     </ul>
   `
@@ -69,9 +69,9 @@ function populateStageInstructions() {
   stageInstructions[4] = `
     <h2 class='step-label'>Step <span class='step-number'>4</span>: Connect the Clusters</h2>
     <ul class='instruct-details'>
-      <li>Connect white nodes from difference clusters.</li>
+      <li>Connect white nodes from different clusters.</li>
       <li>You can connect nodes to multiple other nodes, as long as they are from different clusters.</li>
-      <li>You will be able to adjust the positions of the nodes in the next step</li>
+      <li>You will be able to adjust the positions of the nodes in the next step.</li>
     </ul>
   `
 
@@ -101,6 +101,8 @@ function resetPuzzleBuilder() {
   network = new vis.Network(container, data, options);
   console.log(network);
   stage = 'add-hotspots';
+  instruct.innerHTML = stageInstructions[1];
+  prevButton.style.visibility = 'hidden';
   setUpOptionsForAddHotspots();
 
 }
@@ -248,7 +250,7 @@ function goToNextStage() {
     setUpOptionsForFinished();
     instruct.innerHTML = stageInstructions[5];
   } else if (stage === 'finished') {
-    // network.disableEditMode();
+
     setUpProblem();
     challengeDiv.style.display = 'initial';
     buttonDiv.style.display = 'none';
@@ -528,24 +530,26 @@ function setUpProblem() {
 
       params.event = "[original event]";
       //document.getElementById('eventSpan').innerHTML = '<h2>Click event:</h2>' + JSON.stringify(params, null, 4);
+      if (params.nodes.length > 0)
+      {
+        var id = params.nodes[0];
+        var node = nodes.get(id);
+        //document.getElementById('eventSpan2').innerHTML = '<h2>Node info:</h2>' + JSON.stringify(node, null, 4);
+        if (node.group !== 'hotspot') {
+          nodes.update({id: id, group: 'hotspot'});
+          updateHotspotCount(nodes);
+          // Then update which nodes should be in group 'service'
+          updateConnectedNodes(nodes, edges);
+        }
+        else {//f (node.group === 'hotspot') {
+          nodes.update({id: id, group: 'noService'});
+          // Then update which nodes should be in group 'service'
+          updateHotspotCount(nodes);
+          updateConnectedNodes(nodes, edges);
+        }
 
-      var id = params.nodes[0];
-      var node = nodes.get(id);
-      //document.getElementById('eventSpan2').innerHTML = '<h2>Node info:</h2>' + JSON.stringify(node, null, 4);
-      if (node.group !== 'hotspot') {
-        nodes.update({id: id, group: 'hotspot'});
-        updateHotspotCount(nodes);
-        // Then update which nodes should be in group 'service'
-        updateConnectedNodes(nodes, edges);
+        checkForCompletion(nodes);
       }
-      else {// f (node.group === 'hotspot') {
-        nodes.update({id: id, group: 'noService'});
-        // Then update which nodes should be in group 'service'
-        updateHotspotCount(nodes);
-        updateConnectedNodes(nodes, edges);
-      }
-
-      checkForCompletion(nodes);
 
   });
 
