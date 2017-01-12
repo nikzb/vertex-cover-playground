@@ -91,12 +91,28 @@ function populateStageInstructions() {
   `
 }
 
+function setUpDragFix() {
+  network.on("dragEnd", function (params) {
+    console.log(params.nodes);
+    if (params.nodes.length > 0) {
+      var nodeId = params.nodes[0];
+      var node = nodes.get(nodeId);
+      node.x = params.pointer.canvas.x;
+      node.y = params.pointer.canvas.y;
+      nodes.update(node);
+    }
+  });
+}
+
 function resetPuzzleBuilder() {
   network.destroy();
   nodes = new vis.DataSet();
   edges = new vis.DataSet();
   data = {nodes: nodes, edges, edges};
   network = new vis.Network(container, data, options);
+  setUpDragFix();
+
+
   stage = 'add-hotspots';
   instruct.innerHTML = stageInstructions[1];
   prevButton.style.visibility = 'hidden';
@@ -340,16 +356,8 @@ function draw() {
 
   network = new vis.Network(container, data, options);
 
-  network.on("dragEnd", function (params) {
+  setUpDragFix();
 
-    if (params.nodes.length > 0) {
-      var nodeId = params.nodes[0];
-      var node = nodes.get(nodeId);
-      node.x = params.pointer.canvas.x;
-      node.y = params.pointer.canvas.y;
-      nodes.update(node);
-    }
-  });
 }
 
 function setUpProblem() {
