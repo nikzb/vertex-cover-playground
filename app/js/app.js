@@ -9,24 +9,27 @@
 // ]);
 var coordsArray = [
   [0,0],[2,0],[3,0],[4,0],[4,2],[4,3],[4,4],[3,4],[2,4],[1,4],[0,4],[0,3],[0,2],
-  [1,2],[1,1],[2,1],[3,1],[3,2],[3,3],[2,3],[2,2]
+  [1,2],[1,1],[2,1],[3,1],[3,2],[3,3],[2,3],[2,2],[1,3]
 ];
+
+coordsArray = coordsArray.map(function(coords) {
+  return [coords[0] * 0.707 - coords[1] * -0.707, (coords[0] * -0.707 + coords[1] * 0.707) * 0.75];
+});
 var scaleFactor = 200;
 
 var nodesArray = [];
 var originals = [6, 12, 15, 17, 20];
 
-for (var i = 1; i <= 21; i++) {
+for (var i = 1; i <= coordsArray.length; i++) {
   var isOriginal = false;
   if (originals.includes(i)) {
     isOriginal = true;
-    console.log(i);
   }
   nodesArray.push(
     {
       id: i,
       group: 'noService',
-      label: i,
+      // label: i,
       original: isOriginal,
       x: coordsArray[i-1][0] * scaleFactor,
       y: coordsArray[i-1][1] * scaleFactor
@@ -34,20 +37,17 @@ for (var i = 1; i <= 21; i++) {
   );
 }
 
-console.log(nodesArray);
-
 var nodes = new vis.DataSet(nodesArray);
 
 var optimalAnswer = nodes.get().reduce(function(total, node) {
   return node.original ? total + 1 : total;
 }, 0);
 
-console.log(`Optimal: ${optimalAnswer}`);
-
 var edgePairs = [[1,2],[1,15],[1,13],[2,15],[2,3],[2,16],[3,4],[3,17],[5,18],
                  [5,6],[6,8],[6,7],[7,8],[8,9],[9,10],[9,20],[10,11],[10,12],
                  [11,12],[12,13],[13,14],[14,15],[14,21],[15,16],[16,21],
-                 [17,18],[18,19],[18,21],[19,20],[20,21],[4,5],[4,17]];
+                 [17,18],[18,19],[18,21],[19,20],[20,21],[4,5],[4,17],[12,22],
+                 [14,22]];
 
 var edgeArray = [];
 
@@ -119,12 +119,7 @@ var options = {
       size:30
     }
   }
-
 };
-
-// console.log(container);
-// console.log(data);
-// console.log(options);
 
 var network = new vis.Network(container, data, options);
 
@@ -140,7 +135,6 @@ var updateConnectedNodes = function() {
   // Find all the hotspot nodes and have them service all the connected non-hotspot nodes
   nodes.forEach(function(node) {
     if (node.group === 'hotspot') {
-      console.log(`found hotspot at node ${node.id}`);
       edges.forEach(function(edge) {
         var servicedId = 0;
         if (edge.from === node.id) {
@@ -149,15 +143,14 @@ var updateConnectedNodes = function() {
         else if (edge.to === node.id) {
           servicedId = edge.from;
         }
-        console.log(`Serviced ID: ${servicedId}`);
+
         if (servicedId) {
           var servicedNode = nodes.get(servicedId);
-          console.log(`Before: ${servicedNode.group}`);
+
           if (servicedNode.group === 'noService') {
             servicedNode.group = 'service';
             nodes.update(servicedNode);
           }
-          console.log(`After: ${servicedNode.group}`);
         }
       });
     }
@@ -230,9 +223,6 @@ network.on("click", function (params) {
     }
 
     checkForCompletion();
-
-    console.log(node);
-
 });
 
 document.querySelector('button[name="reset"]').addEventListener("click", function() {
