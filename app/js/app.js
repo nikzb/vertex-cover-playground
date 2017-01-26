@@ -79,7 +79,10 @@ var options = {
           size: 32
       },
       borderWidth: 0,
-      shadow:true,
+      shadow: {
+        enabled: true,
+        size: 3
+      },
       fixed: true,
       labelHighlightBold: false
   },
