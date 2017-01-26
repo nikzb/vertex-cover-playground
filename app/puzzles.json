@@ -2,20 +2,22 @@
   {
     "id":1,
     "size": "small",
-    "nodes": [
-      {"id": 1, "group": "noService", "original": false},
-      {"id": 2, "group": "noService", "original": true},
-      {"id": 3, "group": "noService", "original": true},
-      {"id": 4, "group": "noService", "original": false},
-      {"id": 5, "group": "noService", "original": false},
-      {"id": 6, "group": "noService", "original": false},
-    ],
-    "edges": [
-      {"from": 1, "to": 3},
-      {"from": 1, "to": 2},
-      {"from": 2, "to": 4},
-      {"from": 5, "to": 5},
-      {"from": 3, "to": 6}
-    ]
+    "graph": {
+      "nodes": [
+        {"id": 1, "group": "noService", "original": false},
+        {"id": 2, "group": "noService", "original": true},
+        {"id": 3, "group": "noService", "original": true},
+        {"id": 4, "group": "noService", "original": false},
+        {"id": 5, "group": "noService", "original": false},
+        {"id": 6, "group": "noService", "original": false},
+      ],
+      "edges": [
+        {"from": 1, "to": 3},
+        {"from": 1, "to": 2},
+        {"from": 2, "to": 4},
+        {"from": 5, "to": 5},
+        {"from": 3, "to": 6}
+      ]
+    }
   }
 ]
