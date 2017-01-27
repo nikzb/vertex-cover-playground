@@ -13,6 +13,7 @@
   "dependencies": {
     "body-parser": "^1.16.0",
     "express": "^4.14.0",
+    "hbs": "^4.0.1",
     "mongodb": "^2.2.22",
     "mongoose": "^4.7.8",
     "vis": "^4.17.0"

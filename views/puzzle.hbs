@@ -5,18 +5,15 @@
 
   <!-- Documentation for VisJS: http://visjs.org/ -->
 
-  <script type="text/javascript" src="./app2/node_modules/vis/dist/vis.js"></script>
-  <link href="./app2/node_modules/vis/dist/vis-network.min.css" rel="stylesheet" type="text/css" />
+  <script type="text/javascript" src="/node_modules/vis/dist/vis.js"></script>
+  <link href="/node_modules/vis/dist/vis-network.min.css" rel="stylesheet" type="text/css" />
 
-  <link href="./app2/css/app.css" rel="stylesheet" type="text/css" />
+  <link href="/css/app.css" rel="stylesheet" type="text/css" />
 </head>
-<body onload="init();">
+<body>
 
 <div class='main-wrap'>
-  <div class='main-header'>
-    <h1 class='title'>Wireless Hotspot Challenge</h1>
-    <nav class='main-nav'></nav>
-  </div>
+  {{> mainHeader}}
   <div class='second-wrap'>
     <div class='graph-wrap'>
       <div class='graph-header'>
@@ -30,7 +27,6 @@
       <h2 class='optimal-message'></h2>
     </div>
     <div class='guide-wrap'>
-
       <div class='challenge-wrap'>
         <h2 class='title'>The Challenge</h2>
         <div class='challenge'>
@@ -39,24 +35,18 @@
             <li>A hotspot can be placed at any node and will serve that node and all the nodes connected to it.</li>
           </ul>
           <h3 class='to-do'>Add enough hotspots to provide service to all the zones. Determine the minimum number of hotspots needed.</h3>
+
         </div>
       </div>
-
       <div class='instruct-wrap'>
-        <h2 class='title'>Creating a Wifi Hotspot Problem</h2>
-        <div class='button-wrap'>
-          <button class='steps' type="button" name="prev">Previous</button>
-          <button class='steps' type="button" name="next">Next</button>
-        </div>
+        <h2 class='title'>Instructions</h2>
         <div class='instruct'>
           <ul class='instruct-details'>
-            <li>It is relatively easy to create one of these problems.</li>
-            <li>It may be very difficult for someone else to solve your problem!</li>
+            <li>Click a node to add a hotspot. Click it again to remove it.</li>
+            <li>Only nodes that do not already have service can become hotspots.</li>
           </ul>
-          <h3 class='to-do'>Follow the instructions to create your own Wifi Hotspot Problem!</h3>
         </div>
       </div>
-
       <div class='key-wrap'>
         <h2 class='title'>Key</h2>
         <ul class='key'>
@@ -69,10 +59,7 @@
   </div>
 </div>
 
-<pre id="eventSpan"></pre>
-<pre id="eventSpan2"></pre>
-
-<script type="text/javascript" src="./app2/js/app.js"></script>
+<script type="text/javascript" src="/js/puzzle.js"></script>
 
 <!-- <script src="../googleAnalytics.js"></script> -->
 </body>

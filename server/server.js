@@ -1,6 +1,8 @@
 require('./config/config');
 
+const fp = require('path');
 const express = require('express');
+const hbs = require('hbs');
 const bodyParser = require('body-parser');
 const {ObjectID} = require('mongodb');
 
@@ -10,7 +12,19 @@ const {HotspotPuzzle} = require('./models/hotspotPuzzle');
 const app = express();
 const port = process.env.PORT;
 
+hbs.registerPartials(fp.join(__dirname, '/../views/partials'));
+app.set('view engine', 'hbs');
 app.use(bodyParser.json());
+console.log(__dirname);
+app.use(express.static(fp.join(__dirname, '/../public')));
+
+app.get('/create', (req, res) => {
+  res.render('create.hbs');
+});
+
+app.get('/', (req, res) => {
+  res.render('puzzle.hbs');
+});
 
 app.get('/hotspot/:code', (req, res) => {
   const code = req.params.code;
