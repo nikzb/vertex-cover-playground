@@ -18,6 +18,10 @@ app.use(bodyParser.json());
 console.log(__dirname);
 app.use(express.static(fp.join(__dirname, '/../public')));
 
+hbs.registerHelper('loadScriptWithPuzzleCode', () => {
+  return new hbs.SafeString('<script type="text/javascript" src="/js/puzzle.js"></script>');
+});
+
 app.get('/create', (req, res) => {
   res.render('create.hbs');
 });
@@ -26,9 +30,22 @@ app.get('/', (req, res) => {
   res.render('puzzle.hbs');
 });
 
+// Render a puzzle page with the puzzle that has the requested code
+app.get('/:code', (req, res) => {
+  const code = req.params.code;
+
+  // if not a valid code, render the puzzle not found page
+  return res.send('<h1>This puzzle does not exist!</h1>');
+
+  HotspotPuzzle.findOne({code}).then((puzzle) => {
+    if (!puzzle) {
+      return res.send('<h1>This puzzle does not exist!</h1>');
+    }
+  });
+});
+
 app.get('/hotspot/:code', (req, res) => {
   const code = req.params.code;
-  console.log(code);
 
   HotspotPuzzle.findOne({code}).then((puzzle) => {
     console.log(puzzle);

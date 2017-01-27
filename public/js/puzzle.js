@@ -7,53 +7,6 @@
 //   {id: 5, label: 'Node 5', group: 'noService', original: false},
 //   {id: 6, label: 'Node 6', group: 'noService', original: false}
 // ]);
-var coordsArray = [
-  [0,0],[2,0],[3,0],[4,0],[4,2],[4,3],[4,4],[3,4],[2,4],[1,4],[0,4],[0,3],[0,2],
-  [1,2],[1,1],[2,1],[3,1],[3,2],[3,3],[2,3],[2,2],[1,3]
-];
-
-coordsArray = coordsArray.map(function(coords) {
-  return [coords[0] * 0.707 - coords[1] * -0.707, (coords[0] * -0.707 + coords[1] * 0.707) * 0.75];
-});
-var scaleFactor = 200;
-
-var nodesArray = [];
-var originals = [6, 12, 15, 17, 20];
-
-for (var i = 1; i <= coordsArray.length; i++) {
-  var isOriginal = false;
-  if (originals.includes(i)) {
-    isOriginal = true;
-  }
-  nodesArray.push(
-    {
-      id: i,
-      group: 'noService',
-      // label: i,
-      original: isOriginal,
-      x: coordsArray[i-1][0] * scaleFactor,
-      y: coordsArray[i-1][1] * scaleFactor
-    }
-  );
-}
-
-var nodes = new vis.DataSet(nodesArray);
-
-var optimalAnswer = nodes.get().reduce(function(total, node) {
-  return node.original ? total + 1 : total;
-}, 0);
-
-var edgePairs = [[1,2],[1,15],[1,13],[2,15],[2,3],[2,16],[3,4],[3,17],[5,18],
-                 [5,6],[6,8],[6,7],[7,8],[8,9],[9,10],[9,20],[10,11],[10,12],
-                 [11,12],[12,13],[13,14],[14,15],[14,21],[15,16],[16,21],
-                 [17,18],[18,19],[18,21],[19,20],[20,21],[4,5],[4,17],[12,22],
-                 [14,22]];
-
-var edgeArray = [];
-
-edgePairs.forEach(function(edgePair) {
-  edgeArray.push({from: edgePair[0], to: edgePair[1]});
-});
 // create an array with edges - original small graph
 // var edges = new vis.DataSet([
 //   {from: 1, to: 3},
@@ -63,68 +16,143 @@ edgePairs.forEach(function(edgePair) {
 //   {from: 3, to: 6}
 // ]);
 
-var edges = new vis.DataSet(edgeArray);
+var nodes = null;
+var edges = null;
+var data = null;
+var options = null;
+var container = null;
+var network = null;
+var optimalAnswer = null;
 
-// create a network
-var container = document.querySelector('.graph');
-var data = {
-  nodes: nodes,
-  edges: edges
-};
-var options = {
-  nodes: {
-      shape: 'dot',
-      size: 30,
-      font: {
-          size: 32
-      },
-      borderWidth: 0,
-      shadow: {
-        enabled: true,
-        size: 3
-      },
-      fixed: true,
-      labelHighlightBold: false
-  },
-  edges: {
-      width: 2,
-      shadow:false,
-      color: {
-        color: 'darkgrey'
-        // inherit: 'both'
-      },
-      selectionWidth: 0
-  },
-  interaction:{
-    // hover:true,
-  },
-  groups: {
-    useDefaultGroups: false,
-    noService: {
-      color: {
-        background:'red',
-        highlight: { background: 'red', border: 'red', borderWidth: 0 }
-      },
-      size:30
-    },
-    hotspot: {
-      color: {
-        background:'orange',
-        highlight: { background: 'orange', border: 'orange', borderWidth: 0 }
-      },
-      size:37
-    },
-    service: {
-      color: {
-        background:'yellow',
-        highlight: { background: 'yellow', border: 'yellow', borderWidth: 0 }
-      },
-      size:30
+useDefaultPuzzle();
+
+function useDefaultPuzzle() {
+  var coordsArray = [
+    [0,0],[2,0],[3,0],[4,0],[4,2],[4,3],[4,4],[3,4],[2,4],[1,4],[0,4],[0,3],[0,2],
+    [1,2],[1,1],[2,1],[3,1],[3,2],[3,3],[2,3],[2,2],[1,3]
+  ];
+
+  coordsArray = coordsArray.map(function(coords) {
+    return [coords[0] * 0.707 - coords[1] * -0.707, (coords[0] * -0.707 + coords[1] * 0.707) * 0.75];
+  });
+  var scaleFactor = 200;
+
+  var nodeArray = [];
+  var originals = [6, 12, 15, 17, 20];
+
+  for (var i = 1; i <= coordsArray.length; i++) {
+    var isOriginal = false;
+    if (originals.includes(i)) {
+      isOriginal = true;
     }
+    nodeArray.push(
+      {
+        id: i,
+        group: 'noService',
+        // label: i,
+        original: isOriginal,
+        x: coordsArray[i-1][0] * scaleFactor,
+        y: coordsArray[i-1][1] * scaleFactor
+      }
+    );
   }
-};
 
-var network = new vis.Network(container, data, options);
+  var edgePairs = [[1,2],[1,15],[1,13],[2,15],[2,3],[2,16],[3,4],[3,17],[5,18],
+                   [5,6],[6,8],[6,7],[7,8],[8,9],[9,10],[9,20],[10,11],[10,12],
+                   [11,12],[12,13],[13,14],[14,15],[14,21],[15,16],[16,21],
+                   [17,18],[18,19],[18,21],[19,20],[20,21],[4,5],[4,17],[12,22],
+                   [14,22]];
+
+  var edgeArray = [];
+
+  edgePairs.forEach(function(edgePair) {
+    edgeArray.push({from: edgePair[0], to: edgePair[1]});
+  });
+
+  setUpNetwork(nodeArray, edgeArray);
+}
+
+function setUpNetwork(nodeArray, edgeArray) {
+  setUpData(nodeArray, edgeArray);
+  setUpContainer();
+  setUpOptions();
+  network = new vis.Network(container, data, options);
+  saveOptimalAnswer();
+}
+
+function saveOptimalAnswer() {
+  var optimalAnswer = nodes.get().reduce(function(total, node) {
+    return node.original ? total + 1 : total;
+  }, 0);
+}
+
+function setUpContainer() {
+  container = document.querySelector('.graph');
+}
+
+function setUpData(nodeArray, edgeArray) {
+  edges = new vis.DataSet(edgeArray);
+  nodes = new vis.DataSet(nodeArray);
+  data = {
+    nodes: nodes,
+    edges: edges
+  };
+}
+
+function setUpOptions() {
+  options = {
+    nodes: {
+        shape: 'dot',
+        size: 30,
+        font: {
+            size: 32
+        },
+        borderWidth: 0,
+        shadow: {
+          enabled: true,
+          size: 3
+        },
+        fixed: true,
+        labelHighlightBold: false
+    },
+    edges: {
+        width: 2,
+        shadow:false,
+        color: {
+          color: 'darkgrey'
+          // inherit: 'both'
+        },
+        selectionWidth: 0
+    },
+    interaction:{
+      // hover:true,
+    },
+    groups: {
+      useDefaultGroups: false,
+      noService: {
+        color: {
+          background:'red',
+          highlight: { background: 'red', border: 'red', borderWidth: 0 }
+        },
+        size:30
+      },
+      hotspot: {
+        color: {
+          background:'orange',
+          highlight: { background: 'orange', border: 'orange', borderWidth: 0 }
+        },
+        size:37
+      },
+      service: {
+        color: {
+          background:'yellow',
+          highlight: { background: 'yellow', border: 'yellow', borderWidth: 0 }
+        },
+        size:30
+      }
+    }
+  };
+}
 
 var updateConnectedNodes = function() {
   // Reset all serviced nodes to nodes to unserviced
