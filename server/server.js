@@ -16,7 +16,7 @@ app.get('/hotspot/:code', (req, res) => {
   const code = req.params.code;
   console.log(code);
 
-  HotspotPuzzle.find({code}).then((puzzle) => {
+  HotspotPuzzle.findOne({code}).then((puzzle) => {
     console.log(puzzle);
     if (!puzzle) {
       return res.status(404).send();
@@ -34,8 +34,8 @@ app.post('/hotspot', (req, res) => {
     size: req.body.size
   });
 
-  puzzle.save().then((puz) => {
-    res.send(puz);
+  puzzle.save().then((puzzle) => {
+    res.send({puzzle});
   }, (e) => {
     res.status(400).send(e);
   });
