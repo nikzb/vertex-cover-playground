@@ -93,7 +93,6 @@ function populateStageInstructions() {
 
 function setUpDragFix() {
   network.on("dragEnd", function (params) {
-    console.log(params.nodes);
     if (params.nodes.length > 0) {
       var nodeId = params.nodes[0];
       var node = nodes.get(nodeId);
@@ -111,7 +110,6 @@ function resetPuzzleBuilder() {
   data = {nodes: nodes, edges, edges};
   network = new vis.Network(container, data, options);
   setUpDragFix();
-
 
   stage = 'add-hotspots';
   instruct.innerHTML = stageInstructions[1];
@@ -162,8 +160,8 @@ function setUpOptionsForMakeClusters() {
         hotspot = from;
       }
       if (serviceNode.connectedToWithinCluster.length === 0) {
-        serviceNode.connectedToWithinCluster.push(hotspot);
-        hotspot.connectedToWithinCluster.push(serviceNode);
+        serviceNode.connectedToWithinCluster.push(hotspot.id);
+        hotspot.connectedToWithinCluster.push(serviceNode.id);
         callback(data);
         network.addEdgeMode();
       }
@@ -197,10 +195,10 @@ function setUpOptionsForConnectClusters() {
 
 function InSameCluster(nodeA, nodeB) {
 
-  var hotspot = nodeA.connectedToWithinCluster[0];
+  var hotspot = nodes.get(nodeA.connectedToWithinCluster[0]);
 
   for (var i = 0; i < hotspot.connectedToWithinCluster.length; i += 1) {
-    if (hotspot.connectedToWithinCluster[i].id === nodeB.id) {
+    if (hotspot.connectedToWithinCluster[i] === nodeB.id) {
       return true;
     }
   }
@@ -264,7 +262,8 @@ function goToNextStage() {
     instruct.innerHTML = stageInstructions[6];
     instructDiv.querySelector('.title').textContent = 'Instructions';
     hotspotCountDiv.style.visibility = 'visible';
-    setUpProblem();
+    savePuzzleAndLoad();
+
   }
 }
 
@@ -357,6 +356,32 @@ function draw() {
   network = new vis.Network(container, data, options);
 
   setUpDragFix();
+
+}
+
+function savePuzzleAndLoad() {
+  var xhttp = new XMLHttpRequest();
+
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      console.log("done saving new puzzle");
+    }
+  };
+  xhttp.open("POST", "http://localhost:3000/hotspot/", true);
+  xhttp.setRequestHeader("Content-type", "application/json");
+  var nodesToCopy = nodes.get();
+
+  // var nodesToSave = [];
+  // for (var i = 0; i < nodesToCopy.length; i++) {
+  //   nodesToSave.push({
+  //     group: nodesToCopy[i].group,
+  //     original: nodesToCopy[i].original,
+  //     id: nodesToCopy[i].id,
+  //     x: nodesToCopy[i].x,
+  //     y: nodesToCopy[i].y
+  //   });
+  // }
+  xhttp.send(JSON.stringify({graph: {nodes: nodesToCopy, edges: edges.get()}, code: 3, size: "small"}));
 
 }
 

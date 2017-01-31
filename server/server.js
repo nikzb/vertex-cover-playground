@@ -12,14 +12,17 @@ const {HotspotPuzzle} = require('./models/hotspotPuzzle');
 const app = express();
 const port = process.env.PORT;
 
+console.log('Printig port in server.js: ' + port);
+
 hbs.registerPartials(fp.join(__dirname, '/../views/partials'));
 app.set('view engine', 'hbs');
 app.use(bodyParser.json());
 console.log(__dirname);
 app.use(express.static(fp.join(__dirname, '/../public')));
 
-hbs.registerHelper('loadScriptWithPuzzleCode', () => {
-  return new hbs.SafeString('<script type="text/javascript" src="/js/puzzle.js"></script>');
+hbs.registerHelper('loadScriptWithPuzzleCode', (code) => {
+  return new hbs.SafeString(`<script type="text/javascript" src="/js/puzzle.js"></script>
+                            <script>useDefaultPuzzle(${code});</script>`);
 });
 
 app.get('/create', (req, res) => {
@@ -33,14 +36,22 @@ app.get('/', (req, res) => {
 // Render a puzzle page with the puzzle that has the requested code
 app.get('/:code', (req, res) => {
   const code = req.params.code;
+  console.log(req.params);
 
   // if not a valid code, render the puzzle not found page
-  return res.send('<h1>This puzzle does not exist!</h1>');
-
+  // return res.send('<h1>This puzzle does not exist!</h1>');
+  console.log('code: ' + code);
   HotspotPuzzle.findOne({code}).then((puzzle) => {
+    console.log('puzzle: ' + JSON.stringify(puzzle));
     if (!puzzle) {
+      console.log(puzzle);
       return res.send('<h1>This puzzle does not exist!</h1>');
     }
+    console.log(puzzle.graph.nodes);
+    console.log(puzzle.graph.edges);
+    res.render('puzzle.hbs', {code: code});
+  }).catch((e) => {
+    return res.send('<h1>There was an error while attempting to load the puzzle</h1>');
   });
 });
 

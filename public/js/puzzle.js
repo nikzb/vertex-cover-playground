@@ -16,6 +16,8 @@
 //   {from: 3, to: 6}
 // ]);
 
+// var request = require('request');
+
 var nodes = null;
 var edges = null;
 var data = null;
@@ -24,7 +26,31 @@ var container = null;
 var network = null;
 var optimalAnswer = null;
 
-useDefaultPuzzle();
+//useDefaultPuzzle();
+
+function usePuzzle(code) {
+  console.log('Printing code: ' + code);
+
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      var data = JSON.parse(this.responseText);
+      setUpNetwork(data.puzzle.graph.nodes, data.puzzle.graph.edges);
+    }
+  };
+
+  console.log("printing port from puzzle.js: " + process.env.PORT);
+
+  xhttp.open("GET", "http://localhost:3000/hotspot/" + code, true);
+  xhttp.send();
+
+  // request(`http://localhost:3000/hotspot/${code}`, function(error, response, body) {
+  //   if (!error && response.statusCode == 200) {
+  //     console.log(body);
+  //   }
+  // });
+  //setUpNetwork(nodeArray, edgeArray);
+}
 
 function useDefaultPuzzle() {
   var coordsArray = [
@@ -77,11 +103,44 @@ function setUpNetwork(nodeArray, edgeArray) {
   setUpContainer();
   setUpOptions();
   network = new vis.Network(container, data, options);
+  setUpClickHandlers();
   saveOptimalAnswer();
 }
 
+function setUpClickHandlers() {
+  network.on("click", function (params) {
+      params.event = "[original event]";
+      //document.getElementById('eventSpan').innerHTML = '<h2>Click event:</h2>' + JSON.stringify(params, null, 4);
+      if (params.nodes.length > 0) {
+        var id = params.nodes[0];
+        var node = nodes.get(id);
+        //document.getElementById('eventSpan2').innerHTML = '<h2>Node info:</h2>' + JSON.stringify(node, null, 4);
+        if (node.group !== 'hotspot') {
+          nodes.update({id: id, group: 'hotspot'});
+          updateHotspotCount();
+          // Then update which nodes should be in group 'service'
+          updateConnectedNodes();
+        }
+        else if (node.group === 'hotspot') {
+          nodes.update({id: id, group: 'noService'});
+          // Then update which nodes should be in group 'service'
+          updateHotspotCount();
+          updateConnectedNodes();
+        }
+
+        checkForCompletion();
+      }
+  });
+
+  document.querySelector('button[name="reset"]').addEventListener("click", function() {
+    resetAllNodes();
+    updateHotspotCount();
+    document.querySelector('.optimal-message').innerHTML = '';
+  });
+}
+
 function saveOptimalAnswer() {
-  var optimalAnswer = nodes.get().reduce(function(total, node) {
+  optimalAnswer = nodes.get().reduce(function(total, node) {
     return node.original ? total + 1 : total;
   }, 0);
 }
@@ -232,33 +291,3 @@ var checkForCompletion = function() {
     document.querySelector('.optimal-message').innerHTML = '';
   }
 }
-
-network.on("click", function (params) {
-    params.event = "[original event]";
-    //document.getElementById('eventSpan').innerHTML = '<h2>Click event:</h2>' + JSON.stringify(params, null, 4);
-    if (params.nodes.length > 0) {
-      var id = params.nodes[0];
-      var node = nodes.get(id);
-      //document.getElementById('eventSpan2').innerHTML = '<h2>Node info:</h2>' + JSON.stringify(node, null, 4);
-      if (node.group !== 'hotspot') {
-        nodes.update({id: id, group: 'hotspot'});
-        updateHotspotCount();
-        // Then update which nodes should be in group 'service'
-        updateConnectedNodes();
-      }
-      else if (node.group === 'hotspot') {
-        nodes.update({id: id, group: 'noService'});
-        // Then update which nodes should be in group 'service'
-        updateHotspotCount();
-        updateConnectedNodes();
-      }
-
-      checkForCompletion();
-    }
-});
-
-document.querySelector('button[name="reset"]').addEventListener("click", function() {
-  resetAllNodes();
-  updateHotspotCount();
-  document.querySelector('.optimal-message').innerHTML = '';
-});
