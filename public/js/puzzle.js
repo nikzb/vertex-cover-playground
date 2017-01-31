@@ -16,8 +16,6 @@
 //   {from: 3, to: 6}
 // ]);
 
-// var request = require('request');
-
 var nodes = null;
 var edges = null;
 var data = null;
@@ -38,8 +36,6 @@ function usePuzzle(code) {
       setUpNetwork(data.puzzle.graph.nodes, data.puzzle.graph.edges);
     }
   };
-
-  console.log("printing port from puzzle.js: " + process.env.PORT);
 
   xhttp.open("GET", "http://localhost:3000/hotspot/" + code, true);
   xhttp.send();
@@ -99,9 +95,9 @@ function useDefaultPuzzle() {
 }
 
 function setUpNetwork(nodeArray, edgeArray) {
+  setUpOptions();
   setUpData(nodeArray, edgeArray);
   setUpContainer();
-  setUpOptions();
   network = new vis.Network(container, data, options);
   setUpClickHandlers();
   saveOptimalAnswer();
@@ -150,8 +146,14 @@ function setUpContainer() {
 }
 
 function setUpData(nodeArray, edgeArray) {
-  edges = new vis.DataSet(edgeArray);
+  var newEdgeArray = [];
+  edgeArray.forEach(function(edge) {
+    newEdgeArray.push({id: edge.id, from: edge.from, to: edge.to});
+  });
+
+  edges = new vis.DataSet(newEdgeArray);
   nodes = new vis.DataSet(nodeArray);
+  resetAllNodes();
   data = {
     nodes: nodes,
     edges: edges
@@ -176,7 +178,8 @@ function setUpOptions() {
     },
     edges: {
         width: 2,
-        shadow:false,
+        shadow: false,
+        dashes: false,
         color: {
           color: 'darkgrey'
           // inherit: 'both'
@@ -193,21 +196,21 @@ function setUpOptions() {
           background:'red',
           highlight: { background: 'red', border: 'red', borderWidth: 0 }
         },
-        size:30
+        size:20
       },
       hotspot: {
         color: {
           background:'orange',
           highlight: { background: 'orange', border: 'orange', borderWidth: 0 }
         },
-        size:37
+        size:25
       },
       service: {
         color: {
           background:'yellow',
           highlight: { background: 'yellow', border: 'yellow', borderWidth: 0 }
         },
-        size:30
+        size:20
       }
     }
   };

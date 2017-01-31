@@ -365,6 +365,9 @@ function savePuzzleAndLoad() {
   xhttp.onreadystatechange = function() {
     if (this.readyState == 4 && this.status == 200) {
       console.log("done saving new puzzle");
+
+      // Need to load the newly created puzzle
+      window.location="http://localhost:3000/5";
     }
   };
   xhttp.open("POST", "http://localhost:3000/hotspot/", true);
@@ -381,7 +384,7 @@ function savePuzzleAndLoad() {
   //     y: nodesToCopy[i].y
   //   });
   // }
-  xhttp.send(JSON.stringify({graph: {nodes: nodesToCopy, edges: edges.get()}, code: 3, size: "small"}));
+  xhttp.send(JSON.stringify({graph: {nodes: nodesToCopy, edges: edges.get()}, code: 5, size: "small"}));
 
 }
 
