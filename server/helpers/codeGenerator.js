@@ -15,14 +15,15 @@ const generateCode = function (res, callback) {
     newCode += alphaNumChar;
   }
   console.log("After loop that creates new code: " + newCode);
-  HotspotPuzzle.findOne({newCode}).then((puzzle) => {
+  HotspotPuzzle.findOne({code: newCode}).then((puzzle) => {
+    console.log(puzzle);
     if (!puzzle) {
       console.log("About to return new code: " + newCode);
-      return callback(res, newCode);
+      callback(res, newCode);
     }
     else {
       console.log("Recursive call to generate code: " + newCode);
-      return callback(res, generateCode(res, callback));
+      generateCode(res, callback);
     }
   }).catch((e) => {
     return 'Error';
