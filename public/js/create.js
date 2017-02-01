@@ -367,6 +367,7 @@ function savePuzzleAndLoad() {
   xhttp.onreadystatechange = function() {
     if (this.readyState == 4 && this.status == 200) {
       var code = this.responseText;
+      console.log("Code from server: " + code);
       if (code === 'Error') {
         // Load an error page?
       }
@@ -378,11 +379,10 @@ function savePuzzleAndLoad() {
             console.log("done saving new puzzle");
 
             // Need to load the newly created puzzle
-            window.location="http://" + domain + "/" + code;
+            window.location="http://" + domain + "/hotspot/" + code;
           }
         };
-        xhttp.open("POST", "http://" + domain + "/hotspot/", true);
-        xhttp.setRequestHeader("Content-type", "application/json");
+
         var nodesToCopy = nodes.get();
         var size;
         if (nodesToCopy.length <= 15) {
@@ -394,11 +394,15 @@ function savePuzzleAndLoad() {
         else {
           size = "large";
         }
+        console.log("Determined size of puzzle: " + size);
+        xhttp.open("POST", "http://" + domain + "/hotspot/", true);
+        xhttp.setRequestHeader("Content-type", "application/json");
         xhttp.send(JSON.stringify({graph: {nodes: nodesToCopy, edges: edges.get()}, code: code, size: size}));
       }
     }
   };
   xhttp.open("GET", "http://" + domain + "/hotspot/newCode", true);
+  xhttp.send();
 
 }
 

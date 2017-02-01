@@ -38,7 +38,7 @@ function usePuzzle(code) {
     }
   };
 
-  xhttp.open("GET", "http://" + domain + "/hotspot/" + code, true);
+  xhttp.open("GET", "http://" + domain + "/hotspot-data/" + code, true);
   xhttp.send();
 }
 

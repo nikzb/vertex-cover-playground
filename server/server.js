@@ -27,6 +27,8 @@ hbs.registerHelper('loadScriptWithPuzzleCode', (code) => {
 });
 
 app.get('/hotspot/newCode', (req, res) => {
+  console.log("server is handling request for new code");
+
   let codeIsUnique = false;
 
   generateCode(res, function(res, newCode) {
@@ -43,7 +45,8 @@ app.get('/', (req, res) => {
 });
 
 // Render a puzzle page with the puzzle that has the requested code
-app.get('/:code', (req, res) => {
+app.get('/hotspot/:code', (req, res) => {
+  console.log("In code GET request");
   const code = req.params.code;
   console.log(req.params);
 
@@ -65,7 +68,7 @@ app.get('/:code', (req, res) => {
   });
 });
 
-app.get('/hotspot/:code', (req, res) => {
+app.get('/hotspot-data/:code', (req, res) => {
   const code = req.params.code;
 
   HotspotPuzzle.findOne({code}).then((puzzle) => {
