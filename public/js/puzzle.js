@@ -23,6 +23,7 @@ var options = null;
 var container = null;
 var network = null;
 var optimalAnswer = null;
+var domain = 'localhost:3000';
 
 //useDefaultPuzzle();
 
@@ -37,15 +38,8 @@ function usePuzzle(code) {
     }
   };
 
-  xhttp.open("GET", "http://localhost:3000/hotspot/" + code, true);
+  xhttp.open("GET", "http://" + domain + "/hotspot/" + code, true);
   xhttp.send();
-
-  // request(`http://localhost:3000/hotspot/${code}`, function(error, response, body) {
-  //   if (!error && response.statusCode == 200) {
-  //     console.log(body);
-  //   }
-  // });
-  //setUpNetwork(nodeArray, edgeArray);
 }
 
 function useDefaultPuzzle() {

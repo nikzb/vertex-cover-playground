@@ -19,6 +19,7 @@ var network = null;
 var data = null;
 
 var container;
+var domain = 'localhost:3000';
 
 // Stages are
   // 0: intro
@@ -29,7 +30,6 @@ var container;
   // 5: finished
 var stage = 'intro';
 var options;
-
 
 function populateStageInstructions() {
   stageInstructions = [];
@@ -360,31 +360,45 @@ function draw() {
 }
 
 function savePuzzleAndLoad() {
+  // Need to ask the server to generate a code for this puzzle
+  console.log("in savePuzzleAndLoad");
   var xhttp = new XMLHttpRequest();
 
   xhttp.onreadystatechange = function() {
     if (this.readyState == 4 && this.status == 200) {
-      console.log("done saving new puzzle");
+      var code = this.responseText;
+      if (code === 'Error') {
+        // Load an error page?
+      }
+      else {
+        xhttp = new XMLHttpRequest();
 
-      // Need to load the newly created puzzle
-      window.location="http://localhost:3000/5";
+        xhttp.onreadystatechange = function() {
+          if (this.readyState == 4 && this.status == 200) {
+            console.log("done saving new puzzle");
+
+            // Need to load the newly created puzzle
+            window.location="http://" + domain + "/" + code;
+          }
+        };
+        xhttp.open("POST", "http://" + domain + "/hotspot/", true);
+        xhttp.setRequestHeader("Content-type", "application/json");
+        var nodesToCopy = nodes.get();
+        var size;
+        if (nodesToCopy.length <= 15) {
+          size = "small";
+        }
+        else if (nodesToCopy.length <= 25) {
+          size = "medium";
+        }
+        else {
+          size = "large";
+        }
+        xhttp.send(JSON.stringify({graph: {nodes: nodesToCopy, edges: edges.get()}, code: code, size: size}));
+      }
     }
   };
-  xhttp.open("POST", "http://localhost:3000/hotspot/", true);
-  xhttp.setRequestHeader("Content-type", "application/json");
-  var nodesToCopy = nodes.get();
-
-  // var nodesToSave = [];
-  // for (var i = 0; i < nodesToCopy.length; i++) {
-  //   nodesToSave.push({
-  //     group: nodesToCopy[i].group,
-  //     original: nodesToCopy[i].original,
-  //     id: nodesToCopy[i].id,
-  //     x: nodesToCopy[i].x,
-  //     y: nodesToCopy[i].y
-  //   });
-  // }
-  xhttp.send(JSON.stringify({graph: {nodes: nodesToCopy, edges: edges.get()}, code: 5, size: "small"}));
+  xhttp.open("GET", "http://" + domain + "/hotspot/newCode", true);
 
 }
 

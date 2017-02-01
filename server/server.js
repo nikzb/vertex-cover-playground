@@ -8,11 +8,12 @@ const {ObjectID} = require('mongodb');
 
 const {mongoose} = require('./db/mongoose');
 const {HotspotPuzzle} = require('./models/hotspotPuzzle');
+const {generateCode} = require('./helpers/codeGenerator');
 
 const app = express();
 const port = process.env.PORT;
 
-console.log('Printig port in server.js: ' + port);
+console.log('Printing port in server.js: ' + port);
 
 hbs.registerPartials(fp.join(__dirname, '/../views/partials'));
 app.set('view engine', 'hbs');
@@ -23,6 +24,14 @@ app.use(express.static(fp.join(__dirname, '/../public')));
 hbs.registerHelper('loadScriptWithPuzzleCode', (code) => {
   return new hbs.SafeString(`<script type="text/javascript" src="/js/puzzle.js"></script>
                             <script>useDefaultPuzzle(${code});</script>`);
+});
+
+app.get('/hotspot/newCode', (req, res) => {
+  let codeIsUnique = false;
+
+  generateCode(res, function(res, newCode) {
+    res.send(newCode);
+  });
 });
 
 app.get('/create', (req, res) => {
@@ -51,6 +60,7 @@ app.get('/:code', (req, res) => {
     console.log(puzzle.graph.edges);
     res.render('puzzle.hbs', {code: code});
   }).catch((e) => {
+    console.log(e);
     return res.send('<h1>There was an error while attempting to load the puzzle</h1>');
   });
 });
