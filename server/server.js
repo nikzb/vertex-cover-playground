@@ -1,3 +1,5 @@
+"use strict";
+
 require('./config/config');
 
 const fp = require('path');
@@ -27,8 +29,6 @@ hbs.registerHelper('loadScriptWithPuzzleCode', (code) => {
 });
 
 app.get('/hotspot/newCode', (req, res) => {
-  console.log("server is handling request for new code");
-
   let codeIsUnique = false;
 
   generateCode(res, function(res, newCode) {
@@ -46,24 +46,16 @@ app.get('/', (req, res) => {
 
 // Render a puzzle page with the puzzle that has the requested code
 app.get('/hotspot/:code', (req, res) => {
-  console.log("In code GET request");
   const code = req.params.code;
-  console.log(req.params);
 
   // if not a valid code, render the puzzle not found page
   // return res.send('<h1>This puzzle does not exist!</h1>');
-  console.log('code: ' + code);
   HotspotPuzzle.findOne({code}).then((puzzle) => {
-    console.log('puzzle: ' + JSON.stringify(puzzle));
     if (!puzzle) {
-      console.log(puzzle);
       return res.send('<h1>This puzzle does not exist!</h1>');
     }
-    console.log(puzzle.graph.nodes);
-    console.log(puzzle.graph.edges);
     res.render('puzzle.hbs', {code: code});
   }).catch((e) => {
-    console.log(e);
     return res.send('<h1>There was an error while attempting to load the puzzle</h1>');
   });
 });
@@ -72,7 +64,6 @@ app.get('/hotspot-data/:code', (req, res) => {
   const code = req.params.code;
 
   HotspotPuzzle.findOne({code}).then((puzzle) => {
-    console.log(puzzle);
     if (!puzzle) {
       return res.status(404).send();
     }

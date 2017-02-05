@@ -1,3 +1,5 @@
+"use strict";
+
 const expect = require('expect');
 const request = require('supertest');
 const {ObjectID} = require('mongodb');
@@ -6,7 +8,7 @@ const {app} = require('./../server');
 const {HotspotPuzzle} = require('./../models/hotspotPuzzle');
 
 const puzzle = {
-  code: 1,
+  code: '1',
   size: "small",
   graph: {
     nodes: [
@@ -33,12 +35,12 @@ beforeEach((done) => {
   }).then(() => done());
 });
 
-describe('GET /hotspot/:code', () => {
+describe('GET /hotspot-data/:code', () => {
   it('should return puzzle with given code', (done) => {
-    const code = 1;
+    const code = '1';
 
     request(app)
-      .get(`/hotspot/${code}`)
+      .get(`/hotspot-data/${code}`)
       .expect(200)
       .expect((res) => {
         expect(res.body.puzzle.graph).toExist();
@@ -50,8 +52,31 @@ describe('GET /hotspot/:code', () => {
 
   it('should return 404 if puzzle not found', (done) => {
     request(app)
-      .get('/hotspot/2')
+      .get('/hotspot-data/2')
       .expect(404)
+      .end(done);
+  });
+});
+
+describe('GET /hotspot/:code', () => {
+  it('should render a puzzle page,', (done) => {
+    const code = '1';
+    request(app)
+      .get(`/hotspot/${code}`)
+      .expect(200)
+      .expect((res) => {
+        expect(res.text).toExist();
+        //console.log('logging response for render puzzle page: ', res.text);
+      })
+      .end(done);
+  });
+  it('should return puzzle does not exist message when puzzle not found', (done) => {
+    request(app)
+      .get('/hotspot/2')
+      .expect(200)
+      .expect((res) => {
+        expect(res.text).toBe('<h1>This puzzle does not exist!</h1>');
+      })
       .end(done);
   });
 });
@@ -59,7 +84,7 @@ describe('GET /hotspot/:code', () => {
 describe('POST /hotspot', () => {
   it('should create a new puzzle', (done) => {
     const newPuzzle = {
-      code: 2,
+      code: 'A123',
       size: "small",
       graph: {
         nodes: [
@@ -86,7 +111,7 @@ describe('POST /hotspot', () => {
       .expect(200)
       .expect((res) => {
         expect(res.body.puzzle.graph).toExist();
-        expect(res.body.puzzle.code).toBe(2);
+        expect(res.body.puzzle.code).toBe('A123');
         expect(res.body.puzzle.size).toBeA('string');
       })
       .end((err, res) => {
@@ -117,5 +142,18 @@ describe('POST /hotspot', () => {
           done();
         }).catch((e) => done(e));
       });
+  });
+});
+
+describe('GET /hotspot/newCode', () => {
+  it('should return a 4 character code', (done) => {
+    request(app)
+      .get('/hotspot/newCode')
+      .expect(200)
+      .expect((res) => {
+        expect(res.text).toExist();
+        expect(res.text.length).toBe(4);
+      })
+      .end(done);
   });
 });

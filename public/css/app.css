@@ -74,6 +74,11 @@ li {
   margin-left: 20px;
 }
 
+span.code {
+  color: #666;
+  font-weight: normal;
+}
+
 .hotspot-count-label {
   margin-right: 30px;
 }
