@@ -122,10 +122,29 @@ function setUpClickHandlers() {
       }
   });
 
+  var optimalMessageElem = document.querySelector('.optimal-message');
+
+  optimalMessageElem.addEventListener("click", function() {
+    // optimalMessageElem.innerHTML = '';
+    if (optimalMessageElem.classList.contains('active')) {
+      optimalMessageElem.classList.remove('active');
+    }
+  });
+
+  optimalMessageElem.addEventListener("transitionend", function(event) {
+    console.log(event);
+  });
+
+
   document.querySelector('button[name="reset"]').addEventListener("click", function() {
     resetAllNodes();
     updateHotspotCount();
-    document.querySelector('.optimal-message').innerHTML = '';
+
+    optimalMessageElem.innerHTML = '';
+    if (optimalMessageElem.classList.contains('active')) {
+      optimalMessageElem.classList.remove('active');
+    }
+
   });
 }
 
@@ -274,17 +293,22 @@ var updateHotspotCount = function() {
 }
 
 var checkForCompletion = function() {
+  var optimalMessageElem = document.querySelector('.optimal-message');
   if (allNodesHaveWifi()) {
     // Display a message telling whether optimization is complete
     if (countHotspots() === optimalAnswer) {
       // Success!
-      document.querySelector('.optimal-message').innerHTML = 'You found an optimal solution!';
+      optimalMessageElem.innerHTML = 'You found an optimal solution!';
     }
     else {
-      document.querySelector('.optimal-message').innerHTML = 'It is possible to use less hotspots. Try again. You can do it!';
+      optimalMessageElem.innerHTML = 'It is possible to use less hotspots. Try again. You can do it!';
     }
+    optimalMessageElem.classList.add('active');
   }
   else {
     document.querySelector('.optimal-message').innerHTML = '';
+    if (optimalMessageElem.classList.contains('active')) {
+      optimalMessageElem.classList.remove('active');
+    }
   }
 }
