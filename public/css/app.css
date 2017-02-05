@@ -19,6 +19,13 @@ li {
   list-style-type: none;
 }
 
+a:link, a:visited {
+  /*text-decoration: none;*/
+  color: #666;
+}
+
+
+
 .title, .to-do {
   text-shadow: 0.05em 0.05em #DDD;
 }
@@ -111,6 +118,17 @@ button:focus {
   max-width: 50%;
 }
 
+.options-wrap {
+  display: flex;
+  justify-content: space-between;
+}
+
+.options {
+  margin: 14px 20px;
+  font-weight: normal;
+
+}
+
 .message-wrap {
   display: flex;
   justify-content: center;
@@ -138,7 +156,7 @@ button:focus {
 }
 .slide-in.active {
   opacity:1;
-  transform:translateY(-200%);
+  transform:translateY(-220%);
 }
 
 .guide-wrap {
