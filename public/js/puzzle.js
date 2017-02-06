@@ -16,6 +16,8 @@
 //   {from: 3, to: 6}
 // ]);
 
+"use strict";
+
 var nodes = null;
 var edges = null;
 var data = null;
@@ -134,54 +136,61 @@ function setUpClickHandlers() {
       }
   });
 
-  var optimalMessageElem = document.querySelector('.optimal-message');
+  var messageDiv = document.querySelector('.message-wrap');
 
-  optimalMessageElem.addEventListener("click", function() {
-    // optimalMessageElem.innerHTML = '';
-    if (optimalMessageElem.classList.contains('active')) {
-      optimalMessageElem.classList.remove('active');
-    }
-  });
-
-  optimalMessageElem.addEventListener("transitionend", function(event) {
-    console.log(event);
+  messageDiv.addEventListener("click", function() {
+    removeActive(messageDiv);
   });
 
   document.querySelector('button[name="reset"]').addEventListener("click", function() {
     resetAllNodes();
     updateHotspotCount();
 
+    var optimalMessageElem = document.querySelector('.optimal-message');
+
     optimalMessageElem.innerHTML = '';
-    if (optimalMessageElem.classList.contains('active')) {
-      optimalMessageElem.classList.remove('active');
-    }
 
+    removeActive(messageDiv);
   });
 
-  document.querySelector('.next-graph').addEventListener("click", function() {
-    // Need to get a puzzle that hasn't been attempted yet based on what is in localStorage
-    puzzleListString = localStorage.getItem('hotspotPuzzlesAttempted');
+  var nextGraphLinks = document.querySelectorAll('.next-graph');
 
-    // Need to figure out how this size will be determined
-    const size = 'small';
+  nextGraphLinks.forEach(function(link) {
+    link.addEventListener("click", function() {
+      // Need to get a puzzle that hasn't been attempted yet based on what is in localStorage
+      var puzzleListString = localStorage.getItem('hotspotPuzzlesAttempted');
 
-    var xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function() {
-      if (this.readyState == 4 && this.status == 200) {
-        console.log("Response received from trying to get another puzzle: " + this.responseText);
-        var code = this.responseText;
-        window.location="http://" + domain + "/hotspot/" + code;
-      }
-    };
-    console.log("Puzzle list as string: ", puzzleListString);
-    xhttp.open("POST", "http://" + domain + "/get-hotspot-given-size/" + size, true);
-    xhttp.setRequestHeader("Content-type", "application/json");
-    xhttp.send(puzzleListString);
+      // Need to figure out how this size will be determined
+      const size = 'small';
+
+      var xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+          console.log("Response received from trying to get another puzzle: " + this.responseText);
+          var code = this.responseText;
+          window.location="http://" + domain + "/hotspot/" + code;
+        }
+      };
+      console.log("Puzzle list as string: ", puzzleListString);
+      xhttp.open("POST", "http://" + domain + "/get-hotspot-given-size/" + size, true);
+      xhttp.setRequestHeader("Content-type", "application/json");
+      xhttp.send(puzzleListString);
+    });
   });
 
-  document.querySelector('.create-own').addEventListener("click", function() {
-    window.location="http://" + domain + "/create";
+  var createOwnLinks = document.querySelectorAll('.create-own');
+
+  createOwnLinks.forEach(function(link) {
+    link.addEventListener("click", function() {
+      window.location="http://" + domain + "/create";
+    });
   });
+}
+
+function removeActive(element) {
+  if (element.classList.contains('active')) {
+    element.classList.remove('active');
+  }
 }
 
 function saveOptimalAnswer() {
@@ -329,22 +338,28 @@ var updateHotspotCount = function() {
 }
 
 var checkForCompletion = function() {
+  var messageDiv = document.querySelector('.message-wrap');
   var optimalMessageElem = document.querySelector('.optimal-message');
+  var links = document.querySelectorAll('.message.options');
   if (allNodesHaveWifi()) {
     // Display a message telling whether optimization is complete
     if (countHotspots() === optimalAnswer) {
       // Success!
       optimalMessageElem.innerHTML = 'You found an optimal solution!';
+      links.forEach(function(link) {
+        link.style.display = 'block';
+      });
     }
     else {
       optimalMessageElem.innerHTML = 'Try again using less hotspots. You can do it!';
+      links.forEach(function(link) {
+        link.style.display = 'none';
+      });
     }
-    optimalMessageElem.classList.add('active');
+    messageDiv.classList.add('active');
   }
   else {
     document.querySelector('.optimal-message').innerHTML = '';
-    if (optimalMessageElem.classList.contains('active')) {
-      optimalMessageElem.classList.remove('active');
-    }
+    removeActive(messageDiv);
   }
 }
