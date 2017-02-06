@@ -361,7 +361,6 @@ function draw() {
 
 function savePuzzleAndLoad() {
   // Need to ask the server to generate a code for this puzzle
-  console.log("in savePuzzleAndLoad");
   var xhttp = new XMLHttpRequest();
 
   xhttp.onreadystatechange = function() {

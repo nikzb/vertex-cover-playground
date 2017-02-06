@@ -24,17 +24,29 @@ var container = null;
 var network = null;
 var optimalAnswer = null;
 var domain = 'localhost:3000';
+var puzzleList;
 
 //useDefaultPuzzle();
 
 function usePuzzle(code) {
-  console.log('Printing code: ' + code);
 
   var xhttp = new XMLHttpRequest();
   xhttp.onreadystatechange = function() {
     if (this.readyState == 4 && this.status == 200) {
       var data = JSON.parse(this.responseText);
       setUpNetwork(data.puzzle.graph.nodes, data.puzzle.graph.edges);
+      puzzleList = JSON.parse(localStorage.getItem('hotspotPuzzlesAttempted')) || [];
+      var found = false;
+      for (var i = 0; i < puzzleList.length; i++) {
+        if (puzzleList[i].code === code) {
+          found = true;
+        }
+      }
+      console.log("Code " + code + " was found: " + found);
+      if (!found) {
+        puzzleList.push({'code':code});
+      }
+      localStorage.setItem('hotspotPuzzlesAttempted', JSON.stringify(puzzleList));
     }
   };
 
@@ -135,7 +147,6 @@ function setUpClickHandlers() {
     console.log(event);
   });
 
-
   document.querySelector('button[name="reset"]').addEventListener("click", function() {
     resetAllNodes();
     updateHotspotCount();
@@ -145,6 +156,31 @@ function setUpClickHandlers() {
       optimalMessageElem.classList.remove('active');
     }
 
+  });
+
+  document.querySelector('.next-graph').addEventListener("click", function() {
+    // Need to get a puzzle that hasn't been attempted yet based on what is in localStorage
+    puzzleListString = localStorage.getItem('hotspotPuzzlesAttempted');
+
+    // Need to figure out how this size will be determined
+    const size = 'small';
+
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+      if (this.readyState == 4 && this.status == 200) {
+        console.log("Response received from trying to get another puzzle: " + this.responseText);
+        var code = this.responseText;
+        window.location="http://" + domain + "/hotspot/" + code;
+      }
+    };
+    console.log("Puzzle list as string: ", puzzleListString);
+    xhttp.open("POST", "http://" + domain + "/get-hotspot-given-size/" + size, true);
+    xhttp.setRequestHeader("Content-type", "application/json");
+    xhttp.send(puzzleListString);
+  });
+
+  document.querySelector('.create-own').addEventListener("click", function() {
+    window.location="http://" + domain + "/create";
   });
 }
 
@@ -301,7 +337,7 @@ var checkForCompletion = function() {
       optimalMessageElem.innerHTML = 'You found an optimal solution!';
     }
     else {
-      optimalMessageElem.innerHTML = 'It is possible to use less hotspots. Try again. You can do it!';
+      optimalMessageElem.innerHTML = 'Try again using less hotspots. You can do it!';
     }
     optimalMessageElem.classList.add('active');
   }

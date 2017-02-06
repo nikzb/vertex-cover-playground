@@ -20,11 +20,22 @@ li {
 }
 
 a:link, a:visited {
-  /*text-decoration: none;*/
-  color: #666;
+  text-decoration: none;
+  color: #FF8C00;
+  text-shadow: 0.05em 0.05em #666;
 }
 
+a:hover {
+  text-decoration: underline;
+  color: #FF8C00;
+  text-shadow: 0.05em 0.05em #666;
+}
 
+a:active {
+  text-decoration: underline;
+  color: #FF0000;
+  text-shadow: 0.05em 0.05em #666;
+}
 
 .title, .to-do {
   text-shadow: 0.05em 0.05em #DDD;
@@ -40,7 +51,8 @@ a:link, a:visited {
 .main-header {
   display: flex;
   /*max-height: 80px;*/
-  flex: 0 0 60px;
+  flex: 0 0 85px;
+  align-items: center;
   /*background-image: linear-gradient(260deg, #FFFF00 0%, #FFCC00 100%);*/
 }
 
@@ -98,9 +110,10 @@ span.code {
 }
 
 button[name='reset'] {
-  font-size: 1.5em;
+  font-size: 2.0em;
   background-color: #EEE;
   border: 1px solid lightgray;
+  font-family: monospace;
 }
 
 button:focus {
@@ -143,7 +156,7 @@ button:focus {
   padding: 100px 20px;
   border: 1px solid darkgray;
   height: 250px;
-  max-width: 660px;
+  max-width: 540px;
 }
 
 .slide-in {

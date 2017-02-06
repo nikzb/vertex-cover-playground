@@ -2,6 +2,7 @@
 
 require('./config/config');
 
+const _ = require('lodash');
 const fp = require('path');
 const express = require('express');
 const hbs = require('hbs');
@@ -71,6 +72,36 @@ app.get('/hotspot-data/:code', (req, res) => {
   }).catch((e) => {
     res.status(400).send(e);
   });
+});
+
+app.post('/get-hotspot-given-size/:size', (req, res) => {
+  const size = req.params.size;
+  console.log(`Looking for puzzles with size ${size}`);
+  console.log(req.body);
+  const codesToAvoid = req.body;
+  console.log(`Must choose one not in this list`, codesToAvoid);
+  // Query database for a list of puzzles with the given size
+  HotspotPuzzle.find({size}, 'code').then((codeList) => {
+    if (!codeList) {
+      return res.status(404).send();
+    }
+    console.log(`Codes with size ${size}: ${codeList}`);
+    const filteredList = _.differenceBy(codeList, codesToAvoid, 'code');
+    console.log(`After filtering out codes to avoid: ${filteredList}`);
+
+    // Now choose a puzzle at random, if there are any to choose from
+    if (filteredList.length === 0) {
+      // Nothing left to choose from, what should I respond with?
+      return;
+    }
+    const randomIndex = _.random(0, filteredList.length - 1);
+    const puzzleCodeChosen = filteredList[randomIndex].code;
+    console.log(`Puzzle chosen: ${puzzleCodeChosen}`)
+    res.send(puzzleCodeChosen);
+  }).catch((e) => {
+    res.status(400).send(e);
+  });
+
 });
 
 app.post('/hotspot', (req, res) => {
