@@ -302,7 +302,7 @@ function getAddNodeFunc(group) {
 function draw() {
   // Create a network
 
-  container = document.querySelector('.graph');
+  container = document.querySelector('.graph-area__graph-canvas');
 
   options = {
     manipulation: {
@@ -542,7 +542,7 @@ function setUpProblem() {
   }
 
   var updateHotspotCount = function(nodes) {
-    document.querySelector('.hotspot-count').innerHTML = countHotspots(nodes);
+    document.querySelector('.graph-area__count-wrap__count').innerHTML = countHotspots(nodes);
   }
 
   var checkForCompletion = function(nodes) {

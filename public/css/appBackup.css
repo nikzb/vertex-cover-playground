@@ -37,6 +37,8 @@ a:active {
   text-shadow: 0.05em 0.05em #666;
 }
 
+
+
 .title, .to-do {
   text-shadow: 0.05em 0.05em #DDD;
 }
@@ -45,7 +47,6 @@ a:active {
   display: flex;
   flex-direction: column;
   max-width: 1200px;
-
 }
 
 .main-header {

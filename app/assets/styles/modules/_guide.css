@@ -1,0 +1,6 @@
+.guide {
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 30%;
+  margin: 0 10px 10px 10px;
+}

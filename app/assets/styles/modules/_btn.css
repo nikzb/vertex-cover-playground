@@ -1,0 +1,8 @@
+.btn {
+  &--full-width {
+    font-size: 2.0rem;
+    background-color: #EEE;
+    border: 1px solid $lightBorder;
+    font-family: monospace;
+  }
+}

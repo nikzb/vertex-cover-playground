@@ -2,3 +2,10 @@
 @import "base/_variables";
 @import "base/_mixins";
 @import "base/_global";
+@import "modules/_logo-image";
+@import "modules/_guide";
+@import "modules/_info-container";
+@import "modules/_graph-area";
+@import "modules/_btn";
+@import "modules/_main-container";
+@import "modules/_middle-container";

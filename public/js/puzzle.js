@@ -200,7 +200,7 @@ function saveOptimalAnswer() {
 }
 
 function setUpContainer() {
-  container = document.querySelector('.graph');
+  container = document.querySelector('.graph-area__graph-canvas');
 }
 
 function setUpData(nodeArray, edgeArray) {
@@ -334,7 +334,7 @@ var countHotspots = function() {
 }
 
 var updateHotspotCount = function() {
-  document.querySelector('.hotspot-count').innerHTML = countHotspots();
+  document.querySelector('.graph-area__count-wrap__count').innerHTML = countHotspots();
 }
 
 var checkForCompletion = function() {

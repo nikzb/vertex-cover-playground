@@ -8,22 +8,22 @@
   <script type="text/javascript" src="/node_modules/vis/dist/vis.js"></script>
   <link href="/node_modules/vis/dist/vis-network.min.css" rel="stylesheet" type="text/css" />
 
-  <link href="/css/app.css" rel="stylesheet" type="text/css" />
+  <link href="/css/styles.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
 
-<div class='main-wrap'>
+<div class='main-container'>
   {{> mainHeader}}
-  <div class='second-wrap'>
-    <div class='graph-wrap'>
-      <div class='graph-header'>
-        <h2 class='title'>Graph: <span class='code'>{{code}}</span></h2>
-        <div class='hotspot-count-wrap'>
-          <h2 class='hotspot-count-label'>Hotspots: <span class="hotspot-count">0</span></h2>
+  <div class='middle-container'>
+    <div class='graph-area'>
+      <div class='graph-area__header'>
+        <h2 class='title graph-area__header__title'>Graph: <span class='graph-area__code'>{{code}}</span></h2>
+        <div class='graph-area__count-wrap'>
+          <h2 class='graph-area__count-wrap__label'>Hotspots: <span class="graph-area__count-wrap__count">0</span></h2>
         </div>
       </div>
-      <div class='graph'></div>
-      <button type="button" name="reset">Start Over</button>
+      <div class='graph-area__graph-canvas'></div>
+      <button class='btn btn--full-width' type="button" name="reset">Start Over</button>
       <div class='options-wrap'>
         <a href='#'><h2 class='options next-graph'>Try Another Graph</h2></a>
         <a href='#'><h2 class='options create-own'>Create Your Own</h2></a>
@@ -35,22 +35,21 @@
         <a href='#'><h2 class='message options create-own'>Create Your Own</h2></a>
       </div>
     </div>
-    <div class='guide-wrap'>
-      <div class='challenge-wrap'>
-        <h2 class='title'>The Challenge</h2>
-        <div class='challenge'>
-          <ul class='challenge-details'>
+    <div class='guide'>
+      <div class='info-container'>
+        <h2 class='info-container__title'>The Challenge</h2>
+        <div class='info-container__details'>
+          <ul class='info-container__list'>
             <li>The nodes in the graph represent zones in need of WIFI.</li>
             <li>A hotspot can be placed at any node and will serve that node and all the nodes connected to it.</li>
           </ul>
-          <h3 class='to-do'>Add enough hotspots to provide service to all the zones. Determine the minimum number of hotspots needed.</h3>
-
+          <h3 class='info-container__todo'>Add enough hotspots to provide service to all the zones. Determine the minimum number of hotspots needed.</h3>
         </div>
       </div>
-      <div class='instruct-wrap'>
-        <h2 class='title'>Instructions</h2>
-        <div class='instruct'>
-          <ul class='instruct-details'>
+      <div class='info-container'>
+        <h2 class='info-container__title'>Instructions</h2>
+        <div class='info-container__details'>
+          <ul class='info-container__list'>
             <li>Click a node to add a hotspot. Click it again to remove it.</li>
             <li>Once all the zones have WIFI, you will find out if your solution is optimal.</li>
           </ul>

@@ -21,12 +21,18 @@
     "vis": "^4.17.0"
   },
   "devDependencies": {
+    "autoprefixer": "^6.7.3",
     "browser-sync": "^2.18.8",
     "expect": "^1.20.2",
     "gulp": "^3.9.1",
+    "gulp-postcss": "^6.3.0",
     "gulp-watch": "^4.3.11",
     "mocha": "^3.2.0",
     "nodemon": "^1.11.0",
+    "postcss-import": "^9.1.0",
+    "postcss-mixins": "^5.4.1",
+    "postcss-nested": "^1.0.0",
+    "postcss-simple-vars": "^3.0.0",
     "supertest": "^2.0.1"
   }
 }
