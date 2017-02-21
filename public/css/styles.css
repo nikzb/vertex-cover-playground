@@ -704,6 +704,15 @@ li {
   font-family: monospace;
 }
 
+.btn--small {
+  font-size: 1.5em;
+  background-color: #EEE;
+  -webkit-box-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
+  max-width: 50%;
+}
+
 .main-container {
   display: -webkit-box;
   display: -ms-flexbox;
@@ -789,4 +798,10 @@ li {
 
 .circle--service {
   background: yellow;
+}
+
+.btn-container {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
 }
