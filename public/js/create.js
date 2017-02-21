@@ -35,7 +35,7 @@ function populateStageInstructions() {
   stageInstructions = [];
 
   stageInstructions[0] = `
-    <ul class='instruct-details'>
+    <ul class='info-container__list''>
       <li>It is relatively easy to create one of these problems.</li>
       <li>It may be very difficult for someone else to solve your problem!</li>
     </ul>
@@ -542,7 +542,7 @@ function setUpProblem() {
   }
 
   var updateHotspotCount = function(nodes) {
-    document.querySelector('.graph-area__count-wrap__count').innerHTML = countHotspots(nodes);
+    document.querySelector('.graph-area__count-wrap-count').innerHTML = countHotspots(nodes);
   }
 
   var checkForCompletion = function(nodes) {
@@ -606,19 +606,20 @@ function init() {
   document.querySelector('button[name="prev"]').addEventListener('click', goToPrevStage);
   document.querySelector('button[name="reset"]').addEventListener("click", resetPuzzleBuilder);
 
-  challengeDiv = document.querySelector('.challenge-wrap');
-  instructDiv = document.querySelector('.instruct-wrap');
-  instruct = document.querySelector('.instruct');
-  keyDiv = document.querySelector('.key-wrap');
+  // challengeDiv = document.querySelector('.info-container.challenge');
+  instructDiv = document.querySelector('.info-container.instructions');
+  instruct = document.querySelector('.info-container__details.instructions');
+  // keyDiv = document.querySelector('.key-container');
   buttonDiv = document.querySelector('.button-wrap');
   prevButton = document.querySelector('button[name="prev"]');
   resetButton = document.querySelector('button[name="reset"]');
-  hotspotCountDiv = document.querySelector('.hotspot-count-wrap');
+  hotspotCountDiv = document.querySelector('.graph-area__count-wrap');
 
-  challengeDiv.style.display = 'none';
-  keyDiv.style.display = 'none';
+  // challengeDiv.style.display = 'none';
+  // keyDiv.style.display = 'none';
   prevButton.style.visibility = 'hidden';
-  resetButton.style.visibility = 'hidden';
+
+  // resetButton.style.visibility = 'hidden';
   hotspotCountDiv.style.visibility = 'hidden';
 
   draw();

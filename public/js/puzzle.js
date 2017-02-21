@@ -334,7 +334,7 @@ var countHotspots = function() {
 }
 
 var updateHotspotCount = function() {
-  document.querySelector('.graph-area__count-wrap__count').innerHTML = countHotspots();
+  document.querySelector('.graph-area__count-wrap-count').innerHTML = countHotspots();
 }
 
 var checkForCompletion = function() {

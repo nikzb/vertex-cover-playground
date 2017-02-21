@@ -499,6 +499,10 @@ button:focus {
   text-shadow: 0.05em 0.05em #DDD;
 }
 
+li {
+  list-style-type: none;
+}
+
 .logo-image {
   position: relative;
   width: 100px;
@@ -604,6 +608,11 @@ button:focus {
   margin: 0 10px 10px 10px;
 }
 
+.info-container.instructions {
+  margin-top: 30px;
+  margin-bottom: 30px;
+}
+
 .info-container__title {
   margin-top: 5px;
 }
@@ -613,8 +622,8 @@ button:focus {
 }
 
 .info-container li {
-  font-size: 1.2em;
-  margin: 1.2em 0;
+  font-size: 0.9rem;
+  margin: 1.2rem 0;
   list-style-type: none;
 }
 
@@ -625,7 +634,7 @@ button:focus {
   border: 1px solid darkgray;
   padding: 1rem;
   font-weight: normal;
-  font-size: 1.4rem;
+  font-size: 1.1rem;
 }
 
 .graph-area {
@@ -659,7 +668,7 @@ button:focus {
   border: 1px solid lightgray;
 }
 
-.graph-area__header__title {
+.graph-area__header-title {
   margin-left: 20px;
 }
 
@@ -676,10 +685,9 @@ button:focus {
       -ms-flex-align: center;
           align-items: center;
   position: relative;/* Is this necessary? */
-  font-size: 1.15em;
 }
 
-.graph-area__count-wrap__label {
+.graph-area__count-wrap-label {
   margin-right: 30px;
 }
 
@@ -690,7 +698,7 @@ button:focus {
 }
 
 .btn--full-width {
-  font-size: 2.0rem;
+  font-size: 1.7rem;
   background-color: #EEE;
   border: 1px solid lightgray;
   font-family: monospace;
@@ -730,4 +738,55 @@ button:focus {
   -webkit-box-flex: 1;
       -ms-flex: 1 1 auto;
           flex: 1 1 auto;
+}
+
+.key-container {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  padding: 0 0 0 20px;
+  background-image: -webkit-linear-gradient(150deg, #D8D8D8, #EEEEEE);
+  background-image: linear-gradient(300deg, #D8D8D8, #EEEEEE);
+  border: 1px solid darkgray;
+}
+
+.key-container__list {
+  margin-bottom: 0;
+}
+
+.key-container__list-item {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  padding: 10px 0;
+  font-size: 1.1rem;
+}
+
+.key-container__list-item > span {
+  margin-left: 15px;
+}
+
+.circle {
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  -webkit-box-flex: 0;
+      -ms-flex: 0 0 40px;
+          flex: 0 0 40px;
+  margin: 0;
+}
+
+.circle--no-service {
+  background: red;
+}
+
+.circle--hotspot {
+  background: orange;
+}
+
+.circle--service {
+  background: yellow;
 }

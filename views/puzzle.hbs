@@ -17,9 +17,9 @@
   <div class='middle-container'>
     <div class='graph-area'>
       <div class='graph-area__header'>
-        <h2 class='title graph-area__header__title'>Graph: <span class='graph-area__code'>{{code}}</span></h2>
+        <h2 class='title graph-area__header-title'>Graph: <span class='graph-area__code'>{{code}}</span></h2>
         <div class='graph-area__count-wrap'>
-          <h2 class='graph-area__count-wrap__label'>Hotspots: <span class="graph-area__count-wrap__count">0</span></h2>
+          <h2 class='graph-area__count-wrap-label'>Hotspots: <span class="graph-area__count-wrap-count">0</span></h2>
         </div>
       </div>
       <div class='graph-area__graph-canvas'></div>
@@ -36,7 +36,7 @@
       </div>
     </div>
     <div class='guide'>
-      <div class='info-container'>
+      <div class='info-container challenge'>
         <h2 class='info-container__title'>The Challenge</h2>
         <div class='info-container__details'>
           <ul class='info-container__list'>
@@ -46,7 +46,7 @@
           <h3 class='info-container__todo'>Add enough hotspots to provide service to all the zones. Determine the minimum number of hotspots needed.</h3>
         </div>
       </div>
-      <div class='info-container'>
+      <div class='info-container instructions'>
         <h2 class='info-container__title'>Instructions</h2>
         <div class='info-container__details'>
           <ul class='info-container__list'>
@@ -55,14 +55,7 @@
           </ul>
         </div>
       </div>
-      <div class='key-wrap'>
-        <h2 class='title'>Key</h2>
-        <ul class='key'>
-          <li><div class='circle no-service'></div><span>No Service</span></li>
-          <li><div class='circle hotspot'></div><span>Hotspot</span></li>
-          <li><div class='circle service'></div><span>Receiving Service</span></li>
-        </ul>
-      </div>
+      {{> key}}
     </div>
   </div>
 </div>
