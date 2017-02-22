@@ -1,0 +1,38 @@
+body {
+  font-family: monospace;
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+}
+
+a {
+  text-shadow: $smallShadowSize $smallShadowSize $lightShadowColor;
+}
+
+a:link, a:visited {
+  text-decoration: none;
+  color: $linkColor;
+}
+
+a:hover {
+  text-decoration: underline;
+  color: $linkColor;
+}
+
+a:active {
+  text-decoration: underline;
+  color: $linkColor;
+}
+
+button:focus {
+  outline: none;
+}
+
+.title {
+  text-shadow: 0.05em 0.05em #DDD;
+}
+
+li {
+  list-style-type: none;
+}

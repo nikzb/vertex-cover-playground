@@ -8,59 +8,54 @@
   <script type="text/javascript" src="/node_modules/vis/dist/vis.js"></script>
   <link href="/node_modules/vis/dist/vis-network.min.css" rel="stylesheet" type="text/css" />
 
-  <link href="/css/app.css" rel="stylesheet" type="text/css" />
+  <link href="/css/styles.css" rel="stylesheet" type="text/css" />
 </head>
 <body onload="init();">
 
-<div class='main-wrap'>
+<div class='main-container'>
   {{> mainHeader}}
-  <div class='second-wrap'>
-    <div class='graph-wrap'>
-      <div class='graph-header'>
-        <h2 class='title'>Graph</h2>
-        <div class='hotspot-count-wrap'>
-          <h2 class='hotspot-count-label'>Hotspots: <span class="hotspot-count">0</span></h2>
+  <div class='middle-container'>
+    <div class='graph-area'>
+      <div class='graph-area__header'>
+        <h2 class='title graph-area__header-title'>Graph</h2>
+        <div class='graph-area__count-wrap'>
+          <h2 class='graph-area__count-wrap-label'>Hotspots: <span class="graph-area_count-wrap-count">0</span></h2>
         </div>
       </div>
-      <div class='graph'></div>
-      <button type="button" name="reset">Start Over</button>
+      <div class='graph-area__graph-canvas'></div>
+      <button class="btn btn--full-width" type="button" name="reset">Start Over</button>
     </div>
-    <div class='guide-wrap'>
-
-      <div class='challenge-wrap'>
-        <h2 class='title'>The Challenge</h2>
-        <div class='challenge'>
-          <ul class='challenge-details'>
+    <div class='guide'>
+      <!--
+      <div class='info-container challenge'>
+        <h2 class='info-container__title'>The Challenge</h2>
+        <div class='info-container__details challenge'>
+          <ul class='info-container__list'>
             <li>The nodes in the graph represent zones in need of WIFI.</li>
             <li>A hotspot can be placed at any node and will serve that node and all the nodes connected to it.</li>
           </ul>
           <h3 class='to-do'>Add enough hotspots to provide service to all the zones. Determine the minimum number of hotspots needed.</h3>
         </div>
       </div>
+      -->
 
-      <div class='instruct-wrap'>
-        <h2 class='title'>Creating a Wifi Hotspot Problem</h2>
-        <div class='button-wrap'>
-          <button class='steps' type="button" name="prev">Previous</button>
-          <button class='steps' type="button" name="next">Next</button>
+      <div class='info-container instructions'>
+        <h2 class='info-container__title'>Creating a Wifi Hotspot Problem</h2>
+        <div class='btn-container'>
+          <button class='btn--small' type="button" name="prev">Previous</button>
+          <button class='btn--small' type="button" name="next">Next</button>
         </div>
-        <div class='instruct'>
-          <ul class='instruct-details'>
+        <div class='info-container__details instructions'>
+          <ul class='info-container__list'>
             <li>It is relatively easy to create one of these problems.</li>
             <li>It may be very difficult for someone else to solve your problem!</li>
           </ul>
           <h3 class='to-do'>Follow the instructions to create your own Wifi Hotspot Problem!</h3>
         </div>
       </div>
-
-      <div class='key-wrap'>
-        <h2 class='title'>Key</h2>
-        <ul class='key'>
-          <li><div class='circle no-service'></div><span>No Service</span></li>
-          <li ><div class='circle hotspot'></div><span>Hotspot</span></li>
-          <li><div class='circle service'></div><span>Receiving Service</span></li>
-        </ul>
-      </div>
+      <!--
+      {{> key}}
+      -->
     </div>
   </div>
 </div>

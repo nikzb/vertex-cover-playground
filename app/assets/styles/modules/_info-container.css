@@ -1,0 +1,32 @@
+.info-container {
+  &.instructions {
+    margin-top: 30px;
+    margin-bottom: 30px;
+  }
+
+  &__title {
+    margin-top: 5px;
+  }
+
+  &__list {
+    padding-left: 20px;
+  }
+
+  li {
+    font-size: 0.9rem;
+    margin: 1.2rem 0;
+    list-style-type: none;
+  }
+
+  &__todo {
+    font-style: italic;
+    background-image: linear-gradient(300deg, $gradientStartColor, $gradientEndColor);
+    border: 1px solid $darkBorder;
+
+    padding: 1rem;
+    font-weight: normal;
+    font-size: 1.1rem;
+  }
+
+
+}

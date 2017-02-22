@@ -1,12 +1,11 @@
 // Variables for manipulating the DOM
-var challengeDiv = null;
 var instructDiv = null;
-var keyDiv = null;
 var buttonDiv = null;
 var prevButton = null;
 var resetButton = null;
 var instruct = null;
 var hotspotCountDiv = null;
+// var keyDiv = null;
 
 var stageInstructIndex = 0;
 var stageInstructions = null;
@@ -35,7 +34,7 @@ function populateStageInstructions() {
   stageInstructions = [];
 
   stageInstructions[0] = `
-    <ul class='instruct-details'>
+    <ul class='info-container__list''>
       <li>It is relatively easy to create one of these problems.</li>
       <li>It may be very difficult for someone else to solve your problem!</li>
     </ul>
@@ -256,11 +255,10 @@ function goToNextStage() {
     setUpOptionsForFinished();
     instruct.innerHTML = stageInstructions[5];
   } else if (stage === 'finished') {
-    challengeDiv.style.display = 'initial';
     buttonDiv.style.display = 'none';
-    keyDiv.style.display = 'initial';
+    // keyDiv.style.display = 'initial';
     instruct.innerHTML = stageInstructions[6];
-    instructDiv.querySelector('.title').textContent = 'Instructions';
+    instructDiv.querySelector('.info-container__title').textContent = 'Instructions';
     hotspotCountDiv.style.visibility = 'visible';
     savePuzzleAndLoad();
 
@@ -302,7 +300,7 @@ function getAddNodeFunc(group) {
 function draw() {
   // Create a network
 
-  container = document.querySelector('.graph');
+  container = document.querySelector('.graph-area__graph-canvas');
 
   options = {
     manipulation: {
@@ -402,203 +400,6 @@ function savePuzzleAndLoad() {
   };
   xhttp.open("GET", "http://" + domain + "/hotspot/newCode", true);
   xhttp.send();
-
-}
-
-function setUpProblem() {
-
-  var optimalAnswer = nodes.get().reduce(function(total, node) {
-    return node.original ? total + 1 : total;
-  }, 0);
-
-  options = {
-    nodes: {
-        shape: 'dot',
-        size: 15,
-        // font: {
-        //     size: 32
-        // },
-        borderWidth: 0,
-        shadow: {
-          enabled: true,
-          size: 3
-        },
-        fixed: true,
-        labelHighlightBold: false
-    },
-    edges: {
-        width: 2,
-        shadow:false,
-        dashes:false,
-        color: {
-          color: 'darkgrey'
-          // inherit: 'both'
-        },
-        selectionWidth: 0
-    },
-    interaction:{
-      // hover:true,
-    },
-    groups: {
-      useDefaultGroups: false,
-      noService: {
-        color: {
-          background:'red',
-          highlight: { background: 'red', border: 'red', borderWidth: 0 }
-        },
-        size:15
-      },
-      hotspot: {
-        color: {
-          background:'orange',
-          highlight: { background: 'orange', border: 'orange', borderWidth: 0 }
-        },
-        size:20
-      },
-      service: {
-        color: {
-          background:'yellow',
-          highlight: { background: 'yellow', border: 'yellow', borderWidth: 0 }
-        },
-        size:15
-      }
-    }
-  };
-
-  var newNodes = [];
-  var newEdges = [];
-
-  nodes.forEach(function(node) {
-    newNodes.push({id: node.id, group: 'noService', label: '', original:node.original, x: node.x, y: node.y});
-  });
-  edges.forEach(function(edge) {
-    newEdges.push({id: edge.id, from: edge.from, to: edge.to});
-  });
-  nodes = new vis.DataSet(newNodes);
-  edges = new vis.DataSet(newEdges);
-  data = {nodes: nodes, edges: edges};
-
-  //network.setOptions(options);
-  network = new vis.Network(container, data, options);
-
-  var updateConnectedNodes = function(nodes, edges) {
-    // Reset all serviced nodes to nodes to unserviced
-    nodes.forEach(function(node) {
-      if (node.group === 'service') {
-        node.group = 'noService';
-        nodes.update(node);
-      }
-    });
-
-    // Find all the hotspot nodes and have them service all the connected non-hotspot nodes
-    nodes.forEach(function(node) {
-      if (node.group === 'hotspot') {
-        edges.forEach(function(edge) {
-          var servicedId = 0;
-          if (edge.from === node.id) {
-            servicedId = edge.to;
-          }
-          else if (edge.to === node.id) {
-            servicedId = edge.from;
-          }
-
-          if (servicedId) {
-            var servicedNode = nodes.get(servicedId);
-
-            if (servicedNode.group === 'noService') {
-              servicedNode.group = 'service';
-              nodes.update(servicedNode);
-            }
-
-          }
-        });
-      }
-    });
-  }
-
-  var resetAllNodes = function(nodes) {
-    nodes.forEach(function(node) {
-      node.group = 'noService';
-      nodes.update(node);
-    });
-  }
-
-  var allNodesHaveWifi = function(nodes) {
-    return nodes.get().every(function(node) {
-      return node.group !== 'noService';
-    });
-  }
-
-  var countHotspots = function(nodes) {
-    var hotspots = 0;
-
-    nodes.forEach(function(node) {
-      if (node.group === 'hotspot') {
-        hotspots += 1;
-      }
-    });
-
-    return hotspots;
-  }
-
-  var updateHotspotCount = function(nodes) {
-    document.querySelector('.hotspot-count').innerHTML = countHotspots(nodes);
-  }
-
-  var checkForCompletion = function(nodes) {
-    if (allNodesHaveWifi(nodes)) {
-      // Display a message telling whether optimization is complete
-      var numHotspots = countHotspots(nodes);
-      if (numHotspots > 0) {
-        if (numHotspots === optimalAnswer) {
-          // Success!
-          document.querySelector('.optimal-message').innerHTML = 'You found an optimal solution!';
-        }
-        else {
-          document.querySelector('.optimal-message').innerHTML = 'It is possible to use less hotspots. Try again. You can do it!';
-        }
-      }
-    }
-    else {
-      document.querySelector('.optimal-message').innerHTML = '';
-    }
-  }
-
-  network.on("click", function (params) {
-
-      params.event = "[original event]";
-      //document.getElementById('eventSpan').innerHTML = '<h2>Click event:</h2>' + JSON.stringify(params, null, 4);
-      if (params.nodes.length > 0)
-      {
-        var id = params.nodes[0];
-        var node = nodes.get(id);
-        //document.getElementById('eventSpan2').innerHTML = '<h2>Node info:</h2>' + JSON.stringify(node, null, 4);
-        if (node.group !== 'hotspot') {
-          nodes.update({id: id, group: 'hotspot'});
-          updateHotspotCount(nodes);
-          // Then update which nodes should be in group 'service'
-          updateConnectedNodes(nodes, edges);
-        }
-        else {//f (node.group === 'hotspot') {
-          nodes.update({id: id, group: 'noService'});
-          // Then update which nodes should be in group 'service'
-          updateHotspotCount(nodes);
-          updateConnectedNodes(nodes, edges);
-        }
-
-        checkForCompletion(nodes);
-      }
-
-  });
-
-  function resetPuzzle() {
-    resetAllNodes(nodes);
-    updateHotspotCount(nodes);
-    document.querySelector('.optimal-message').innerHTML = '';
-  }
-
-  document.querySelector('button[name="reset"]').removeEventListener("click", resetPuzzleBuilder);
-  document.querySelector('button[name="reset"]').addEventListener("click", resetPuzzle);
 }
 
 function init() {
@@ -606,19 +407,20 @@ function init() {
   document.querySelector('button[name="prev"]').addEventListener('click', goToPrevStage);
   document.querySelector('button[name="reset"]').addEventListener("click", resetPuzzleBuilder);
 
-  challengeDiv = document.querySelector('.challenge-wrap');
-  instructDiv = document.querySelector('.instruct-wrap');
-  instruct = document.querySelector('.instruct');
-  keyDiv = document.querySelector('.key-wrap');
-  buttonDiv = document.querySelector('.button-wrap');
+  // challengeDiv = document.querySelector('.info-container.challenge');
+  instructDiv = document.querySelector('.info-container.instructions');
+  instruct = document.querySelector('.info-container__details.instructions');
+  // keyDiv = document.querySelector('.key-container');
+  buttonDiv = document.querySelector('.btn-container');
   prevButton = document.querySelector('button[name="prev"]');
   resetButton = document.querySelector('button[name="reset"]');
-  hotspotCountDiv = document.querySelector('.hotspot-count-wrap');
+  hotspotCountDiv = document.querySelector('.graph-area__count-wrap');
 
-  challengeDiv.style.display = 'none';
-  keyDiv.style.display = 'none';
+  // challengeDiv.style.display = 'none';
+  // keyDiv.style.display = 'none';
   prevButton.style.visibility = 'hidden';
-  resetButton.style.visibility = 'hidden';
+
+  // resetButton.style.visibility = 'hidden';
   hotspotCountDiv.style.visibility = 'hidden';
 
   draw();
@@ -626,16 +428,10 @@ function init() {
 
 /* To Do
 
--Buggy: positions don't hold (they revert upon hitting next buttton)
-   -Removing the updateOptions command somehow fixed this, but then the options are incorrect so ????
-
 -Probably should eliminate this functionality for now and implement later
-  -Going back to previous steps
   -Add proper deleteNode functions
   -Add proper deleteEdge functions
 
 -Known Bugs
-  -When you drag an existing node to a new location, it reverts when you click "next" to proceed to the next stage.
   -Clicking "Start Over" on puzzle builder makes the graph canvas resize to smaller size when it starts out very wide
-
 */

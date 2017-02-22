@@ -1,0 +1,15 @@
+.btn {
+  &--full-width {
+    font-size: 1.7rem;
+    background-color: #EEE;
+    border: 1px solid $lightBorder;
+    font-family: monospace;
+  }
+
+  &--small {
+    font-size: 1.5em;
+    background-color: #EEE;
+    flex: 1;
+    max-width: 50%;
+  }
+}

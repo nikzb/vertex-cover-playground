@@ -1,0 +1,41 @@
+.message-box {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  align-self: center;
+
+  background: linear-gradient(300deg, rgba(225,225,225,0.93), rgba(238,238,238,0.93));
+  margin: 30px;
+  padding: 100px 20px;
+  border: 1px solid darkgray;
+  outline: 5px solid orange;
+
+  text-shadow: 0.05em 0.05em #666;
+  height: 250px;
+  max-width: 540px;
+
+  &__message {
+    font-size: 2em;
+    text-align: center;
+  }
+
+  &__options {
+
+  }
+
+  &--slide-in {
+    opacity:0;
+    transition:all .5s;
+  }
+
+  &--hide-below.slide-in {
+    transform:translateY(0%);
+  }
+
+  &--slide-in.active {
+    opacity:1;
+    transform:translateY(-143%);
+  }
+
+}
