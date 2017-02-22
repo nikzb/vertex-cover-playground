@@ -136,7 +136,7 @@ function setUpClickHandlers() {
       }
   });
 
-  var messageDiv = document.querySelector('.message-wrap');
+  var messageDiv = document.querySelector('.message-box');
 
   messageDiv.addEventListener("click", function() {
     removeActive(messageDiv);
@@ -146,9 +146,9 @@ function setUpClickHandlers() {
     resetAllNodes();
     updateHotspotCount();
 
-    var optimalMessageElem = document.querySelector('.optimal-message');
+    var messageElem = document.querySelector('.message-box__message');
 
-    optimalMessageElem.innerHTML = '';
+    messageElem.innerHTML = '';
 
     removeActive(messageDiv);
   });
@@ -338,20 +338,20 @@ var updateHotspotCount = function() {
 }
 
 var checkForCompletion = function() {
-  var messageDiv = document.querySelector('.message-wrap');
-  var optimalMessageElem = document.querySelector('.optimal-message');
-  var links = document.querySelectorAll('.message.options');
+  var messageDiv = document.querySelector('.message-box');
+  var messageElem = document.querySelector('.message-box__message');
+  var links = document.querySelectorAll('.message-box__options');
   if (allNodesHaveWifi()) {
     // Display a message telling whether optimization is complete
     if (countHotspots() === optimalAnswer) {
       // Success!
-      optimalMessageElem.innerHTML = 'You found an optimal solution!';
+      messageElem.innerHTML = 'You found an optimal solution!';
       links.forEach(function(link) {
         link.style.display = 'block';
       });
     }
     else {
-      optimalMessageElem.innerHTML = 'Try again using less hotspots. You can do it!';
+      messageElem.innerHTML = 'Try again using less hotspots. You can do it!';
       links.forEach(function(link) {
         link.style.display = 'none';
       });
@@ -359,7 +359,7 @@ var checkForCompletion = function() {
     messageDiv.classList.add('active');
   }
   else {
-    document.querySelector('.optimal-message').innerHTML = '';
+    document.querySelector('.message-box__message').innerHTML = '';
     removeActive(messageDiv);
   }
 }

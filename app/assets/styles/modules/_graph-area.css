@@ -39,4 +39,14 @@
     border: 1px solid lightgray;
     background-color: white;
   }
+
+  &__options-wrap {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  &__options {
+    margin: 14px 20px;
+    font-weight: normal;
+  }
 }
