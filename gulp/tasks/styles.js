@@ -7,11 +7,11 @@ const cssImport = require('postcss-import');
 const mixins = require('postcss-mixins');
 
 gulp.task('styles', function() {
-  return gulp.src('./app/assets/styles/styles.css')
+  return gulp.src('./dev/assets/css/styles.css')
     .pipe(postcss([cssImport, mixins, cssvars, nested, autoprefixer]))
     .on('error', function(errorInfo) {
       console.log(errorInfo.toString());
       this.emit('end');
     })
-    .pipe(gulp.dest('./app/dev_bundle/styles'));
+    .pipe(gulp.dest('./dev/bundle/css'));
 });

@@ -6,20 +6,28 @@ gulp.task('watch', function() {
   browserSync.init({
     notify: false,
     server: {
-      baseDir: "app"
+      baseDir: "dev"
     }
   });
 
-  // watch('./views/**/*.hbs', function() {
-  //   browserSync.reload();
-  // });
+  watch('./views/**/*.hbs', function() {
+    browserSync.reload();
+  });
 
-  watch('./app/assets/styles/**/*.css', function() {
+  watch('./dev/assets/styles/**/*.css', function() {
     gulp.start('cssInject');
+  });
+
+  watch('.dev/assets/js/**/*.js', function() {
+    gulp.start('scriptsRefresh');
   });
 });
 
 gulp.task('cssInject', ['styles'], function() {
-  return gulp.src('./public/css/app.css')
+  return gulp.src('./dev/bundle/css/app.css')
     .pipe(browserSync.stream());
+});
+
+gulp.task('scriptsRefresh', ['scripts'], function() {
+  browserSync.reload();
 });
