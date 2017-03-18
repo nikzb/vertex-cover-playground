@@ -10,8 +10,7 @@ The second part allows users to create their own problem
 
 # Still To Be Developed
 * Update the css with media queries to make the site mobile friendly.
-* Create a database to store data for user created puzzles. Each puzzle could be assigned a code and link that could be used for sharing the user created puzzles.
-    
+
 # License
 The MIT License
 
