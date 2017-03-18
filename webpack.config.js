@@ -1,9 +1,10 @@
 module.exports = {
   entry: {
-    App: "./app/assets/scripts/App.js"
+    create: "./dev/assets/js/create.js",
+    puzzle: "./dev/assets/js/puzzle.js"
   },
   output: {
-    path: "./app/dev_bundle/scripts",
+    path: "./dev/bundle/js",
     filename: "[name].js"
   },
   module: {
