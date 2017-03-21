@@ -2,7 +2,7 @@
   "name": "vertex-cover-problem",
   "version": "1.0.0",
   "description": "Tool for interactively solving and creating vertex cover problems",
-  "main": "./public/js/puzzle.js",
+  "main": "./public/js/create.js",
   "scripts": {
     "start": "node server/server.js",
     "test": "export NODE_ENV=test || SET \"NODE_ENV=test\" && mocha server/**/*.test.js",

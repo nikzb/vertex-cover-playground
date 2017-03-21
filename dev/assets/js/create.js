@@ -1,3 +1,5 @@
+'use strict';
+
 // Variables for manipulating the DOM
 var instructDiv = null;
 var buttonDiv = null;
@@ -402,29 +404,33 @@ function savePuzzleAndLoad() {
   xhttp.send();
 }
 
-function init() {
-  document.querySelector('button[name="next"]').addEventListener('click', goToNextStage);
-  document.querySelector('button[name="prev"]').addEventListener('click', goToPrevStage);
-  document.querySelector('button[name="reset"]').addEventListener("click", resetPuzzleBuilder);
+module.exports = {
+  init: function() {
+    document.querySelector('button[name="next"]').addEventListener('click', goToNextStage);
+    document.querySelector('button[name="prev"]').addEventListener('click', goToPrevStage);
+    document.querySelector('button[name="reset"]').addEventListener("click", resetPuzzleBuilder);
 
-  // challengeDiv = document.querySelector('.info-container.challenge');
-  instructDiv = document.querySelector('.info-container.instructions');
-  instruct = document.querySelector('.info-container__details.instructions');
-  // keyDiv = document.querySelector('.key-container');
-  buttonDiv = document.querySelector('.btn-container');
-  prevButton = document.querySelector('button[name="prev"]');
-  resetButton = document.querySelector('button[name="reset"]');
-  hotspotCountDiv = document.querySelector('.graph-area__count-wrap');
+    // challengeDiv = document.querySelector('.info-container.challenge');
+    instructDiv = document.querySelector('.info-container.instructions');
+    instruct = document.querySelector('.info-container__details.instructions');
+    // keyDiv = document.querySelector('.key-container');
+    buttonDiv = document.querySelector('.btn-container');
+    prevButton = document.querySelector('button[name="prev"]');
+    resetButton = document.querySelector('button[name="reset"]');
+    hotspotCountDiv = document.querySelector('.graph-area__count-wrap');
 
-  // challengeDiv.style.display = 'none';
-  // keyDiv.style.display = 'none';
-  prevButton.style.visibility = 'hidden';
+    // challengeDiv.style.display = 'none';
+    // keyDiv.style.display = 'none';
+    prevButton.style.visibility = 'hidden';
 
-  // resetButton.style.visibility = 'hidden';
-  hotspotCountDiv.style.visibility = 'hidden';
+    // resetButton.style.visibility = 'hidden';
+    hotspotCountDiv.style.visibility = 'hidden';
 
-  draw();
+    draw();
+  }
 }
+
+console.log("bottom of create.js");
 
 /* To Do
 

@@ -64,11 +64,12 @@ var EntryPoint =
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 0);
+/******/ 	return __webpack_require__(__webpack_require__.s = 1);
 /******/ })
 /************************************************************************/
 /******/ ([
-/* 0 */
+/* 0 */,
+/* 1 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -92,12 +93,7 @@ var EntryPoint =
 
 
 
-console.log('Start puzzle.js');
-
 module.exports = {
-  go: function go() {
-    console.log('go from library');
-  },
   usePuzzle: function usePuzzle(code) {
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function () {
@@ -134,36 +130,7 @@ var optimalAnswer = null;
 var domain = 'localhost:3001';
 var puzzleList;
 
-//useDefaultPuzzle();
-
-// tried this but didn't work: http://stackoverflow.com/questions/34357489/calling-webpacked-code-from-outside-html-script-tag
-// function usePuzzle(code) {
-//
-//   var xhttp = new XMLHttpRequest();
-//   xhttp.onreadystatechange = function() {
-//     if (this.readyState == 4 && this.status == 200) {
-//       var data = JSON.parse(this.responseText);
-//       setUpNetwork(data.puzzle.graph.nodes, data.puzzle.graph.edges);
-//       puzzleList = JSON.parse(localStorage.getItem('hotspotPuzzlesAttempted')) || [];
-//       var found = false;
-//       for (var i = 0; i < puzzleList.length; i++) {
-//         if (puzzleList[i].code === code) {
-//           found = true;
-//         }
-//       }
-//       console.log("Code " + code + " was found: " + found);
-//       if (!found) {
-//         puzzleList.push({'code':code});
-//       }
-//       localStorage.setItem('hotspotPuzzlesAttempted', JSON.stringify(puzzleList));
-//     }
-//   };
-//
-//   xhttp.open("GET", "http://" + domain + "/hotspot-data/" + code, true);
-//   xhttp.send();
-// }
-
-function useDefaultPuzzle() {
+var useDefaultPuzzle = function useDefaultPuzzle() {
   var coordsArray = [[0, 0], [2, 0], [3, 0], [4, 0], [4, 2], [4, 3], [4, 4], [3, 4], [2, 4], [1, 4], [0, 4], [0, 3], [0, 2], [1, 2], [1, 1], [2, 1], [3, 1], [3, 2], [3, 3], [2, 3], [2, 2], [1, 3]];
 
   coordsArray = coordsArray.map(function (coords) {
@@ -198,18 +165,18 @@ function useDefaultPuzzle() {
   });
 
   setUpNetwork(nodeArray, edgeArray);
-}
+};
 
-function setUpNetwork(nodeArray, edgeArray) {
+var setUpNetwork = function setUpNetwork(nodeArray, edgeArray) {
   setUpOptions();
   setUpData(nodeArray, edgeArray);
   setUpContainer();
   network = new vis.Network(container, data, options);
   setUpClickHandlers();
   saveOptimalAnswer();
-}
+};
 
-function setUpClickHandlers() {
+var setUpClickHandlers = function setUpClickHandlers() {
   network.on("click", function (params) {
     params.event = "[original event]";
     //document.getElementById('eventSpan').innerHTML = '<h2>Click event:</h2>' + JSON.stringify(params, null, 4);
@@ -282,25 +249,25 @@ function setUpClickHandlers() {
       window.location = "http://" + domain + "/create";
     });
   });
-}
+};
 
-function removeActive(element) {
+var removeActive = function removeActive(element) {
   if (element.classList.contains('active')) {
     element.classList.remove('active');
   }
-}
+};
 
-function saveOptimalAnswer() {
+var saveOptimalAnswer = function saveOptimalAnswer() {
   optimalAnswer = nodes.get().reduce(function (total, node) {
     return node.original ? total + 1 : total;
   }, 0);
-}
+};
 
-function setUpContainer() {
+var setUpContainer = function setUpContainer() {
   container = document.querySelector('.graph-area__graph-canvas');
-}
+};
 
-function setUpData(nodeArray, edgeArray) {
+var setUpData = function setUpData(nodeArray, edgeArray) {
   var newEdgeArray = [];
   edgeArray.forEach(function (edge) {
     newEdgeArray.push({ id: edge.id, from: edge.from, to: edge.to });
@@ -313,9 +280,9 @@ function setUpData(nodeArray, edgeArray) {
     nodes: nodes,
     edges: edges
   };
-}
+};
 
-function setUpOptions() {
+var setUpOptions = function setUpOptions() {
   options = {
     nodes: {
       shape: 'dot',
@@ -369,7 +336,7 @@ function setUpOptions() {
       }
     }
   };
-}
+};
 
 var updateConnectedNodes = function updateConnectedNodes() {
   // Reset all serviced nodes to nodes to unserviced
