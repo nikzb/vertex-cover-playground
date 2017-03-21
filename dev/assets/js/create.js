@@ -18,7 +18,7 @@ var network = null;
 var data = null;
 
 var container;
-var domain = 'localhost:3000';
+var domain = 'localhost:3001';
 
 // The stages are
   // 0: intro

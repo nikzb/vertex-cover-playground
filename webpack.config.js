@@ -1,11 +1,16 @@
 module.exports = {
   entry: {
-    create: "./dev/assets/js/create.js",
-    puzzle: "./dev/assets/js/puzzle.js"
+    //create: './dev/assets/js/create.js',
+    puzzle: './dev/assets/js/puzzle.js'
   },
   output: {
-    path: "./dev/bundle/js",
-    filename: "[name].js"
+    path: './public/js',
+    //filename: '[name].js',
+    filename: 'puzzle.js',
+    libraryTarget: 'var',
+    //library: ['GlobalAccess', '[name]']
+    library: 'EntryPoint'
+
   },
   module: {
     loaders: [

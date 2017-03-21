@@ -18,6 +18,38 @@
 
 "use strict";
 
+console.log('Start puzzle.js');
+
+module.exports = {
+  go: function() {
+    console.log('go from library');
+  },
+  usePuzzle: function(code) {
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+      if (this.readyState == 4 && this.status == 200) {
+        var data = JSON.parse(this.responseText);
+        setUpNetwork(data.puzzle.graph.nodes, data.puzzle.graph.edges);
+        puzzleList = JSON.parse(localStorage.getItem('hotspotPuzzlesAttempted')) || [];
+        var found = false;
+        for (var i = 0; i < puzzleList.length; i++) {
+          if (puzzleList[i].code === code) {
+            found = true;
+          }
+        }
+        console.log("Code " + code + " was found: " + found);
+        if (!found) {
+          puzzleList.push({'code':code});
+        }
+        localStorage.setItem('hotspotPuzzlesAttempted', JSON.stringify(puzzleList));
+      }
+    };
+
+    xhttp.open("GET", "http://" + domain + "/hotspot-data/" + code, true);
+    xhttp.send();
+  }
+};
+
 var nodes = null;
 var edges = null;
 var data = null;
@@ -25,36 +57,37 @@ var options = null;
 var container = null;
 var network = null;
 var optimalAnswer = null;
-var domain = 'localhost:3000';
+var domain = 'localhost:3001';
 var puzzleList;
 
 //useDefaultPuzzle();
 
-function usePuzzle(code) {
-
-  var xhttp = new XMLHttpRequest();
-  xhttp.onreadystatechange = function() {
-    if (this.readyState == 4 && this.status == 200) {
-      var data = JSON.parse(this.responseText);
-      setUpNetwork(data.puzzle.graph.nodes, data.puzzle.graph.edges);
-      puzzleList = JSON.parse(localStorage.getItem('hotspotPuzzlesAttempted')) || [];
-      var found = false;
-      for (var i = 0; i < puzzleList.length; i++) {
-        if (puzzleList[i].code === code) {
-          found = true;
-        }
-      }
-      console.log("Code " + code + " was found: " + found);
-      if (!found) {
-        puzzleList.push({'code':code});
-      }
-      localStorage.setItem('hotspotPuzzlesAttempted', JSON.stringify(puzzleList));
-    }
-  };
-
-  xhttp.open("GET", "http://" + domain + "/hotspot-data/" + code, true);
-  xhttp.send();
-}
+// tried this but didn't work: http://stackoverflow.com/questions/34357489/calling-webpacked-code-from-outside-html-script-tag
+// function usePuzzle(code) {
+//
+//   var xhttp = new XMLHttpRequest();
+//   xhttp.onreadystatechange = function() {
+//     if (this.readyState == 4 && this.status == 200) {
+//       var data = JSON.parse(this.responseText);
+//       setUpNetwork(data.puzzle.graph.nodes, data.puzzle.graph.edges);
+//       puzzleList = JSON.parse(localStorage.getItem('hotspotPuzzlesAttempted')) || [];
+//       var found = false;
+//       for (var i = 0; i < puzzleList.length; i++) {
+//         if (puzzleList[i].code === code) {
+//           found = true;
+//         }
+//       }
+//       console.log("Code " + code + " was found: " + found);
+//       if (!found) {
+//         puzzleList.push({'code':code});
+//       }
+//       localStorage.setItem('hotspotPuzzlesAttempted', JSON.stringify(puzzleList));
+//     }
+//   };
+//
+//   xhttp.open("GET", "http://" + domain + "/hotspot-data/" + code, true);
+//   xhttp.send();
+// }
 
 function useDefaultPuzzle() {
   var coordsArray = [

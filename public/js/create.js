@@ -1,3 +1,80 @@
+/******/ (function(modules) { // webpackBootstrap
+/******/ 	// The module cache
+/******/ 	var installedModules = {};
+/******/
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/
+/******/ 		// Check if module is in cache
+/******/ 		if(installedModules[moduleId])
+/******/ 			return installedModules[moduleId].exports;
+/******/
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = installedModules[moduleId] = {
+/******/ 			i: moduleId,
+/******/ 			l: false,
+/******/ 			exports: {}
+/******/ 		};
+/******/
+/******/ 		// Execute the module function
+/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+/******/
+/******/ 		// Flag the module as loaded
+/******/ 		module.l = true;
+/******/
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/
+/******/
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = modules;
+/******/
+/******/ 	// expose the module cache
+/******/ 	__webpack_require__.c = installedModules;
+/******/
+/******/ 	// identity function for calling harmony imports with the correct context
+/******/ 	__webpack_require__.i = function(value) { return value; };
+/******/
+/******/ 	// define getter function for harmony exports
+/******/ 	__webpack_require__.d = function(exports, name, getter) {
+/******/ 		if(!__webpack_require__.o(exports, name)) {
+/******/ 			Object.defineProperty(exports, name, {
+/******/ 				configurable: false,
+/******/ 				enumerable: true,
+/******/ 				get: getter
+/******/ 			});
+/******/ 		}
+/******/ 	};
+/******/
+/******/ 	// getDefaultExport function for compatibility with non-harmony modules
+/******/ 	__webpack_require__.n = function(module) {
+/******/ 		var getter = module && module.__esModule ?
+/******/ 			function getDefault() { return module['default']; } :
+/******/ 			function getModuleExports() { return module; };
+/******/ 		__webpack_require__.d(getter, 'a', getter);
+/******/ 		return getter;
+/******/ 	};
+/******/
+/******/ 	// Object.prototype.hasOwnProperty.call
+/******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
+/******/
+/******/ 	// __webpack_public_path__
+/******/ 	__webpack_require__.p = "";
+/******/
+/******/ 	// Load entry module and return exports
+/******/ 	return __webpack_require__(__webpack_require__.s = 0);
+/******/ })
+/************************************************************************/
+/******/ ([
+/* 0 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 // Variables for manipulating the DOM
 var instructDiv = null;
 var buttonDiv = null;
@@ -18,76 +95,34 @@ var network = null;
 var data = null;
 
 var container;
-var domain = 'localhost:3000';
+var domain = 'localhost:3001';
 
-// Stages are
-  // 0: intro
-  // 1: add-hotspots
-  // 2: add-serviced-nodes
-  // 3: make-clusters
-  // 4: connect-clusters
-  // 5: finished
+// The stages are
+// 0: intro
+// 1: add-hotspots
+// 2: add-serviced-nodes
+// 3: make-clusters
+// 4: connect-clusters
+// 5: finished
 var stage = 'intro';
 var options;
 
 function populateStageInstructions() {
   stageInstructions = [];
 
-  stageInstructions[0] = `
-    <ul class='info-container__list''>
-      <li>It is relatively easy to create one of these problems.</li>
-      <li>It may be very difficult for someone else to solve your problem!</li>
-    </ul>
-    <h3 class='to-do'>Follow the instructions to create your own Wifi Hotspot Problem!</h3>
-  `
+  stageInstructions[0] = '\n    <ul class=\'info-container__list\'\'>\n      <li>It is relatively easy to create one of these problems.</li>\n      <li>It may be very difficult for someone else to solve your problem!</li>\n    </ul>\n    <h3 class=\'to-do\'>Follow the instructions to create your own Wifi Hotspot Problem!</h3>\n  ';
 
-  stageInstructions[1] = `
-    <h2 class='step-label'>Step <span class='step-number'>1</span>: Add the Hotspots</h2>
-    <ul class='instruct-details'>
-      <li>Click in the graph canvas to add the hotspots.</li>
-    </ul>
-  `
+  stageInstructions[1] = '\n    <h2 class=\'step-label\'>Step <span class=\'step-number\'>1</span>: Add the Hotspots</h2>\n    <ul class=\'instruct-details\'>\n      <li>Click in the graph canvas to add the hotspots.</li>\n    </ul>\n  ';
 
-  stageInstructions[2] = `
-    <h2 class='step-label'>Step <span class='step-number'>2</span>: Add The Remaining Nodes</h2>
-    <ul class='instruct-details'>
-      <li>Click in the graph canvas to add the nodes that will receive service from the hotspots.</li>
-      <li>You will connect the nodes in the next steps.</li>
-    </ul>
-  `
+  stageInstructions[2] = '\n    <h2 class=\'step-label\'>Step <span class=\'step-number\'>2</span>: Add The Remaining Nodes</h2>\n    <ul class=\'instruct-details\'>\n      <li>Click in the graph canvas to add the nodes that will receive service from the hotspots.</li>\n      <li>You will connect the nodes in the next steps.</li>\n    </ul>\n  ';
 
-  stageInstructions[3] = `
-    <h2 class='step-label'>Step <span class='step-number'>3</span>: Make Clusters</h2>
-    <ul class='instruct-details'>
-      <li>Click the white nodes and drag to connect them to a black node.</li>
-      <li>Each white node should be connected to exactly one black node.</li>
-      <li>Black nodes can be connected to multiple white nodes to form a cluster of nodes.</li>
-    </ul>
-  `
+  stageInstructions[3] = '\n    <h2 class=\'step-label\'>Step <span class=\'step-number\'>3</span>: Make Clusters</h2>\n    <ul class=\'instruct-details\'>\n      <li>Click the white nodes and drag to connect them to a black node.</li>\n      <li>Each white node should be connected to exactly one black node.</li>\n      <li>Black nodes can be connected to multiple white nodes to form a cluster of nodes.</li>\n    </ul>\n  ';
 
-  stageInstructions[4] = `
-    <h2 class='step-label'>Step <span class='step-number'>4</span>: Connect the Clusters</h2>
-    <ul class='instruct-details'>
-      <li>Connect white nodes from different clusters.</li>
-      <li>You can connect nodes to multiple other nodes, as long as they are from different clusters.</li>
-      <li>You will be able to adjust the positions of the nodes in the next step.</li>
-    </ul>
-  `
+  stageInstructions[4] = '\n    <h2 class=\'step-label\'>Step <span class=\'step-number\'>4</span>: Connect the Clusters</h2>\n    <ul class=\'instruct-details\'>\n      <li>Connect white nodes from different clusters.</li>\n      <li>You can connect nodes to multiple other nodes, as long as they are from different clusters.</li>\n      <li>You will be able to adjust the positions of the nodes in the next step.</li>\n    </ul>\n  ';
 
-  stageInstructions[5] = `
-    <h2 class='step-label'>Step <span class='step-number'>5</span>: Finish Up</h2>
-    <ul class='instruct-details'>
-      <li>Ajdust the final positioning of the nodes.</li>
-      <li>Then click Next to create your puzzle!</li>
-    </ul>
-  `
+  stageInstructions[5] = '\n    <h2 class=\'step-label\'>Step <span class=\'step-number\'>5</span>: Finish Up</h2>\n    <ul class=\'instruct-details\'>\n      <li>Ajdust the final positioning of the nodes.</li>\n      <li>Then click Next to create your puzzle!</li>\n    </ul>\n  ';
 
-  stageInstructions[6] = `
-    <ul class='instruct-details'>
-      <li>Click a node to add a hotspot. Click it again to remove it.</li>
-      <li>Only nodes that do not already have service can become hotspots.</li>
-    </ul>
-  `
+  stageInstructions[6] = '\n    <ul class=\'instruct-details\'>\n      <li>Click a node to add a hotspot. Click it again to remove it.</li>\n      <li>Only nodes that do not already have service can become hotspots.</li>\n    </ul>\n  ';
 }
 
 function setUpDragFix() {
@@ -106,7 +141,7 @@ function resetPuzzleBuilder() {
   network.destroy();
   nodes = new vis.DataSet();
   edges = new vis.DataSet();
-  data = {nodes: nodes, edges, edges};
+  data = _defineProperty({ nodes: nodes, edges: edges }, 'edges', edges);
   network = new vis.Network(container, data, options);
   setUpDragFix();
 
@@ -114,7 +149,6 @@ function resetPuzzleBuilder() {
   instruct.innerHTML = stageInstructions[1];
   prevButton.style.visibility = 'hidden';
   setUpOptionsForAddHotspots();
-
 }
 
 function updateNetworkOptions() {
@@ -153,8 +187,7 @@ function setUpOptionsForMakeClusters() {
       if (from.group === 'service') {
         serviceNode = from;
         hotspot = to;
-      }
-      else {
+      } else {
         serviceNode = to;
         hotspot = from;
       }
@@ -179,10 +212,7 @@ function setUpOptionsForConnectClusters() {
     var from = nodes.get(data.from);
     var to = nodes.get(data.to);
 
-    if (data.to !== data.from &&
-        from.group === 'service' &&
-        to.group === 'service' &&
-        !InSameCluster(from, to)) {
+    if (data.to !== data.from && from.group === 'service' && to.group === 'service' && !InSameCluster(from, to)) {
       data.dashes = 'true';
       callback(data);
       network.addEdgeMode();
@@ -212,7 +242,6 @@ function setUpOptionsForFinished() {
   options.manipulation.addEdge = false;
   options.manipulation.deleteEdge = false;
   updateNetworkOptions();
-
 }
 
 function removeLonelyNodes() {
@@ -226,7 +255,6 @@ function removeLonelyNodes() {
     }
     i++;
   }
-
 }
 
 function goToNextStage() {
@@ -261,7 +289,6 @@ function goToNextStage() {
     instructDiv.querySelector('.info-container__title').textContent = 'Instructions';
     hotspotCountDiv.style.visibility = 'visible';
     savePuzzleAndLoad();
-
   }
 }
 
@@ -289,12 +316,12 @@ function goToPrevStage() {
 function getAddNodeFunc(group) {
   return function (data, callback) {
     data.label = '';
-    data.original = (group === 'hotspot');
+    data.original = group === 'hotspot';
     data.group = group;
     data.connectedToWithinCluster = [];
     callback(data);
     network.addNodeMode();
-  }
+  };
 }
 
 function draw() {
@@ -315,20 +342,20 @@ function draw() {
       useDefaultGroups: false,
       hotspot: {
         color: {
-          background:'black',
+          background: 'black',
           border: 'black',
           highlight: { background: 'orange', border: 'lightskyblue', borderWidth: 4 }
         },
         border: 'black',
-        size:15
+        size: 15
       },
       service: {
         color: {
-          background:'white',
-          border:'black',
+          background: 'white',
+          border: 'black',
           highlight: { background: 'yellow', border: 'lightskyblue', borderWidth: 4 }
         },
-        size:15
+        size: 15
       }
     },
     edges: {
@@ -347,36 +374,34 @@ function draw() {
   edges = new vis.DataSet();
 
   data = {
-      nodes: nodes,
-      edges: edges
+    nodes: nodes,
+    edges: edges
   };
 
   network = new vis.Network(container, data, options);
 
   setUpDragFix();
-
 }
 
 function savePuzzleAndLoad() {
   // Need to ask the server to generate a code for this puzzle
   var xhttp = new XMLHttpRequest();
 
-  xhttp.onreadystatechange = function() {
+  xhttp.onreadystatechange = function () {
     if (this.readyState == 4 && this.status == 200) {
       var code = this.responseText;
       console.log("Code from server: " + code);
       if (code === 'Error') {
         // Load an error page?
-      }
-      else {
+      } else {
         xhttp = new XMLHttpRequest();
 
-        xhttp.onreadystatechange = function() {
+        xhttp.onreadystatechange = function () {
           if (this.readyState == 4 && this.status == 200) {
             console.log("done saving new puzzle");
 
             // Need to load the newly created puzzle
-            window.location="http://" + domain + "/hotspot/" + code;
+            window.location = "http://" + domain + "/hotspot/" + code;
           }
         };
 
@@ -384,17 +409,15 @@ function savePuzzleAndLoad() {
         var size;
         if (nodesToCopy.length <= 15) {
           size = "small";
-        }
-        else if (nodesToCopy.length <= 25) {
+        } else if (nodesToCopy.length <= 25) {
           size = "medium";
-        }
-        else {
+        } else {
           size = "large";
         }
         console.log("Determined size of puzzle: " + size);
         xhttp.open("POST", "http://" + domain + "/hotspot/", true);
         xhttp.setRequestHeader("Content-type", "application/json");
-        xhttp.send(JSON.stringify({graph: {nodes: nodesToCopy, edges: edges.get()}, code: code, size: size}));
+        xhttp.send(JSON.stringify({ graph: { nodes: nodesToCopy, edges: edges.get() }, code: code, size: size }));
       }
     }
   };
@@ -435,3 +458,6 @@ function init() {
 -Known Bugs
   -Clicking "Start Over" on puzzle builder makes the graph canvas resize to smaller size when it starts out very wide
 */
+
+/***/ })
+/******/ ]);

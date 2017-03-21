@@ -13,5 +13,5 @@ gulp.task('styles', function() {
       console.log(errorInfo.toString());
       this.emit('end');
     })
-    .pipe(gulp.dest('./dev/bundle/css'));
+    .pipe(gulp.dest('./public/css'));
 });
