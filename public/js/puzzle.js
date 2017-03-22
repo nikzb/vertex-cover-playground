@@ -73,6 +73,8 @@ var EntryPoint =
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
+
+
 // create an array with nodes - this was the original small graph
 // var nodes = new vis.DataSet([
 //   {id: 1, label: 'Node 1', group: 'noService', original: false},
@@ -91,35 +93,6 @@ var EntryPoint =
 //   {from: 3, to: 6}
 // ]);
 
-
-
-module.exports = {
-  usePuzzle: function usePuzzle(code) {
-    var xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function () {
-      if (this.readyState == 4 && this.status == 200) {
-        var data = JSON.parse(this.responseText);
-        setUpNetwork(data.puzzle.graph.nodes, data.puzzle.graph.edges);
-        puzzleList = JSON.parse(localStorage.getItem('hotspotPuzzlesAttempted')) || [];
-        var found = false;
-        for (var i = 0; i < puzzleList.length; i++) {
-          if (puzzleList[i].code === code) {
-            found = true;
-          }
-        }
-        console.log("Code " + code + " was found: " + found);
-        if (!found) {
-          puzzleList.push({ 'code': code });
-        }
-        localStorage.setItem('hotspotPuzzlesAttempted', JSON.stringify(puzzleList));
-      }
-    };
-
-    xhttp.open("GET", "http://" + domain + "/hotspot-data/" + code, true);
-    xhttp.send();
-  }
-};
-
 var nodes = null;
 var edges = null;
 var data = null;
@@ -127,129 +100,8 @@ var options = null;
 var container = null;
 var network = null;
 var optimalAnswer = null;
+var puzzleList = null;
 var domain = 'localhost:3001';
-var puzzleList;
-
-var useDefaultPuzzle = function useDefaultPuzzle() {
-  var coordsArray = [[0, 0], [2, 0], [3, 0], [4, 0], [4, 2], [4, 3], [4, 4], [3, 4], [2, 4], [1, 4], [0, 4], [0, 3], [0, 2], [1, 2], [1, 1], [2, 1], [3, 1], [3, 2], [3, 3], [2, 3], [2, 2], [1, 3]];
-
-  coordsArray = coordsArray.map(function (coords) {
-    return [coords[0] * 0.707 - coords[1] * -0.707, (coords[0] * -0.707 + coords[1] * 0.707) * 0.75];
-  });
-  var scaleFactor = 200;
-
-  var nodeArray = [];
-  var originals = [6, 12, 15, 17, 20];
-
-  for (var i = 1; i <= coordsArray.length; i++) {
-    var isOriginal = false;
-    if (originals.includes(i)) {
-      isOriginal = true;
-    }
-    nodeArray.push({
-      id: i,
-      group: 'noService',
-      // label: i,
-      original: isOriginal,
-      x: coordsArray[i - 1][0] * scaleFactor,
-      y: coordsArray[i - 1][1] * scaleFactor
-    });
-  }
-
-  var edgePairs = [[1, 2], [1, 15], [1, 13], [2, 15], [2, 3], [2, 16], [3, 4], [3, 17], [5, 18], [5, 6], [6, 8], [6, 7], [7, 8], [8, 9], [9, 10], [9, 20], [10, 11], [10, 12], [11, 12], [12, 13], [13, 14], [14, 15], [14, 21], [15, 16], [16, 21], [17, 18], [18, 19], [18, 21], [19, 20], [20, 21], [4, 5], [4, 17], [12, 22], [14, 22]];
-
-  var edgeArray = [];
-
-  edgePairs.forEach(function (edgePair) {
-    edgeArray.push({ from: edgePair[0], to: edgePair[1] });
-  });
-
-  setUpNetwork(nodeArray, edgeArray);
-};
-
-var setUpNetwork = function setUpNetwork(nodeArray, edgeArray) {
-  setUpOptions();
-  setUpData(nodeArray, edgeArray);
-  setUpContainer();
-  network = new vis.Network(container, data, options);
-  setUpClickHandlers();
-  saveOptimalAnswer();
-};
-
-var setUpClickHandlers = function setUpClickHandlers() {
-  network.on("click", function (params) {
-    params.event = "[original event]";
-    //document.getElementById('eventSpan').innerHTML = '<h2>Click event:</h2>' + JSON.stringify(params, null, 4);
-    if (params.nodes.length > 0) {
-      var id = params.nodes[0];
-      var node = nodes.get(id);
-      //document.getElementById('eventSpan2').innerHTML = '<h2>Node info:</h2>' + JSON.stringify(node, null, 4);
-      if (node.group !== 'hotspot') {
-        nodes.update({ id: id, group: 'hotspot' });
-        updateHotspotCount();
-        // Then update which nodes should be in group 'service'
-        updateConnectedNodes();
-      } else if (node.group === 'hotspot') {
-        nodes.update({ id: id, group: 'noService' });
-        // Then update which nodes should be in group 'service'
-        updateHotspotCount();
-        updateConnectedNodes();
-      }
-
-      checkForCompletion();
-    }
-  });
-
-  var messageDiv = document.querySelector('.message-box');
-
-  messageDiv.addEventListener("click", function () {
-    removeActive(messageDiv);
-  });
-
-  document.querySelector('button[name="reset"]').addEventListener("click", function () {
-    resetAllNodes();
-    updateHotspotCount();
-
-    var messageElem = document.querySelector('.message-box__message');
-
-    messageElem.innerHTML = '';
-
-    removeActive(messageDiv);
-  });
-
-  var nextGraphLinks = document.querySelectorAll('.next-graph');
-
-  nextGraphLinks.forEach(function (link) {
-    link.addEventListener("click", function () {
-      // Need to get a puzzle that hasn't been attempted yet based on what is in localStorage
-      var puzzleListString = localStorage.getItem('hotspotPuzzlesAttempted');
-
-      // Need to figure out how this size will be determined
-      var size = 'small';
-
-      var xhttp = new XMLHttpRequest();
-      xhttp.onreadystatechange = function () {
-        if (this.readyState == 4 && this.status == 200) {
-          console.log("Response received from trying to get another puzzle: " + this.responseText);
-          var code = this.responseText;
-          window.location = "http://" + domain + "/hotspot/" + code;
-        }
-      };
-      console.log("Puzzle list as string: ", puzzleListString);
-      xhttp.open("POST", "http://" + domain + "/get-hotspot-given-size/" + size, true);
-      xhttp.setRequestHeader("Content-type", "application/json");
-      xhttp.send(puzzleListString);
-    });
-  });
-
-  var createOwnLinks = document.querySelectorAll('.create-own');
-
-  createOwnLinks.forEach(function (link) {
-    link.addEventListener("click", function () {
-      window.location = "http://" + domain + "/create";
-    });
-  });
-};
 
 var removeActive = function removeActive(element) {
   if (element.classList.contains('active')) {
@@ -265,21 +117,6 @@ var saveOptimalAnswer = function saveOptimalAnswer() {
 
 var setUpContainer = function setUpContainer() {
   container = document.querySelector('.graph-area__graph-canvas');
-};
-
-var setUpData = function setUpData(nodeArray, edgeArray) {
-  var newEdgeArray = [];
-  edgeArray.forEach(function (edge) {
-    newEdgeArray.push({ id: edge.id, from: edge.from, to: edge.to });
-  });
-
-  edges = new vis.DataSet(newEdgeArray);
-  nodes = new vis.DataSet(nodeArray);
-  resetAllNodes();
-  data = {
-    nodes: nodes,
-    edges: edges
-  };
 };
 
 var setUpOptions = function setUpOptions() {
@@ -378,6 +215,21 @@ var resetAllNodes = function resetAllNodes() {
   });
 };
 
+var setUpData = function setUpData(nodeArray, edgeArray) {
+  var newEdgeArray = [];
+  edgeArray.forEach(function (edge) {
+    newEdgeArray.push({ id: edge.id, from: edge.from, to: edge.to });
+  });
+
+  edges = new vis.DataSet(newEdgeArray);
+  nodes = new vis.DataSet(nodeArray);
+  resetAllNodes();
+  data = {
+    nodes: nodes,
+    edges: edges
+  };
+};
+
 var allNodesHaveWifi = function allNodesHaveWifi() {
   return nodes.get().every(function (node) {
     return node.group !== 'noService';
@@ -422,6 +274,157 @@ var checkForCompletion = function checkForCompletion() {
   } else {
     document.querySelector('.message-box__message').innerHTML = '';
     removeActive(messageDiv);
+  }
+};
+
+var setUpClickHandlers = function setUpClickHandlers() {
+  var _this = this;
+
+  network.on("click", function (params) {
+    params.event = "[original event]";
+    if (params.nodes.length > 0) {
+      var id = params.nodes[0];
+      var node = nodes.get(id);
+      if (node.group !== 'hotspot') {
+        nodes.update({ id: id, group: 'hotspot' });
+        updateHotspotCount();
+        // Then update which nodes should be in group 'service'
+        updateConnectedNodes();
+      } else if (node.group === 'hotspot') {
+        nodes.update({ id: id, group: 'noService' });
+        // Then update which nodes should be in group 'service'
+        updateHotspotCount();
+        updateConnectedNodes();
+      }
+
+      checkForCompletion();
+    }
+  });
+
+  var messageDiv = document.querySelector('.message-box');
+
+  messageDiv.addEventListener("click", function () {
+    removeActive(messageDiv);
+  });
+
+  document.querySelector('button[name="reset"]').addEventListener("click", function () {
+    resetAllNodes();
+    updateHotspotCount();
+
+    var messageElem = document.querySelector('.message-box__message');
+
+    messageElem.innerHTML = '';
+
+    removeActive(messageDiv);
+  });
+
+  var nextGraphLinks = document.querySelectorAll('.next-graph');
+
+  nextGraphLinks.forEach(function (link) {
+    link.addEventListener("click", function () {
+      // Need to get a puzzle that hasn't been attempted yet based on what is in localStorage
+      var puzzleListString = localStorage.getItem('hotspotPuzzlesAttempted');
+
+      // Need to figure out how this size will be determined
+      var size = 'small';
+
+      var xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function () {
+        if (_this.readyState === 4 && _this.status === 200) {
+          console.log('Response received from trying to get another puzzle: ' + _this.responseText);
+          var code = _this.responseText;
+          window.location = 'http://' + domain + '/hotspot/' + code;
+        }
+      };
+      console.log("Puzzle list as string: ", puzzleListString);
+      xhttp.open("POST", 'http://' + domain + '/get-hotspot-given-size/' + size, true);
+      xhttp.setRequestHeader("Content-type", "application/json");
+      xhttp.send(puzzleListString);
+    });
+  });
+
+  var createOwnLinks = document.querySelectorAll('.create-own');
+
+  createOwnLinks.forEach(function (link) {
+    link.addEventListener("click", function () {
+      window.location = 'http://' + domain + '/create';
+    });
+  });
+};
+
+var setUpNetwork = function setUpNetwork(nodeArray, edgeArray) {
+  setUpOptions();
+  setUpData(nodeArray, edgeArray);
+  setUpContainer();
+  network = new vis.Network(container, data, options);
+  setUpClickHandlers();
+  saveOptimalAnswer();
+};
+
+var useDefaultPuzzle = function useDefaultPuzzle() {
+  var coordsArray = [[0, 0], [2, 0], [3, 0], [4, 0], [4, 2], [4, 3], [4, 4], [3, 4], [2, 4], [1, 4], [0, 4], [0, 3], [0, 2], [1, 2], [1, 1], [2, 1], [3, 1], [3, 2], [3, 3], [2, 3], [2, 2], [1, 3]];
+
+  coordsArray = coordsArray.map(function (coords) {
+    return [coords[0] * 0.707 - coords[1] * -0.707, coords[0] * -0.707 + coords[1] * 0.707 * 0.75];
+  });
+  var scaleFactor = 200;
+
+  var nodeArray = [];
+  var originals = [6, 12, 15, 17, 20];
+
+  for (var i = 1; i <= coordsArray.length; i += 1) {
+    var isOriginal = false;
+    if (originals.includes(i)) {
+      isOriginal = true;
+    }
+    nodeArray.push({
+      id: i,
+      group: 'noService',
+      // label: i,
+      original: isOriginal,
+      x: coordsArray[i - 1][0] * scaleFactor,
+      y: coordsArray[i - 1][1] * scaleFactor
+    });
+  }
+
+  var edgePairs = [[1, 2], [1, 15], [1, 13], [2, 15], [2, 3], [2, 16], [3, 4], [3, 17], [5, 18], [5, 6], [6, 8], [6, 7], [7, 8], [8, 9], [9, 10], [9, 20], [10, 11], [10, 12], [11, 12], [12, 13], [13, 14], [14, 15], [14, 21], [15, 16], [16, 21], [17, 18], [18, 19], [18, 21], [19, 20], [20, 21], [4, 5], [4, 17], [12, 22], [14, 22]];
+
+  var edgeArray = [];
+
+  edgePairs.forEach(function (edgePair) {
+    return edgeArray.push({ from: edgePair[0], to: edgePair[1] });
+  });
+
+  setUpNetwork(nodeArray, edgeArray);
+};
+
+// Export this so that puzzle.hbs can call this function to get the puzzle set up
+module.exports = {
+  usePuzzle: function usePuzzle(code) {
+    var _this2 = this;
+
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function () {
+      if (_this2.readyState === 4 && _this2.status === 200) {
+        var responseData = JSON.parse(_this2.responseText);
+        setUpNetwork(responseData.puzzle.graph.nodes, responseData.puzzle.graph.edges);
+        puzzleList = JSON.parse(localStorage.getItem('hotspotPuzzlesAttempted')) || [];
+        var found = false;
+        for (var i = 0; i < puzzleList.length; i += 1) {
+          if (puzzleList[i].code === code) {
+            found = true;
+          }
+        }
+        console.log('Code ' + code + ' was found: ' + found);
+        if (!found) {
+          puzzleList.push({ code: code });
+        }
+        localStorage.setItem('hotspotPuzzlesAttempted', JSON.stringify(puzzleList));
+      }
+    };
+
+    xhttp.open("GET", 'http://' + domain + '/hotspot-data/' + code, true);
+    xhttp.send();
   }
 };
 
