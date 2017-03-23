@@ -93,6 +93,8 @@ var EntryPoint =
 //   {from: 3, to: 6}
 // ]);
 
+console.log("Beginning of Puzzle.js");
+
 var nodes = null;
 var edges = null;
 var data = null;
@@ -278,8 +280,6 @@ var checkForCompletion = function checkForCompletion() {
 };
 
 var setUpClickHandlers = function setUpClickHandlers() {
-  var _this = this;
-
   network.on("click", function (params) {
     params.event = "[original event]";
     if (params.nodes.length > 0) {
@@ -330,9 +330,9 @@ var setUpClickHandlers = function setUpClickHandlers() {
 
       var xhttp = new XMLHttpRequest();
       xhttp.onreadystatechange = function () {
-        if (_this.readyState === 4 && _this.status === 200) {
-          console.log('Response received from trying to get another puzzle: ' + _this.responseText);
-          var code = _this.responseText;
+        if (this.readyState === 4 && this.status === 200) {
+          console.log('Response received from trying to get another puzzle: ' + this.responseText);
+          var code = this.responseText;
           window.location = 'http://' + domain + '/hotspot/' + code;
         }
       };
@@ -401,12 +401,14 @@ var useDefaultPuzzle = function useDefaultPuzzle() {
 // Export this so that puzzle.hbs can call this function to get the puzzle set up
 module.exports = {
   usePuzzle: function usePuzzle(code) {
-    var _this2 = this;
-
+    console.log("In use puzzle");
     var xhttp = new XMLHttpRequest();
+    // Use regular function declaration instead of arrow function so that this is bound to xhttp request object
     xhttp.onreadystatechange = function () {
-      if (_this2.readyState === 4 && _this2.status === 200) {
-        var responseData = JSON.parse(_this2.responseText);
+      console.log(this);
+      if (this.readyState === 4 && this.status === 200) {
+        var responseData = JSON.parse(this.responseText);
+        console.log("setting up network");
         setUpNetwork(responseData.puzzle.graph.nodes, responseData.puzzle.graph.edges);
         puzzleList = JSON.parse(localStorage.getItem('hotspotPuzzlesAttempted')) || [];
         var found = false;

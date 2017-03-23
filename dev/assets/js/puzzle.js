@@ -16,6 +16,8 @@
 //   {from: 3, to: 6}
 // ]);
 
+console.log("Beginning of Puzzle.js");
+
 let nodes = null;
 let edges = null;
 let data = null;
@@ -249,7 +251,7 @@ const setUpClickHandlers = function setUpClickHandlers() {
       const size = 'small';
 
       const xhttp = new XMLHttpRequest();
-      xhttp.onreadystatechange = () => {
+      xhttp.onreadystatechange = function() {
         if (this.readyState === 4 && this.status === 200) {
           console.log(`Response received from trying to get another puzzle: ${this.responseText}`);
           const code = this.responseText;
@@ -332,10 +334,14 @@ const useDefaultPuzzle = function useDefaultPuzzle() {
 // Export this so that puzzle.hbs can call this function to get the puzzle set up
 module.exports = {
   usePuzzle(code) {
+    console.log("In use puzzle");
     const xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = () => {
+    // Use regular function declaration instead of arrow function so that this is bound to xhttp request object
+    xhttp.onreadystatechange = function() {
+      console.log(this);
       if (this.readyState === 4 && this.status === 200) {
         const responseData = JSON.parse(this.responseText);
+        console.log("setting up network");
         setUpNetwork(responseData.puzzle.graph.nodes, responseData.puzzle.graph.edges);
         puzzleList = JSON.parse(localStorage.getItem('hotspotPuzzlesAttempted')) || [];
         let found = false;
