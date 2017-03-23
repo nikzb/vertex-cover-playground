@@ -93,8 +93,6 @@ var EntryPoint =
 //   {from: 3, to: 6}
 // ]);
 
-console.log("Beginning of Puzzle.js");
-
 var nodes = null;
 var edges = null;
 var data = null;
@@ -102,7 +100,6 @@ var options = null;
 var container = null;
 var network = null;
 var optimalAnswer = null;
-var puzzleList = null;
 var domain = 'localhost:3001';
 
 var removeActive = function removeActive(element) {
@@ -178,7 +175,7 @@ var setUpOptions = function setUpOptions() {
 };
 
 var updateConnectedNodes = function updateConnectedNodes() {
-  // Reset all serviced nodes to nodes to unserviced
+  // Reset all serviced nodes to unserviced (but leave hotspots alone)
   nodes.forEach(function (node) {
     if (node.group === 'service') {
       node.group = 'noService';
@@ -310,11 +307,8 @@ var setUpClickHandlers = function setUpClickHandlers() {
   document.querySelector('button[name="reset"]').addEventListener("click", function () {
     resetAllNodes();
     updateHotspotCount();
-
     var messageElem = document.querySelector('.message-box__message');
-
     messageElem.innerHTML = '';
-
     removeActive(messageDiv);
   });
 
@@ -398,36 +392,44 @@ var useDefaultPuzzle = function useDefaultPuzzle() {
   setUpNetwork(nodeArray, edgeArray);
 };
 
+var addCodeToListOfAttemptedPuzzles = function addCodeToListOfAttemptedPuzzles(code) {
+  var puzzleList = JSON.parse(localStorage.getItem('hotspotPuzzlesAttempted')) || [];
+  var found = false;
+  for (var i = 0; i < puzzleList.length; i += 1) {
+    if (puzzleList[i].code === code) {
+      found = true;
+    }
+  }
+  console.log('Code ' + code + ' was found: ' + found);
+  if (!found) {
+    puzzleList.push({ code: code });
+  }
+  localStorage.setItem('hotspotPuzzlesAttempted', JSON.stringify(puzzleList));
+};
+
+var usePuzzle = function usePuzzle(code) {
+  fetch('http://' + domain + '/hotspot-data/' + code).then(function (response) {
+    if (response.ok) {
+      var contentType = response.headers.get('content-type');
+      if (contentType && contentType.indexOf('application/json') !== -1) {
+        return response.json().then(function (json) {
+          setUpNetwork(json.puzzle.graph.nodes, json.puzzle.graph.edges);
+          addCodeToListOfAttemptedPuzzles(code);
+        }).catch(function (error) {
+          return console.log("Error with JSON file");
+        });
+      }
+      throw new Error('Unexpected content type');
+    }
+    throw new Error('Error in network response');
+  }).catch(function () {
+    // handle error condition
+  });
+};
+
 // Export this so that puzzle.hbs can call this function to get the puzzle set up
 module.exports = {
-  usePuzzle: function usePuzzle(code) {
-    console.log("In use puzzle");
-    var xhttp = new XMLHttpRequest();
-    // Use regular function declaration instead of arrow function so that this is bound to xhttp request object
-    xhttp.onreadystatechange = function () {
-      console.log(this);
-      if (this.readyState === 4 && this.status === 200) {
-        var responseData = JSON.parse(this.responseText);
-        console.log("setting up network");
-        setUpNetwork(responseData.puzzle.graph.nodes, responseData.puzzle.graph.edges);
-        puzzleList = JSON.parse(localStorage.getItem('hotspotPuzzlesAttempted')) || [];
-        var found = false;
-        for (var i = 0; i < puzzleList.length; i += 1) {
-          if (puzzleList[i].code === code) {
-            found = true;
-          }
-        }
-        console.log('Code ' + code + ' was found: ' + found);
-        if (!found) {
-          puzzleList.push({ code: code });
-        }
-        localStorage.setItem('hotspotPuzzlesAttempted', JSON.stringify(puzzleList));
-      }
-    };
-
-    xhttp.open("GET", 'http://' + domain + '/hotspot-data/' + code, true);
-    xhttp.send();
-  }
+  usePuzzle: usePuzzle
 };
 
 /***/ })
