@@ -4,6 +4,12 @@
   background-image: linear-gradient(300deg, #D8D8D8, #EEEEEE);
   border: 1px solid $darkBorder;
 
+  &__title-container {
+    display: flex;
+    /*flex-direction: column;*/
+    align-items: center;
+  }
+
   &__list {
     margin-bottom: 0;
   }
