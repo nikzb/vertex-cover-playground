@@ -122,7 +122,7 @@ var setUpOptions = function setUpOptions() {
   options = {
     nodes: {
       shape: 'dot',
-      size: 30,
+      size: 15,
       font: {
         size: 32
       },
@@ -154,21 +154,21 @@ var setUpOptions = function setUpOptions() {
           background: 'red',
           highlight: { background: 'red', border: 'red', borderWidth: 0 }
         },
-        size: 20
+        size: 15
       },
       hotspot: {
         color: {
           background: 'orange',
           highlight: { background: 'orange', border: 'orange', borderWidth: 0 }
         },
-        size: 25
+        size: 18
       },
       service: {
         color: {
           background: 'yellow',
           highlight: { background: 'yellow', border: 'yellow', borderWidth: 0 }
         },
-        size: 20
+        size: 15
       }
     }
   };
