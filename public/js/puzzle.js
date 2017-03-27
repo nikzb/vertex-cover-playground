@@ -320,6 +320,14 @@ var handleResponseToPuzzleRequest = function handleResponseToPuzzleRequest(respo
   throw new Error('Error in network response');
 };
 
+var usePuzzle = function usePuzzle(code) {
+  fetch('http://' + domain + '/hotspot-data/' + code).then(function (response) {
+    handleResponseToPuzzleRequest(response, code);
+  }).catch(function () {
+    // handle error condition
+  });
+};
+
 setUpClickHandlers = function setUpClickHandlers() {
   network.on("click", function (params) {
     params.event = "[original event]";
@@ -367,7 +375,7 @@ setUpClickHandlers = function setUpClickHandlers() {
       var size = 'small';
 
       var myHeaders = new Headers({
-        'Content-Type': 'application/json'
+        'Content-Type': 'text/html'
       });
 
       var myInit = {
@@ -379,9 +387,14 @@ setUpClickHandlers = function setUpClickHandlers() {
       var myRequest = new Request('http://' + domain + '/get-hotspot-given-size/' + size, myInit);
 
       fetch(myRequest).then(function (response) {
-        console.log('got a response');
-        console.log(response);
-        handleResponseToPuzzleRequest(response);
+        response.text().then(function (code) {
+          if (code) {
+            // This would work except then I would need to also update the graph code that shows up
+            // usePuzzle(code);
+            // Reload the page so that the code in the URL and the code shown on the page match the puzzle shown
+            window.location = 'http://' + domain + '/hotspot/' + code;
+          }
+        });
       }).catch(function () {
         // handle error condition
       });
@@ -432,14 +445,6 @@ var useDefaultPuzzle = function useDefaultPuzzle() {
   });
 
   setUpNetwork(nodeArray, edgeArray);
-};
-
-var usePuzzle = function usePuzzle(code) {
-  fetch('http://' + domain + '/hotspot-data/' + code).then(function (response) {
-    handleResponseToPuzzleRequest(response, code);
-  }).catch(function () {
-    // handle error condition
-  });
 };
 
 // Export this so that puzzle.hbs can call this function to get the puzzle set up

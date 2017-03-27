@@ -239,6 +239,18 @@ const handleResponseToPuzzleRequest = function handleResponseToPuzzleRequest(res
   throw new Error('Error in network response');
 };
 
+const usePuzzle = function usePuzzle(code) {
+  fetch(`http://${domain}/hotspot-data/${code}`)
+    .then(
+      (response) => {
+        handleResponseToPuzzleRequest(response, code);
+      }
+    )
+    .catch(() => {
+      // handle error condition
+    });
+};
+
 setUpClickHandlers = function () {
   network.on("click", (params) => {
     params.event = "[original event]";
@@ -286,7 +298,7 @@ setUpClickHandlers = function () {
       const size = 'small';
 
       const myHeaders = new Headers({
-        'Content-Type': 'application/json'
+        'Content-Type': 'text/html'
       });
 
       const myInit = {
@@ -300,9 +312,14 @@ setUpClickHandlers = function () {
       fetch(myRequest)
         .then(
           (response) => {
-            console.log(`got a response`);
-            console.log(response);
-            handleResponseToPuzzleRequest(response);
+            response.text().then((code) => {
+              if (code) {
+                // This would work except then I would need to also update the graph code that shows up
+                // usePuzzle(code);
+                // Reload the page so that the code in the URL and the code shown on the page match the puzzle shown
+                window.location=`http://${domain}/hotspot/${code}`;
+              }
+            });
           }
         )
         .catch(() => {
@@ -366,18 +383,6 @@ const useDefaultPuzzle = function useDefaultPuzzle() {
   );
 
   setUpNetwork(nodeArray, edgeArray);
-};
-
-const usePuzzle = function usePuzzle(code) {
-  fetch(`http://${domain}/hotspot-data/${code}`)
-    .then(
-      (response) => {
-        handleResponseToPuzzleRequest(response, code);
-      }
-    )
-    .catch(() => {
-      // handle error condition
-    });
 };
 
 // Export this so that puzzle.hbs can call this function to get the puzzle set up
