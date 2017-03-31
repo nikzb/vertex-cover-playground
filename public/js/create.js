@@ -64,20 +64,18 @@ var EntryPoint =
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 0);
+/******/ 	return __webpack_require__(__webpack_require__.s = 5);
 /******/ })
 /************************************************************************/
-/******/ ([
-/* 0 */
+/******/ ({
+
+/***/ 5:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
 // Variables for manipulating the DOM
-
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
 var instructDiv = null;
 var buttonDiv = null;
 var prevButton = null;
@@ -86,17 +84,14 @@ var instruct = null;
 var hotspotCountDiv = null;
 // var keyDiv = null;
 
-var stageInstructIndex = 0;
 var stageInstructions = null;
-
-populateStageInstructions();
 
 var nodes = null;
 var edges = null;
 var network = null;
 var data = null;
 
-var container;
+var container = void 0;
 var domain = 'localhost:3001';
 
 // The stages are
@@ -107,9 +102,9 @@ var domain = 'localhost:3001';
 // 4: connect-clusters
 // 5: finished
 var stage = 'intro';
-var options;
+var options = void 0;
 
-function populateStageInstructions() {
+var populateStageInstructions = function populateStageInstructions() {
   stageInstructions = [];
 
   stageInstructions[0] = '\n    <ul class=\'info-container__list\'\'>\n      <li>It is relatively easy to create one of these problems.</li>\n      <li>It may be very difficult for someone else to solve your problem!</li>\n    </ul>\n    <h3 class=\'to-do\'>Follow the instructions to create your own Wifi Hotspot Problem!</h3>\n  ';
@@ -125,7 +120,9 @@ function populateStageInstructions() {
   stageInstructions[5] = '\n    <h2 class=\'step-label\'>Step <span class=\'step-number\'>5</span>: Finish Up</h2>\n    <ul class=\'instruct-details\'>\n      <li>Ajdust the final positioning of the nodes.</li>\n      <li>Then click Next to create your puzzle!</li>\n    </ul>\n  ';
 
   stageInstructions[6] = '\n    <ul class=\'instruct-details\'>\n      <li>Click a node to add a hotspot. Click it again to remove it.</li>\n      <li>Only nodes that do not already have service can become hotspots.</li>\n    </ul>\n  ';
-}
+};
+
+populateStageInstructions();
 
 function setUpDragFix() {
   network.on("dragEnd", function (params) {
@@ -139,11 +136,35 @@ function setUpDragFix() {
   });
 }
 
-function resetPuzzleBuilder() {
+var getAddNodeFunc = function getAddNodeFunc(group) {
+  return function (nodeData, callback) {
+    nodeData.label = '';
+    nodeData.original = group === 'hotspot';
+    nodeData.group = group;
+    nodeData.connectedToWithinCluster = [];
+    callback(nodeData);
+    network.addNodeMode();
+  };
+};
+
+var updateNetworkOptions = function updateNetworkOptions() {
+  network.setOptions(options);
+};
+
+var setUpOptionsForAddHotspots = function setUpOptionsForAddHotspots() {
+  options.manipulation.addNode = getAddNodeFunc('hotspot');
+  options.manipulation.addEdge = false;
+  options.manipulation.deleteNode = true;
+  // options.manipulation.enabled = true;
+  updateNetworkOptions();
+  network.addNodeMode();
+};
+
+var resetPuzzleBuilder = function resetPuzzleBuilder() {
   network.destroy();
   nodes = new vis.DataSet();
   edges = new vis.DataSet();
-  data = _defineProperty({ nodes: nodes, edges: edges }, 'edges', edges);
+  data = { nodes: nodes, edges: edges };
   network = new vis.Network(container, data, options);
   setUpDragFix();
 
@@ -151,41 +172,28 @@ function resetPuzzleBuilder() {
   instruct.innerHTML = stageInstructions[1];
   prevButton.style.visibility = 'hidden';
   setUpOptionsForAddHotspots();
-}
+};
 
-function updateNetworkOptions() {
-  network.setOptions(options);
-}
-
-function setUpOptionsForAddHotspots() {
-  options.manipulation.addNode = getAddNodeFunc('hotspot');
-  options.manipulation.addEdge = false;
-  options.manipulation.deleteNode = true;
-  // options.manipulation.enabled = true;
-  updateNetworkOptions();
-  network.addNodeMode();
-}
-
-function setUpOptionsForAddServicedNodes() {
+var setUpOptionsForAddServicedNodes = function setUpOptionsForAddServicedNodes() {
   options.manipulation.addNode = getAddNodeFunc('service');
   options.manipulation.addEdge = false;
   options.manipulation.deleteNode = true;
   updateNetworkOptions();
   network.addNodeMode();
-}
+};
 
-function setUpOptionsForMakeClusters() {
+var setUpOptionsForMakeClusters = function setUpOptionsForMakeClusters() {
   options.manipulation.addNode = false;
   options.manipulation.deleteNode = false;
   options.manipulation.editEdge = false;
-  options.manipulation.addEdge = function (data, callback) {
+  options.manipulation.addEdge = function (nodeData, callback) {
     // Need to ensure that new edge connects a lonely service node to a hotspot
-    var from = nodes.get(data.from);
-    var to = nodes.get(data.to);
+    var from = nodes.get(nodeData.from);
+    var to = nodes.get(nodeData.to);
 
     if (from.group !== to.group) {
-      var serviceNode;
-      var hotspot;
+      var serviceNode = void 0;
+      var hotspot = void 0;
       if (from.group === 'service') {
         serviceNode = from;
         hotspot = to;
@@ -196,36 +204,16 @@ function setUpOptionsForMakeClusters() {
       if (serviceNode.connectedToWithinCluster.length === 0) {
         serviceNode.connectedToWithinCluster.push(hotspot.id);
         hotspot.connectedToWithinCluster.push(serviceNode.id);
-        callback(data);
+        callback(nodeData);
         network.addEdgeMode();
       }
     }
   };
   updateNetworkOptions();
   network.addEdgeMode();
-}
+};
 
-function setUpOptionsForConnectClusters() {
-  options.manipulation.addNode = false;
-  options.manipulation.deleteNode = false;
-  options.manipulation.editEdge = false;
-  options.manipulation.addEdge = function (data, callback) {
-    // Need to ensure that new edge connects a lonely service node to a hotspot
-    var from = nodes.get(data.from);
-    var to = nodes.get(data.to);
-
-    if (data.to !== data.from && from.group === 'service' && to.group === 'service' && !InSameCluster(from, to)) {
-      data.dashes = 'true';
-      callback(data);
-      network.addEdgeMode();
-    }
-  };
-  updateNetworkOptions();
-  network.addEdgeMode();
-}
-
-function InSameCluster(nodeA, nodeB) {
-
+var inSameCluster = function inSameCluster(nodeA, nodeB) {
   var hotspot = nodes.get(nodeA.connectedToWithinCluster[0]);
 
   for (var i = 0; i < hotspot.connectedToWithinCluster.length; i += 1) {
@@ -235,18 +223,37 @@ function InSameCluster(nodeA, nodeB) {
   }
 
   return false;
-}
+};
 
-function setUpOptionsForFinished() {
+var setUpOptionsForConnectClusters = function setUpOptionsForConnectClusters() {
+  options.manipulation.addNode = false;
+  options.manipulation.deleteNode = false;
+  options.manipulation.editEdge = false;
+  options.manipulation.addEdge = function (nodeData, callback) {
+    // Need to ensure that new edge connects a lonely service node to a hotspot
+    var from = nodes.get(nodeData.from);
+    var to = nodes.get(nodeData.to);
+
+    if (nodeData.to !== nodeData.from && from.group === 'service' && to.group === 'service' && !inSameCluster(from, to)) {
+      nodeData.dashes = 'true';
+      callback(nodeData);
+      network.addEdgeMode();
+    }
+  };
+  updateNetworkOptions();
+  network.addEdgeMode();
+};
+
+var setUpOptionsForFinished = function setUpOptionsForFinished() {
   options.manipulation.addNode = false;
   options.manipulation.deleteNode = false;
   options.manipulation.editEdge = false;
   options.manipulation.addEdge = false;
   options.manipulation.deleteEdge = false;
   updateNetworkOptions();
-}
+};
 
-function removeLonelyNodes() {
+var removeLonelyNodes = function removeLonelyNodes() {
   var i = 0;
 
   var nodesArray = nodes.get();
@@ -255,11 +262,53 @@ function removeLonelyNodes() {
     if (nodesArray[i].connectedToWithinCluster.length === 0) {
       nodes.remove(nodesArray[i].id);
     }
-    i++;
+    i += 1;
   }
+};
+
+function savePuzzleAndLoad() {
+  // Need to ask the server to generate a code for this puzzle
+  var xhttp = new XMLHttpRequest();
+
+  xhttp.onreadystatechange = function () {
+    if (this.readyState === 4 && this.status === 200) {
+      var code = this.responseText;
+      console.log('Code from server: ' + code);
+      if (code === 'Error') {
+        // Load an error page?
+      } else {
+        xhttp = new XMLHttpRequest();
+
+        xhttp.onreadystatechange = function () {
+          if (this.readyState == 4 && this.status == 200) {
+            console.log("done saving new puzzle");
+
+            // Need to load the newly created puzzle
+            window.location = 'http://' + domain + '/hotspot/' + code;
+          }
+        };
+
+        var nodesToCopy = nodes.get();
+        var size = void 0;
+        if (nodesToCopy.length <= 15) {
+          size = "small";
+        } else if (nodesToCopy.length <= 25) {
+          size = "medium";
+        } else {
+          size = "large";
+        }
+        console.log('Determined size of puzzle: ' + size);
+        xhttp.open("POST", 'http://' + domain + '/hotspot/', true);
+        xhttp.setRequestHeader("Content-type", "application/json");
+        xhttp.send(JSON.stringify({ graph: { nodes: nodesToCopy, edges: edges.get() }, code: code, size: size }));
+      }
+    }
+  };
+  xhttp.open("GET", 'http://' + domain + '/hotspot/newCode', true);
+  xhttp.send();
 }
 
-function goToNextStage() {
+var goToNextStage = function goToNextStage() {
   if (stage === 'intro') {
     stage = 'add-hotspots';
     setUpOptionsForAddHotspots();
@@ -292,9 +341,9 @@ function goToNextStage() {
     hotspotCountDiv.style.visibility = 'visible';
     savePuzzleAndLoad();
   }
-}
+};
 
-function goToPrevStage() {
+var goToPrevStage = function goToPrevStage() {
   if (stage === 'add-serviced-nodes') {
     stage = 'add-hotspots';
     setUpOptionsForAddHotspots();
@@ -313,22 +362,10 @@ function goToPrevStage() {
     setUpOptionsForConnectClusters();
     instruct.innerHTML = stageInstructions[4];
   }
-}
+};
 
-function getAddNodeFunc(group) {
-  return function (data, callback) {
-    data.label = '';
-    data.original = group === 'hotspot';
-    data.group = group;
-    data.connectedToWithinCluster = [];
-    callback(data);
-    network.addNodeMode();
-  };
-}
-
-function draw() {
+var draw = function draw() {
   // Create a network
-
   container = document.querySelector('.graph-area__graph-canvas');
 
   options = {
@@ -383,49 +420,7 @@ function draw() {
   network = new vis.Network(container, data, options);
 
   setUpDragFix();
-}
-
-function savePuzzleAndLoad() {
-  // Need to ask the server to generate a code for this puzzle
-  var xhttp = new XMLHttpRequest();
-
-  xhttp.onreadystatechange = function () {
-    if (this.readyState == 4 && this.status == 200) {
-      var code = this.responseText;
-      console.log("Code from server: " + code);
-      if (code === 'Error') {
-        // Load an error page?
-      } else {
-        xhttp = new XMLHttpRequest();
-
-        xhttp.onreadystatechange = function () {
-          if (this.readyState == 4 && this.status == 200) {
-            console.log("done saving new puzzle");
-
-            // Need to load the newly created puzzle
-            window.location = "http://" + domain + "/hotspot/" + code;
-          }
-        };
-
-        var nodesToCopy = nodes.get();
-        var size;
-        if (nodesToCopy.length <= 15) {
-          size = "small";
-        } else if (nodesToCopy.length <= 25) {
-          size = "medium";
-        } else {
-          size = "large";
-        }
-        console.log("Determined size of puzzle: " + size);
-        xhttp.open("POST", "http://" + domain + "/hotspot/", true);
-        xhttp.setRequestHeader("Content-type", "application/json");
-        xhttp.send(JSON.stringify({ graph: { nodes: nodesToCopy, edges: edges.get() }, code: code, size: size }));
-      }
-    }
-  };
-  xhttp.open("GET", "http://" + domain + "/hotspot/newCode", true);
-  xhttp.send();
-}
+};
 
 module.exports = {
   init: function init() {
@@ -453,8 +448,6 @@ module.exports = {
   }
 };
 
-console.log("bottom of create.js");
-
 /* To Do
 
 -Probably should eliminate this functionality for now and implement later
@@ -466,4 +459,5 @@ console.log("bottom of create.js");
 */
 
 /***/ })
-/******/ ]);
+
+/******/ });

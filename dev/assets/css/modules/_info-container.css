@@ -19,7 +19,7 @@
   }
 
   &__todo {
-    font-style: italic;
+    /*font-style: italic;*/
     background-image: linear-gradient(300deg, $gradientStartColor, $gradientEndColor);
     border: 1px solid $darkBorder;
 
