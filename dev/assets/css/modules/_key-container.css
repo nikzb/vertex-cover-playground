@@ -1,7 +1,7 @@
 .key-container {
   display: flex;
-  padding: 0 0 0 20px;
-  background-image: linear-gradient(300deg, #D8D8D8, #EEEEEE);
+  padding: 0 0 15px 20px;
+  /*background-image: linear-gradient(300deg, #D8D8D8, #EEEEEE);*/
   border: 1px solid $darkBorder;
 
   &__title-container {
@@ -12,6 +12,7 @@
 
   &__list {
     margin-bottom: 0;
+    padding-left: 20px;
   }
 
   &__list-item {
