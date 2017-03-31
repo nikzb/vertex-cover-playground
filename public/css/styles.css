@@ -609,12 +609,16 @@ li {
 }
 
 .info-container.instructions {
-  margin-top: 30px;
-  margin-bottom: 30px;
+  margin-top: 10px;
+  margin-bottom: 10px;
 }
 
 .info-container__title {
   margin-top: 5px;
+  padding: 10px 0;
+  text-align: center;
+  border-top: 1px solid darkgray;
+  border-bottom: 1px solid darkgray;
 }
 
 .info-container__list {
