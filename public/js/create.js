@@ -422,30 +422,32 @@ var draw = function draw() {
   setUpDragFix();
 };
 
+var init = function init() {
+  document.querySelector('button[name="next"]').addEventListener('click', goToNextStage);
+  document.querySelector('button[name="prev"]').addEventListener('click', goToPrevStage);
+  document.querySelector('button[name="reset"]').addEventListener("click", resetPuzzleBuilder);
+
+  // challengeDiv = document.querySelector('.info-container.challenge');
+  instructDiv = document.querySelector('.info-container.instructions');
+  instruct = document.querySelector('.info-container__details.instructions');
+  // keyDiv = document.querySelector('.key-container');
+  buttonDiv = document.querySelector('.btn-container');
+  prevButton = document.querySelector('button[name="prev"]');
+  resetButton = document.querySelector('button[name="reset"]');
+  hotspotCountDiv = document.querySelector('.graph-area__count-wrap');
+
+  // challengeDiv.style.display = 'none';
+  // keyDiv.style.display = 'none';
+  prevButton.style.visibility = 'hidden';
+
+  // resetButton.style.visibility = 'hidden';
+  hotspotCountDiv.style.visibility = 'hidden';
+
+  draw();
+};
+
 module.exports = {
-  init: function init() {
-    document.querySelector('button[name="next"]').addEventListener('click', goToNextStage);
-    document.querySelector('button[name="prev"]').addEventListener('click', goToPrevStage);
-    document.querySelector('button[name="reset"]').addEventListener("click", resetPuzzleBuilder);
-
-    // challengeDiv = document.querySelector('.info-container.challenge');
-    instructDiv = document.querySelector('.info-container.instructions');
-    instruct = document.querySelector('.info-container__details.instructions');
-    // keyDiv = document.querySelector('.key-container');
-    buttonDiv = document.querySelector('.btn-container');
-    prevButton = document.querySelector('button[name="prev"]');
-    resetButton = document.querySelector('button[name="reset"]');
-    hotspotCountDiv = document.querySelector('.graph-area__count-wrap');
-
-    // challengeDiv.style.display = 'none';
-    // keyDiv.style.display = 'none';
-    prevButton.style.visibility = 'hidden';
-
-    // resetButton.style.visibility = 'hidden';
-    hotspotCountDiv.style.visibility = 'hidden';
-
-    draw();
-  }
+  init: init
 };
 
 /* To Do
