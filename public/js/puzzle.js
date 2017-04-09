@@ -1278,7 +1278,7 @@ var edges = null;
 var data = null;
 var optimalAnswer = null;
 
-var saveOptimalAnswer = function saveOptimalAnswer() {
+var updateOptimalAnswer = function updateOptimalAnswer() {
   optimalAnswer = nodes.get().reduce(function (total, node) {
     return node.original ? total + 1 : total;
   }, 0);
@@ -1417,7 +1417,7 @@ module.exports = {
   allNodesHaveWifi: allNodesHaveWifi,
   countHotspots: countHotspots,
   getOptimalAnswer: getOptimalAnswer,
-  saveOptimalAnswer: saveOptimalAnswer,
+  updateOptimalAnswer: updateOptimalAnswer,
   resetAllNodes: resetAllNodes,
   updateConnectedNodes: updateConnectedNodes,
   processNodeClick: processNodeClick,
@@ -2239,7 +2239,7 @@ var setUpNetwork = function setUpNetwork(nodeArray, edgeArray) {
   setUpContainer();
   network = new vis.Network(container, Graph.getData(), options);
   setUpClickHandlers();
-  Graph.saveOptimalAnswer();
+  Graph.updateOptimalAnswer();
 };
 
 var addCodeToListOfAttemptedPuzzles = function addCodeToListOfAttemptedPuzzles(code) {

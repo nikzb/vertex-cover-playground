@@ -3,7 +3,7 @@ let edges = null;
 let data = null;
 let optimalAnswer = null;
 
-const saveOptimalAnswer = function saveOptimalAnswer() {
+const updateOptimalAnswer = function updateOptimalAnswer() {
   optimalAnswer = nodes.get().reduce((total, node) => {
     return node.original ? total + 1 : total;
   }, 0);
@@ -151,7 +151,7 @@ module.exports = {
   allNodesHaveWifi,
   countHotspots,
   getOptimalAnswer,
-  saveOptimalAnswer,
+  updateOptimalAnswer,
   resetAllNodes,
   updateConnectedNodes,
   processNodeClick,

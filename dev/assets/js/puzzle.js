@@ -71,7 +71,7 @@ const setUpNetwork = function setUpNetwork(nodeArray, edgeArray) {
   setUpContainer();
   network = new vis.Network(container, Graph.getData(), options);
   setUpClickHandlers();
-  Graph.saveOptimalAnswer();
+  Graph.updateOptimalAnswer();
 };
 
 const addCodeToListOfAttemptedPuzzles = function addCodeToListOfAttemptedPuzzles(code) {
