@@ -16,14 +16,13 @@
 //   {from: 3, to: 6}
 // ]);
 
-let nodes = null;
-let edges = null;
-let data = null;
-let options = null;
+const Graph = require('./modules/Graph');
+const NetworkOptions = require('./modules/NetworkOptions');
+
 let container = null;
-let network = null;
-let optimalAnswer = null;
 let setUpClickHandlers;
+let options = null;
+let network = null;
 const domain = 'localhost:3001';
 
 const removeActive = function removeActive(element) {
@@ -32,154 +31,21 @@ const removeActive = function removeActive(element) {
   }
 };
 
-const saveOptimalAnswer = function saveOptimalAnswer() {
-  optimalAnswer = nodes.get().reduce((total, node) => {
-    return node.original ? total + 1 : total;
-  }, 0);
-};
-
 const setUpContainer = function setUpContainer() {
   container = document.querySelector('.graph-area__graph-canvas');
 };
 
-const setUpOptions = function setUpOptions() {
-  options = {
-    nodes: {
-      shape: 'dot',
-      size: 15,
-      font: {
-        size: 32
-      },
-      borderWidth: 0,
-      shadow: {
-        enabled: true,
-        size: 3
-      },
-      fixed: true,
-      labelHighlightBold: false
-    },
-    edges: {
-      width: 2,
-      shadow: false,
-      dashes: false,
-      color: {
-        color: 'darkgrey'
-        // inherit: 'both'
-      },
-      selectionWidth: 0
-    },
-    interaction: {
-      // hover:true,
-    },
-    groups: {
-      useDefaultGroups: false,
-      noService: {
-        color: {
-          background: 'red',
-          highlight: { background: 'red', border: 'red', borderWidth: 0 }
-        },
-        size: 15
-      },
-      hotspot: {
-        color: {
-          background: 'orange',
-          highlight: { background: 'orange', border: 'orange', borderWidth: 0 }
-        },
-        size: 18
-      },
-      service: {
-        color: {
-          background: 'yellow',
-          highlight: { background: 'yellow', border: 'yellow', borderWidth: 0 }
-        },
-        size: 15
-      }
-    }
-  };
-};
-
-const updateConnectedNodes = function updateConnectedNodes() {
-  // Reset all serviced nodes to unserviced (but leave hotspots alone)
-  nodes.forEach((node) => {
-    if (node.group === 'service') {
-      node.group = 'noService';
-      nodes.update(node);
-    }
-  });
-
-  // Find all the hotspot nodes and have them service all the connected non-hotspot nodes
-  nodes.forEach((node) => {
-    if (node.group === 'hotspot') {
-      edges.forEach((edge) => {
-        let servicedId = 0;
-        if (edge.from === node.id) {
-          servicedId = edge.to;
-        } else if (edge.to === node.id) {
-          servicedId = edge.from;
-        }
-
-        if (servicedId) {
-          const servicedNode = nodes.get(servicedId);
-
-          if (servicedNode.group === 'noService') {
-            servicedNode.group = 'service';
-            nodes.update(servicedNode);
-          }
-        }
-      });
-    }
-  });
-};
-
-const resetAllNodes = function resetAllNodes() {
-  nodes.forEach((node) => {
-    node.group = 'noService';
-    nodes.update(node);
-  });
-};
-
-const setUpData = function setUpData(nodeArray, edgeArray) {
-  const newEdgeArray = [];
-  edgeArray.forEach((edge) => {
-    newEdgeArray.push({ id: edge.id, from: edge.from, to: edge.to });
-  });
-
-  edges = new vis.DataSet(newEdgeArray);
-  nodes = new vis.DataSet(nodeArray);
-  resetAllNodes();
-  data = {
-    nodes,
-    edges
-  };
-};
-
-const allNodesHaveWifi = function allNodesHaveWifi() {
-  return nodes.get().every(node => node.group !== 'noService');
-};
-
-const countHotspots = function countHotspots() {
-  let hotspots = 0;
-
-  nodes.forEach((node) => {
-    if (node.group === 'hotspot') {
-      hotspots += 1;
-    }
-  });
-
-  return hotspots;
-};
-
 const updateHotspotCount = function updateHotspotCount() {
-  document.querySelector('.graph-area__count-wrap-count').innerHTML = countHotspots();
+  document.querySelector('.graph-area__count-wrap-count').innerHTML = Graph.countHotspots();
 };
 
 const checkForCompletion = function checkForCompletion() {
   const messageDiv = document.querySelector('.message-box');
   const messageElem = document.querySelector('.message-box__message');
   const links = document.querySelectorAll('.message-box__options');
-  if (allNodesHaveWifi()) {
+  if (Graph.allNodesHaveWifi()) {
     // Display a message telling whether optimization is complete
-    if (countHotspots() === optimalAnswer) {
+    if (Graph.countHotspots() === Graph.getOptimalAnswer()) {
       // Success!
       messageElem.innerHTML = 'You found an optimal solution!';
       links.forEach((link) => {
@@ -198,13 +64,14 @@ const checkForCompletion = function checkForCompletion() {
   }
 };
 
+
 const setUpNetwork = function setUpNetwork(nodeArray, edgeArray) {
-  setUpOptions();
-  setUpData(nodeArray, edgeArray);
+  options = NetworkOptions.getOptions();
+  Graph.setUpData(nodeArray, edgeArray);
   setUpContainer();
-  network = new vis.Network(container, data, options);
+  network = new vis.Network(container, Graph.getData(), options);
   setUpClickHandlers();
-  saveOptimalAnswer();
+  Graph.saveOptimalAnswer();
 };
 
 const addCodeToListOfAttemptedPuzzles = function addCodeToListOfAttemptedPuzzles(code) {
@@ -251,42 +118,21 @@ const usePuzzle = function usePuzzle(code) {
     });
 };
 
-setUpClickHandlers = function () {
+const setUpClickHandlerForGraph = function setUpClickHandlerForGraph() {
   network.on("click", (params) => {
     params.event = "[original event]";
     if (params.nodes.length > 0) {
       const id = params.nodes[0];
-      const node = nodes.get(id);
-      if (node.group !== 'hotspot') {
-        nodes.update({ id, group: 'hotspot' });
-        updateHotspotCount();
-        // Then update which nodes should be in group 'service'
-        updateConnectedNodes();
-      } else if (node.group === 'hotspot') {
-        nodes.update({ id, group: 'noService' });
-        // Then update which nodes should be in group 'service'
-        updateHotspotCount();
-        updateConnectedNodes();
-      }
 
+      Graph.processNodeClick(id);
+
+      updateHotspotCount();
       checkForCompletion();
     }
   });
+};
 
-  const messageDiv = document.querySelector('.message-box');
-
-  messageDiv.addEventListener("click", () => {
-    removeActive(messageDiv);
-  });
-
-  document.querySelector('button[name="reset"]').addEventListener("click", () => {
-    resetAllNodes();
-    updateHotspotCount();
-    const messageElem = document.querySelector('.message-box__message');
-    messageElem.innerHTML = '';
-    removeActive(messageDiv);
-  });
-
+const setUpClickHandlersForNextGraphLinks = function setUpClickHandlersForNextGraphLinks() {
   const nextGraphLinks = document.querySelectorAll('.next-graph');
 
   nextGraphLinks.forEach((link) => {
@@ -322,12 +168,16 @@ setUpClickHandlers = function () {
             });
           }
         )
-        .catch(() => {
-          // handle error condition
-        });
+        .catch(
+          (response) => {
+            // handle error
+          }
+        );
     });
   });
+};
 
+const setUpClickHandlersForCreateOwnLinks = function setUpClickHandlersForCreateOwnLinks() {
   const createOwnLinks = document.querySelectorAll('.create-own');
 
   createOwnLinks.forEach((link) => {
@@ -337,52 +187,30 @@ setUpClickHandlers = function () {
   });
 };
 
-const useDefaultPuzzle = function useDefaultPuzzle() {
-  let coordsArray = [
-   [0, 0], [2, 0], [3, 0], [4, 0], [4, 2], [4, 3], [4, 4], [3, 4], [2, 4],
-   [1, 4], [0, 4], [0, 3], [0, 2], [1, 2], [1, 1], [2, 1], [3, 1], [3, 2],
-   [3, 3], [2, 3], [2, 2], [1, 3]
-  ];
+const setUpClickHandlerForResetButton = function setUpClickHandlerForResetButton(messageDiv) {
+  document.querySelector('button[name="reset"]').addEventListener("click", () => {
+    Graph.resetAllNodes();
+    updateHotspotCount();
+    const messageElem = document.querySelector('.message-box__message');
+    messageElem.innerHTML = '';
+    removeActive(messageDiv);
+  });
+};
 
-  coordsArray = coordsArray.map(coords =>
-   [(coords[0] * 0.707) - (coords[1] * -0.707), ((coords[0] * -0.707) + ((coords[1] * 0.707) * 0.75))]
-  );
-  const scaleFactor = 200;
+const setUpClickHandlerForMessageBox = function setUpClickHandlerForMessageBox(messageDiv) {
+  messageDiv.addEventListener("click", () => {
+    removeActive(messageDiv);
+  });
+};
 
-  const nodeArray = [];
-  const originals = [6, 12, 15, 17, 20];
+setUpClickHandlers = function () {
+  const messageDiv = document.querySelector('.message-box');
 
-  for (let i = 1; i <= coordsArray.length; i += 1) {
-    let isOriginal = false;
-    if (originals.includes(i)) {
-      isOriginal = true;
-    }
-    nodeArray.push(
-      {
-        id: i,
-        group: 'noService',
-        // label: i,
-        original: isOriginal,
-        x: coordsArray[i-1][0] * scaleFactor,
-        y: coordsArray[i-1][1] * scaleFactor
-      }
-    );
-  }
-
-  const edgePairs = [[1, 2], [1, 15], [1, 13], [2, 15], [2, 3], [2, 16], [3, 4],
-                   [3, 17], [5, 18], [5, 6], [6, 8], [6, 7], [7, 8], [8, 9],
-                   [9, 10], [9, 20], [10, 11], [10, 12], [11, 12], [12, 13],
-                   [13, 14], [14, 15], [14, 21], [15, 16], [16, 21], [17, 18],
-                   [18, 19], [18, 21], [19, 20], [20, 21], [4, 5], [4, 17],
-                   [12, 22], [14, 22]];
-
-  const edgeArray = [];
-
-  edgePairs.forEach(edgePair =>
-    edgeArray.push({ from: edgePair[0], to: edgePair[1] })
-  );
-
-  setUpNetwork(nodeArray, edgeArray);
+  setUpClickHandlerForGraph();
+  setUpClickHandlersForNextGraphLinks();
+  setUpClickHandlersForCreateOwnLinks();
+  setUpClickHandlerForResetButton(messageDiv);
+  setUpClickHandlerForMessageBox(messageDiv);
 };
 
 // Export this so that puzzle.hbs can call this function to get the puzzle set up

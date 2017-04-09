@@ -64,7 +64,7 @@ var EntryPoint =
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 6);
+/******/ 	return __webpack_require__(__webpack_require__.s = 8);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -210,7 +210,7 @@ function flush() {
 function attemptVertx() {
   try {
     var r = require;
-    var vertx = __webpack_require__(4);
+    var vertx = __webpack_require__(6);
     vertxNext = vertx.runOnLoop || vertx.runOnContext;
     return useVertxTimer();
   } catch (e) {
@@ -1237,7 +1237,7 @@ return Promise;
 /*** EXPORTS FROM exports-loader ***/
 module.exports = global.Promise;
 }.call(global));
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3), __webpack_require__(0), __webpack_require__(1)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5), __webpack_require__(0), __webpack_require__(1)))
 
 /***/ }),
 /* 1 */
@@ -1268,6 +1268,232 @@ module.exports = g;
 
 /***/ }),
 /* 2 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var nodes = null;
+var edges = null;
+var data = null;
+var optimalAnswer = null;
+
+var saveOptimalAnswer = function saveOptimalAnswer() {
+  optimalAnswer = nodes.get().reduce(function (total, node) {
+    return node.original ? total + 1 : total;
+  }, 0);
+};
+
+var getOptimalAnswer = function getOptimalAnswer() {
+  return optimalAnswer;
+};
+
+var updateConnectedNodes = function updateConnectedNodes() {
+  // Reset all serviced nodes to unserviced (but leave hotspots alone)
+  nodes.forEach(function (node) {
+    if (node.group === 'service') {
+      node.group = 'noService';
+      nodes.update(node);
+    }
+  });
+
+  // Find all the hotspot nodes and have them service all the connected non-hotspot nodes
+  nodes.forEach(function (node) {
+    if (node.group === 'hotspot') {
+      edges.forEach(function (edge) {
+        var servicedId = 0;
+        if (edge.from === node.id) {
+          servicedId = edge.to;
+        } else if (edge.to === node.id) {
+          servicedId = edge.from;
+        }
+
+        if (servicedId) {
+          var servicedNode = nodes.get(servicedId);
+
+          if (servicedNode.group === 'noService') {
+            servicedNode.group = 'service';
+            nodes.update(servicedNode);
+          }
+        }
+      });
+    }
+  });
+};
+
+var resetAllNodes = function resetAllNodes() {
+  nodes.forEach(function (node) {
+    node.group = 'noService';
+    nodes.update(node);
+  });
+};
+
+var setUpData = function setUpData(nodeArray, edgeArray) {
+  var newEdgeArray = [];
+  edgeArray.forEach(function (edge) {
+    newEdgeArray.push({ id: edge.id, from: edge.from, to: edge.to });
+  });
+
+  edges = new vis.DataSet(newEdgeArray);
+  nodes = new vis.DataSet(nodeArray);
+  resetAllNodes();
+  data = {
+    nodes: nodes,
+    edges: edges
+  };
+};
+
+var getData = function getData() {
+  return data;
+};
+
+var allNodesHaveWifi = function allNodesHaveWifi() {
+  return nodes.get().every(function (node) {
+    return node.group !== 'noService';
+  });
+};
+
+var countHotspots = function countHotspots() {
+  var hotspots = 0;
+
+  nodes.forEach(function (node) {
+    if (node.group === 'hotspot') {
+      hotspots += 1;
+    }
+  });
+
+  return hotspots;
+};
+
+var processNodeClick = function processNodeClick(id) {
+  var node = nodes.get(id);
+  if (node.group !== 'hotspot') {
+    nodes.update({ id: id, group: 'hotspot' });
+  } else if (node.group === 'hotspot') {
+    nodes.update({ id: id, group: 'noService' });
+  }
+  // Update which nodes should be in group 'service'
+  updateConnectedNodes();
+};
+
+var useDefaultPuzzle = function useDefaultPuzzle() {
+  var coordsArray = [[0, 0], [2, 0], [3, 0], [4, 0], [4, 2], [4, 3], [4, 4], [3, 4], [2, 4], [1, 4], [0, 4], [0, 3], [0, 2], [1, 2], [1, 1], [2, 1], [3, 1], [3, 2], [3, 3], [2, 3], [2, 2], [1, 3]];
+
+  coordsArray = coordsArray.map(function (coords) {
+    return [coords[0] * 0.707 - coords[1] * -0.707, coords[0] * -0.707 + coords[1] * 0.707 * 0.75];
+  });
+  var scaleFactor = 200;
+
+  var nodeArray = [];
+  var originals = [6, 12, 15, 17, 20];
+
+  for (var i = 1; i <= coordsArray.length; i += 1) {
+    var isOriginal = false;
+    if (originals.includes(i)) {
+      isOriginal = true;
+    }
+    nodeArray.push({
+      id: i,
+      group: 'noService',
+      // label: i,
+      original: isOriginal,
+      x: coordsArray[i - 1][0] * scaleFactor,
+      y: coordsArray[i - 1][1] * scaleFactor
+    });
+  }
+
+  var edgePairs = [[1, 2], [1, 15], [1, 13], [2, 15], [2, 3], [2, 16], [3, 4], [3, 17], [5, 18], [5, 6], [6, 8], [6, 7], [7, 8], [8, 9], [9, 10], [9, 20], [10, 11], [10, 12], [11, 12], [12, 13], [13, 14], [14, 15], [14, 21], [15, 16], [16, 21], [17, 18], [18, 19], [18, 21], [19, 20], [20, 21], [4, 5], [4, 17], [12, 22], [14, 22]];
+
+  var edgeArray = [];
+
+  edgePairs.forEach(function (edgePair) {
+    return edgeArray.push({ from: edgePair[0], to: edgePair[1] });
+  });
+
+  // setUpNetwork(nodeArray, edgeArray);
+};
+
+module.exports = {
+  allNodesHaveWifi: allNodesHaveWifi,
+  countHotspots: countHotspots,
+  getOptimalAnswer: getOptimalAnswer,
+  saveOptimalAnswer: saveOptimalAnswer,
+  resetAllNodes: resetAllNodes,
+  updateConnectedNodes: updateConnectedNodes,
+  processNodeClick: processNodeClick,
+  getData: getData,
+  setUpData: setUpData
+};
+
+/***/ }),
+/* 3 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var getOptions = function getOptions() {
+  return {
+    nodes: {
+      shape: 'dot',
+      size: 15,
+      font: {
+        size: 32
+      },
+      borderWidth: 0,
+      shadow: {
+        enabled: true,
+        size: 3
+      },
+      fixed: true,
+      labelHighlightBold: false
+    },
+    edges: {
+      width: 2,
+      shadow: false,
+      dashes: false,
+      color: {
+        color: 'darkgrey'
+        // inherit: 'both'
+      },
+      selectionWidth: 0
+    },
+    interaction: {
+      // hover:true,
+    },
+    groups: {
+      useDefaultGroups: false,
+      noService: {
+        color: {
+          background: 'red',
+          highlight: { background: 'red', border: 'red', borderWidth: 0 }
+        },
+        size: 15
+      },
+      hotspot: {
+        color: {
+          background: 'orange',
+          highlight: { background: 'orange', border: 'orange', borderWidth: 0 }
+        },
+        size: 18
+      },
+      service: {
+        color: {
+          background: 'yellow',
+          highlight: { background: 'yellow', border: 'yellow', borderWidth: 0 }
+        },
+        size: 15
+      }
+    }
+  };
+};
+
+module.exports = {
+  getOptions: getOptions
+};
+
+/***/ }),
+/* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(Promise, global) {/*** IMPORTS FROM imports-loader ***/
@@ -1742,7 +1968,7 @@ module.exports = global.fetch;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0), __webpack_require__(1)))
 
 /***/ }),
-/* 3 */
+/* 5 */
 /***/ (function(module, exports) {
 
 // shim for using process in browser
@@ -1928,14 +2154,14 @@ process.umask = function() { return 0; };
 
 
 /***/ }),
-/* 4 */
+/* 6 */
 /***/ (function(module, exports) {
 
 /* (ignored) */
 
 /***/ }),
-/* 5 */,
-/* 6 */
+/* 7 */,
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1959,14 +2185,13 @@ process.umask = function() { return 0; };
 //   {from: 3, to: 6}
 // ]);
 
-var nodes = null;
-var edges = null;
-var data = null;
-var options = null;
+var Graph = __webpack_require__(2);
+var NetworkOptions = __webpack_require__(3);
+
 var container = null;
-var network = null;
-var optimalAnswer = null;
 var setUpClickHandlers = void 0;
+var options = null;
+var network = null;
 var domain = 'localhost:3001';
 
 var removeActive = function removeActive(element) {
@@ -1975,156 +2200,21 @@ var removeActive = function removeActive(element) {
   }
 };
 
-var saveOptimalAnswer = function saveOptimalAnswer() {
-  optimalAnswer = nodes.get().reduce(function (total, node) {
-    return node.original ? total + 1 : total;
-  }, 0);
-};
-
 var setUpContainer = function setUpContainer() {
   container = document.querySelector('.graph-area__graph-canvas');
 };
 
-var setUpOptions = function setUpOptions() {
-  options = {
-    nodes: {
-      shape: 'dot',
-      size: 15,
-      font: {
-        size: 32
-      },
-      borderWidth: 0,
-      shadow: {
-        enabled: true,
-        size: 3
-      },
-      fixed: true,
-      labelHighlightBold: false
-    },
-    edges: {
-      width: 2,
-      shadow: false,
-      dashes: false,
-      color: {
-        color: 'darkgrey'
-        // inherit: 'both'
-      },
-      selectionWidth: 0
-    },
-    interaction: {
-      // hover:true,
-    },
-    groups: {
-      useDefaultGroups: false,
-      noService: {
-        color: {
-          background: 'red',
-          highlight: { background: 'red', border: 'red', borderWidth: 0 }
-        },
-        size: 15
-      },
-      hotspot: {
-        color: {
-          background: 'orange',
-          highlight: { background: 'orange', border: 'orange', borderWidth: 0 }
-        },
-        size: 18
-      },
-      service: {
-        color: {
-          background: 'yellow',
-          highlight: { background: 'yellow', border: 'yellow', borderWidth: 0 }
-        },
-        size: 15
-      }
-    }
-  };
-};
-
-var updateConnectedNodes = function updateConnectedNodes() {
-  // Reset all serviced nodes to unserviced (but leave hotspots alone)
-  nodes.forEach(function (node) {
-    if (node.group === 'service') {
-      node.group = 'noService';
-      nodes.update(node);
-    }
-  });
-
-  // Find all the hotspot nodes and have them service all the connected non-hotspot nodes
-  nodes.forEach(function (node) {
-    if (node.group === 'hotspot') {
-      edges.forEach(function (edge) {
-        var servicedId = 0;
-        if (edge.from === node.id) {
-          servicedId = edge.to;
-        } else if (edge.to === node.id) {
-          servicedId = edge.from;
-        }
-
-        if (servicedId) {
-          var servicedNode = nodes.get(servicedId);
-
-          if (servicedNode.group === 'noService') {
-            servicedNode.group = 'service';
-            nodes.update(servicedNode);
-          }
-        }
-      });
-    }
-  });
-};
-
-var resetAllNodes = function resetAllNodes() {
-  nodes.forEach(function (node) {
-    node.group = 'noService';
-    nodes.update(node);
-  });
-};
-
-var setUpData = function setUpData(nodeArray, edgeArray) {
-  var newEdgeArray = [];
-  edgeArray.forEach(function (edge) {
-    newEdgeArray.push({ id: edge.id, from: edge.from, to: edge.to });
-  });
-
-  edges = new vis.DataSet(newEdgeArray);
-  nodes = new vis.DataSet(nodeArray);
-  resetAllNodes();
-  data = {
-    nodes: nodes,
-    edges: edges
-  };
-};
-
-var allNodesHaveWifi = function allNodesHaveWifi() {
-  return nodes.get().every(function (node) {
-    return node.group !== 'noService';
-  });
-};
-
-var countHotspots = function countHotspots() {
-  var hotspots = 0;
-
-  nodes.forEach(function (node) {
-    if (node.group === 'hotspot') {
-      hotspots += 1;
-    }
-  });
-
-  return hotspots;
-};
-
 var updateHotspotCount = function updateHotspotCount() {
-  document.querySelector('.graph-area__count-wrap-count').innerHTML = countHotspots();
+  document.querySelector('.graph-area__count-wrap-count').innerHTML = Graph.countHotspots();
 };
 
 var checkForCompletion = function checkForCompletion() {
   var messageDiv = document.querySelector('.message-box');
   var messageElem = document.querySelector('.message-box__message');
   var links = document.querySelectorAll('.message-box__options');
-  if (allNodesHaveWifi()) {
+  if (Graph.allNodesHaveWifi()) {
     // Display a message telling whether optimization is complete
-    if (countHotspots() === optimalAnswer) {
+    if (Graph.countHotspots() === Graph.getOptimalAnswer()) {
       // Success!
       messageElem.innerHTML = 'You found an optimal solution!';
       links.forEach(function (link) {
@@ -2144,12 +2234,12 @@ var checkForCompletion = function checkForCompletion() {
 };
 
 var setUpNetwork = function setUpNetwork(nodeArray, edgeArray) {
-  setUpOptions();
-  setUpData(nodeArray, edgeArray);
+  options = NetworkOptions.getOptions();
+  Graph.setUpData(nodeArray, edgeArray);
   setUpContainer();
-  network = new vis.Network(container, data, options);
+  network = new vis.Network(container, Graph.getData(), options);
   setUpClickHandlers();
-  saveOptimalAnswer();
+  Graph.saveOptimalAnswer();
 };
 
 var addCodeToListOfAttemptedPuzzles = function addCodeToListOfAttemptedPuzzles(code) {
@@ -2194,42 +2284,21 @@ var usePuzzle = function usePuzzle(code) {
   });
 };
 
-setUpClickHandlers = function setUpClickHandlers() {
+var setUpClickHandlerForGraph = function setUpClickHandlerForGraph() {
   network.on("click", function (params) {
     params.event = "[original event]";
     if (params.nodes.length > 0) {
       var id = params.nodes[0];
-      var node = nodes.get(id);
-      if (node.group !== 'hotspot') {
-        nodes.update({ id: id, group: 'hotspot' });
-        updateHotspotCount();
-        // Then update which nodes should be in group 'service'
-        updateConnectedNodes();
-      } else if (node.group === 'hotspot') {
-        nodes.update({ id: id, group: 'noService' });
-        // Then update which nodes should be in group 'service'
-        updateHotspotCount();
-        updateConnectedNodes();
-      }
 
+      Graph.processNodeClick(id);
+
+      updateHotspotCount();
       checkForCompletion();
     }
   });
+};
 
-  var messageDiv = document.querySelector('.message-box');
-
-  messageDiv.addEventListener("click", function () {
-    removeActive(messageDiv);
-  });
-
-  document.querySelector('button[name="reset"]').addEventListener("click", function () {
-    resetAllNodes();
-    updateHotspotCount();
-    var messageElem = document.querySelector('.message-box__message');
-    messageElem.innerHTML = '';
-    removeActive(messageDiv);
-  });
-
+var setUpClickHandlersForNextGraphLinks = function setUpClickHandlersForNextGraphLinks() {
   var nextGraphLinks = document.querySelectorAll('.next-graph');
 
   nextGraphLinks.forEach(function (link) {
@@ -2261,12 +2330,14 @@ setUpClickHandlers = function setUpClickHandlers() {
             window.location = 'http://' + domain + '/hotspot/' + code;
           }
         });
-      }).catch(function () {
-        // handle error condition
+      }).catch(function (response) {
+        // handle error
       });
     });
   });
+};
 
+var setUpClickHandlersForCreateOwnLinks = function setUpClickHandlersForCreateOwnLinks() {
   var createOwnLinks = document.querySelectorAll('.create-own');
 
   createOwnLinks.forEach(function (link) {
@@ -2276,48 +2347,37 @@ setUpClickHandlers = function setUpClickHandlers() {
   });
 };
 
-var useDefaultPuzzle = function useDefaultPuzzle() {
-  var coordsArray = [[0, 0], [2, 0], [3, 0], [4, 0], [4, 2], [4, 3], [4, 4], [3, 4], [2, 4], [1, 4], [0, 4], [0, 3], [0, 2], [1, 2], [1, 1], [2, 1], [3, 1], [3, 2], [3, 3], [2, 3], [2, 2], [1, 3]];
-
-  coordsArray = coordsArray.map(function (coords) {
-    return [coords[0] * 0.707 - coords[1] * -0.707, coords[0] * -0.707 + coords[1] * 0.707 * 0.75];
+var setUpClickHandlerForResetButton = function setUpClickHandlerForResetButton(messageDiv) {
+  document.querySelector('button[name="reset"]').addEventListener("click", function () {
+    Graph.resetAllNodes();
+    updateHotspotCount();
+    var messageElem = document.querySelector('.message-box__message');
+    messageElem.innerHTML = '';
+    removeActive(messageDiv);
   });
-  var scaleFactor = 200;
+};
 
-  var nodeArray = [];
-  var originals = [6, 12, 15, 17, 20];
-
-  for (var i = 1; i <= coordsArray.length; i += 1) {
-    var isOriginal = false;
-    if (originals.includes(i)) {
-      isOriginal = true;
-    }
-    nodeArray.push({
-      id: i,
-      group: 'noService',
-      // label: i,
-      original: isOriginal,
-      x: coordsArray[i - 1][0] * scaleFactor,
-      y: coordsArray[i - 1][1] * scaleFactor
-    });
-  }
-
-  var edgePairs = [[1, 2], [1, 15], [1, 13], [2, 15], [2, 3], [2, 16], [3, 4], [3, 17], [5, 18], [5, 6], [6, 8], [6, 7], [7, 8], [8, 9], [9, 10], [9, 20], [10, 11], [10, 12], [11, 12], [12, 13], [13, 14], [14, 15], [14, 21], [15, 16], [16, 21], [17, 18], [18, 19], [18, 21], [19, 20], [20, 21], [4, 5], [4, 17], [12, 22], [14, 22]];
-
-  var edgeArray = [];
-
-  edgePairs.forEach(function (edgePair) {
-    return edgeArray.push({ from: edgePair[0], to: edgePair[1] });
+var setUpClickHandlerForMessageBox = function setUpClickHandlerForMessageBox(messageDiv) {
+  messageDiv.addEventListener("click", function () {
+    removeActive(messageDiv);
   });
+};
 
-  setUpNetwork(nodeArray, edgeArray);
+setUpClickHandlers = function setUpClickHandlers() {
+  var messageDiv = document.querySelector('.message-box');
+
+  setUpClickHandlerForGraph();
+  setUpClickHandlersForNextGraphLinks();
+  setUpClickHandlersForCreateOwnLinks();
+  setUpClickHandlerForResetButton(messageDiv);
+  setUpClickHandlerForMessageBox(messageDiv);
 };
 
 // Export this so that puzzle.hbs can call this function to get the puzzle set up
 module.exports = {
   usePuzzle: usePuzzle
 };
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ })
 /******/ ]);
