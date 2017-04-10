@@ -64,7 +64,6 @@ const checkForCompletion = function checkForCompletion() {
   }
 };
 
-
 const setUpNetwork = function setUpNetwork(nodeArray, edgeArray) {
   options = NetworkOptions.getOptions();
   Graph.setUpData(nodeArray, edgeArray);
@@ -76,6 +75,8 @@ const setUpNetwork = function setUpNetwork(nodeArray, edgeArray) {
 
 const addCodeToListOfAttemptedPuzzles = function addCodeToListOfAttemptedPuzzles(code) {
   const puzzleList = JSON.parse(localStorage.getItem('hotspotPuzzlesAttempted')) || [];
+  console.log("Puzzle list from local storage: ");
+  console.log(puzzleList);
   let found = false;
   for (let i = 0; i < puzzleList.length; i += 1) {
     if (puzzleList[i].code === code) {
@@ -139,12 +140,12 @@ const setUpClickHandlersForNextGraphLinks = function setUpClickHandlersForNextGr
     link.addEventListener("click", () => {
       // Need to get a puzzle that hasn't been attempted yet based on what is in localStorage
       const puzzleListString = localStorage.getItem('hotspotPuzzlesAttempted');
-
-      // Need to figure out how this size will be determined
-      const size = 'small';
+      console.log("List of attempted puzzles: ");
+      console.log(puzzleListString);
 
       const myHeaders = new Headers({
-        'Content-Type': 'text/html'
+        // 'Content-Type': 'text/html'
+        'Content-Type': 'application/json'
       });
 
       const myInit = {
@@ -153,7 +154,7 @@ const setUpClickHandlersForNextGraphLinks = function setUpClickHandlersForNextGr
         body: puzzleListString
       };
 
-      const myRequest = new Request(`http://${domain}/get-hotspot-given-size/${size}`, myInit);
+      const myRequest = new Request(`http://${domain}/get-random-hotspot/`, myInit);
 
       fetch(myRequest)
         .then(
