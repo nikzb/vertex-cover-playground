@@ -1,3 +1,7 @@
+const vis = require('vis');
+
+const graph = require('./modules/GraphForCreate');
+const NetworkOptions = require('./modules/NetworkOptions');
 
 // Variables for manipulating the DOM
 let instructDiv = null;
@@ -10,11 +14,7 @@ let hotspotCountDiv = null;
 
 let stageInstructions = null;
 
-let nodes = null;
-let edges = null;
 let network = null;
-let data = null;
-
 let container;
 const domain = 'localhost:3001';
 
@@ -94,152 +94,32 @@ function setUpDragFix() {
   network.on("dragEnd", (params) => {
     if (params.nodes.length > 0) {
       const nodeId = params.nodes[0];
-      const node = nodes.get(nodeId);
+      const node = graph.getNode(nodeId);
       node.x = params.pointer.canvas.x;
       node.y = params.pointer.canvas.y;
-      nodes.update(node);
+      graph.updateNode(node);
     }
   });
 }
 
-const getAddNodeFunc = function getAddNodeFunc(group) {
-  return (nodeData, callback) => {
-    nodeData.label = '';
-    nodeData.original = (group === 'hotspot');
-    nodeData.group = group;
-    nodeData.connectedToWithinCluster = [];
-    callback(nodeData);
-    network.addNodeMode();
-  };
-};
-
-const updateNetworkOptions = function updateNetworkOptions() {
-  network.setOptions(options);
-};
-
-const setUpOptionsForAddHotspots = function setUpOptionsForAddHotspots() {
-  options.manipulation.addNode = getAddNodeFunc('hotspot');
-  options.manipulation.addEdge = false;
-  options.manipulation.deleteNode = true;
-  // options.manipulation.enabled = true;
-  updateNetworkOptions();
-  network.addNodeMode();
-};
-
 const resetPuzzleBuilder = function resetPuzzleBuilder() {
   network.destroy();
-  nodes = new vis.DataSet();
-  edges = new vis.DataSet();
-  data = { nodes, edges };
-  network = new vis.Network(container, data, options);
+
+  graph.reset();
+  network = new vis.Network(container, graph.getData(), options);
   setUpDragFix();
 
   stage = 'add-hotspots';
   instruct.innerHTML = stageInstructions[1];
   prevButton.style.visibility = 'hidden';
-  setUpOptionsForAddHotspots();
-};
-
-const setUpOptionsForAddServicedNodes = function setUpOptionsForAddServicedNodes() {
-  options.manipulation.addNode = getAddNodeFunc('service');
-  options.manipulation.addEdge = false;
-  options.manipulation.deleteNode = true;
-  updateNetworkOptions();
-  network.addNodeMode();
-};
-
-const setUpOptionsForMakeClusters = function setUpOptionsForMakeClusters() {
-  options.manipulation.addNode = false;
-  options.manipulation.deleteNode = false;
-  options.manipulation.editEdge = false;
-  options.manipulation.addEdge = (nodeData, callback) => {
-    // Need to ensure that new edge connects a lonely service node to a hotspot
-    const from = nodes.get(nodeData.from);
-    const to = nodes.get(nodeData.to);
-
-    if (from.group !== to.group) {
-      let serviceNode;
-      let hotspot;
-      if (from.group === 'service') {
-        serviceNode = from;
-        hotspot = to;
-      } else {
-        serviceNode = to;
-        hotspot = from;
-      }
-      if (serviceNode.connectedToWithinCluster.length === 0) {
-        serviceNode.connectedToWithinCluster.push(hotspot.id);
-        hotspot.connectedToWithinCluster.push(serviceNode.id);
-        callback(nodeData);
-        network.addEdgeMode();
-      }
-    }
-  };
-  updateNetworkOptions();
-  network.addEdgeMode();
-};
-
-const inSameCluster = function inSameCluster(nodeA, nodeB) {
-  const hotspot = nodes.get(nodeA.connectedToWithinCluster[0]);
-
-  for (let i = 0; i < hotspot.connectedToWithinCluster.length; i += 1) {
-    if (hotspot.connectedToWithinCluster[i] === nodeB.id) {
-      return true;
-    }
-  }
-
-  return false;
-};
-
-const setUpOptionsForConnectClusters = function setUpOptionsForConnectClusters() {
-  options.manipulation.addNode = false;
-  options.manipulation.deleteNode = false;
-  options.manipulation.editEdge = false;
-  options.manipulation.addEdge = (nodeData, callback) => {
-    // Need to ensure that new edge connects a lonely service node to a hotspot
-    const from = nodes.get(nodeData.from);
-    const to = nodes.get(nodeData.to);
-
-    if (nodeData.to !== nodeData.from &&
-        from.group === 'service' &&
-        to.group === 'service' &&
-        !inSameCluster(from, to)) {
-      nodeData.dashes = 'true';
-      callback(nodeData);
-      network.addEdgeMode();
-    }
-  };
-  updateNetworkOptions();
-  network.addEdgeMode();
-};
-
-const setUpOptionsForFinished = function setUpOptionsForFinished() {
-  options.manipulation.addNode = false;
-  options.manipulation.deleteNode = false;
-  options.manipulation.editEdge = false;
-  options.manipulation.addEdge = false;
-  options.manipulation.deleteEdge = false;
-  updateNetworkOptions();
-};
-
-const removeLonelyNodes = function removeLonelyNodes() {
-  let i = 0;
-
-  const nodesArray = nodes.get();
-
-  while (i < nodesArray.length) {
-    if (nodesArray[i].connectedToWithinCluster.length === 0) {
-      nodes.remove(nodesArray[i].id);
-    }
-    i += 1;
-  }
+  NetworkOptions.setUpOptionsForAddHotspots(network, options);
 };
 
 function savePuzzleAndLoad() {
   // Need to ask the server to generate a code for this puzzle
-  var xhttp = new XMLHttpRequest();
+  let xhttp = new XMLHttpRequest();
 
-  xhttp.onreadystatechange = function() {
+  xhttp.onreadystatechange = function () {
     if (this.readyState === 4 && this.status === 200) {
       const code = this.responseText;
       console.log(`Code from server: ${code}`);
@@ -248,8 +128,8 @@ function savePuzzleAndLoad() {
       } else {
         xhttp = new XMLHttpRequest();
 
-        xhttp.onreadystatechange = function() {
-          if (this.readyState == 4 && this.status == 200) {
+        xhttp.onreadystatechange = function () {
+          if (this.readyState === 4 && this.status === 200) {
             console.log("done saving new puzzle");
 
             // Need to load the newly created puzzle
@@ -257,7 +137,7 @@ function savePuzzleAndLoad() {
           }
         };
 
-        const nodesToCopy = nodes.get();
+        const nodesToCopy = graph.getNodes();
         let size;
         if (nodesToCopy.length <= 15) {
           size = "small";
@@ -269,7 +149,7 @@ function savePuzzleAndLoad() {
         console.log(`Determined size of puzzle: ${size}`);
         xhttp.open("POST", `http://${domain}/hotspot/`, true);
         xhttp.setRequestHeader("Content-type", "application/json");
-        xhttp.send(JSON.stringify({ graph: { nodes: nodesToCopy, edges: edges.get() }, code, size }));
+        xhttp.send(JSON.stringify({ graph: { nodes: nodesToCopy, edges: graph.getEdges() }, code, size }));
       }
     }
   };
@@ -280,27 +160,27 @@ function savePuzzleAndLoad() {
 const goToNextStage = function goToNextStage() {
   if (stage === 'intro') {
     stage = 'add-hotspots';
-    setUpOptionsForAddHotspots();
+    NetworkOptions.setUpOptionsForAddHotspots(network, options);
     instruct.innerHTML = stageInstructions[1];
     resetButton.style.visibility = 'visible';
   } else if (stage === 'add-hotspots') {
     stage = 'add-serviced-nodes';
-    setUpOptionsForAddServicedNodes();
+    NetworkOptions.setUpOptionsForAddServicedNodes(network, options);
     instruct.innerHTML = stageInstructions[2];
     prevButton.style.visibility = 'visible';
   } else if (stage === 'add-serviced-nodes') {
     stage = 'make-clusters';
-    setUpOptionsForMakeClusters();
+    NetworkOptions.setUpOptionsForMakeClusters(network, graph, options);
     instruct.innerHTML = stageInstructions[3];
   } else if (stage === 'make-clusters') {
     stage = 'connect-clusters';
-    removeLonelyNodes();
-    setUpOptionsForConnectClusters();
+    graph.removeLonelyNodes();
+    NetworkOptions.setUpOptionsForConnectClusters(network, graph, options);
     instruct.innerHTML = stageInstructions[4];
   } else if (stage === 'connect-clusters') {
     stage = 'finished';
-    removeLonelyNodes();
-    setUpOptionsForFinished();
+    graph.removeLonelyNodes();
+    NetworkOptions.setUpOptionsForFinished(network, options);
     instruct.innerHTML = stageInstructions[5];
   } else if (stage === 'finished') {
     buttonDiv.style.display = 'none';
@@ -315,20 +195,20 @@ const goToNextStage = function goToNextStage() {
 const goToPrevStage = function goToPrevStage() {
   if (stage === 'add-serviced-nodes') {
     stage = 'add-hotspots';
-    setUpOptionsForAddHotspots();
+    NetworkOptions.setUpOptionsForAddHotspots(network, options);
     instruct.innerHTML = stageInstructions[1];
     prevButton.style.visibility = 'hidden';
   } else if (stage === 'make-clusters') {
     stage = 'add-serviced-nodes';
-    setUpOptionsForAddServicedNodes();
+    NetworkOptions.setUpOptionsForAddServicedNodes(network, options);
     instruct.innerHTML = stageInstructions[2];
   } else if (stage === 'connect-clusters') {
     stage = 'make-clusters';
-    setUpOptionsForMakeClusters();
+    NetworkOptions.setUpOptionsForMakeClusters(network, graph, options);
     instruct.innerHTML = stageInstructions[3];
   } else if (stage === 'finished') {
     stage = 'connect-clusters';
-    setUpOptionsForConnectClusters();
+    NetworkOptions.setUpOptionsForConnectClusters(network, graph, options);
     instruct.innerHTML = stageInstructions[4];
   }
 };
@@ -337,56 +217,10 @@ const draw = function draw() {
   // Create a network
   container = document.querySelector('.graph-area__graph-canvas');
 
-  options = {
-    manipulation: {
-      // enabled: true, //set to false to hide edit button
-      // addNode: getAddNodeFunc('hotspot'),
-      // addEdge: false,
-      // deleteNode: true,
-      // initiallyActive: false
-      enabled: false
-    },
-    groups: {
-      useDefaultGroups: false,
-      hotspot: {
-        color: {
-          background: 'black',
-          border: 'black',
-          highlight: { background: 'orange', border: 'lightskyblue', borderWidth: 4 }
-        },
-        border: 'black',
-        size: 15
-      },
-      service: {
-        color: {
-          background: 'white',
-          border: 'black',
-          highlight: { background: 'yellow', border: 'lightskyblue', borderWidth: 4 }
-        },
-        size: 15
-      }
-    },
-    edges: {
-      smooth: {
-        type: 'continuous',
-        forceDirection: 'none',
-        roundness: 0
-      }
-    },
-    physics: {
-      enabled: false
-    }
-  };
+  options = NetworkOptions.getOptionsForCreatePuzzle();
+  graph.reset();
 
-  nodes = new vis.DataSet();
-  edges = new vis.DataSet();
-
-  data = {
-    nodes,
-    edges
-  };
-
-  network = new vis.Network(container, data, options);
+  network = new vis.Network(container, graph.getData(), options);
 
   setUpDragFix();
 };
@@ -418,13 +252,3 @@ const init = function init() {
 module.exports = {
   init
 };
-
-/* To Do
-
--Probably should eliminate this functionality for now and implement later
-  -Add proper deleteNode functions
-  -Add proper deleteEdge functions
-
--Known Bugs
-  -Clicking "Start Over" on puzzle builder makes the graph canvas resize to smaller size when it starts out very wide
-*/

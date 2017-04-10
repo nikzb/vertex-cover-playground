@@ -15,6 +15,7 @@
 //   {from: 2, to: 5},
 //   {from: 3, to: 6}
 // ]);
+const vis = require('vis');
 
 const Graph = require('./modules/Graph');
 const NetworkOptions = require('./modules/NetworkOptions');
@@ -65,7 +66,7 @@ const checkForCompletion = function checkForCompletion() {
 };
 
 const setUpNetwork = function setUpNetwork(nodeArray, edgeArray) {
-  options = NetworkOptions.getOptions();
+  options = NetworkOptions.getOptionsForPuzzle();
   Graph.setUpData(nodeArray, edgeArray);
   setUpContainer();
   network = new vis.Network(container, Graph.getData(), options);

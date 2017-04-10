@@ -1,3 +1,5 @@
+const vis = require('vis');
+
 let nodes = null;
 let edges = null;
 let data = null;

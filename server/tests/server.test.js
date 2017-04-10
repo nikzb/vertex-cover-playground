@@ -117,10 +117,10 @@ describe('POST /hotspot', () => {
         }
         HotspotPuzzle.find({}).then((puzzles) => {
           expect(puzzles.length).toBe(2);
-          done();
-        }).catch((e) => {
-          done(e);
-        });
+          return done();
+        }).catch(e => done(e));
+
+        return done();
       });
   });
 
@@ -136,8 +136,10 @@ describe('POST /hotspot', () => {
 
         HotspotPuzzle.find().then((puzzles) => {
           expect(puzzles.length).toBe(1);
-          done();
+          return done();
         }).catch(e => done(e));
+
+        return done();
       });
   });
 });
