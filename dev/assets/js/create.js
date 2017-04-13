@@ -124,8 +124,6 @@ const savePuzzleAndLoad = function savePuzzleAndLoad() {
   };
   const requestNewCode = new Request(`http://${domain}/hotspot/newCode`, newCodeInit);
 
-  // const requestNewCode = new Request(`http://${domain}/hotspot/newCode`);
-
   fetch(requestNewCode)
     .then((response) => {
       if (!response.ok) {

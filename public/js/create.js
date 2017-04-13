@@ -54666,8 +54666,6 @@ var savePuzzleAndLoad = function savePuzzleAndLoad() {
   };
   var requestNewCode = new Request('http://' + domain + '/hotspot/newCode', newCodeInit);
 
-  // const requestNewCode = new Request(`http://${domain}/hotspot/newCode`);
-
   fetch(requestNewCode).then(function (response) {
     if (!response.ok) {
       throw new Error("Error in response to fetch request");
