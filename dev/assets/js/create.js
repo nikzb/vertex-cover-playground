@@ -10,7 +10,6 @@ let prevButton = null;
 let resetButton = null;
 let instruct = null;
 let hotspotCountDiv = null;
-// var keyDiv = null;
 
 let stageInstructions = null;
 
@@ -115,47 +114,71 @@ const resetPuzzleBuilder = function resetPuzzleBuilder() {
   NetworkOptions.setUpOptionsForAddHotspots(network, options);
 };
 
-function savePuzzleAndLoad() {
-  // Need to ask the server to generate a code for this puzzle
-  let xhttp = new XMLHttpRequest();
+const savePuzzleAndLoad = function savePuzzleAndLoad() {
+  const newCodeHeaders = new Headers({
+    'Content-Type': 'text/html'
+  });
+  const newCodeInit = {
+    method: 'GET',
+    headers: newCodeHeaders
+  };
+  const requestNewCode = new Request(`http://${domain}/hotspot/newCode`, newCodeInit);
 
-  xhttp.onreadystatechange = function () {
-    if (this.readyState === 4 && this.status === 200) {
-      const code = this.responseText;
-      console.log(`Code from server: ${code}`);
-      if (code === 'Error') {
-        // Load an error page?
-      } else {
-        xhttp = new XMLHttpRequest();
+  // const requestNewCode = new Request(`http://${domain}/hotspot/newCode`);
 
-        xhttp.onreadystatechange = function () {
-          if (this.readyState === 4 && this.status === 200) {
-            console.log("done saving new puzzle");
+  fetch(requestNewCode)
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error("Error in response to fetch request");
+      }
+      const contentType = response.headers.get('content-type');
+      if (!contentType || contentType.indexOf('text') === -1) {
+        throw new Error("Problem with content type");
+      }
+      // The text sent back is the code that will be used to save this puzzle
+      response.text().then((code) => {
+        // Figure out the correct size for the puzzle
+        const size = graph.getSize();
 
-            // Need to load the newly created puzzle
-            window.location=`http://${domain}/hotspot/${code}`;
-          }
+        const addPuzzleRequestHeaders = new Headers({
+          'Content-Type': 'application/json'
+        });
+
+        const addPuzzleRequestInit = {
+          method: 'POST',
+          headers: addPuzzleRequestHeaders,
+          body: JSON.stringify({
+            graph: {
+              nodes: graph.getNodes(),
+              edges: graph.getEdges()
+            },
+            code,
+            size
+          })
         };
 
-        const nodesToCopy = graph.getNodes();
-        let size;
-        if (nodesToCopy.length <= 15) {
-          size = "small";
-        } else if (nodesToCopy.length <= 25) {
-          size = "medium";
-        } else {
-          size = "large";
-        }
-        console.log(`Determined size of puzzle: ${size}`);
-        xhttp.open("POST", `http://${domain}/hotspot/`, true);
-        xhttp.setRequestHeader("Content-type", "application/json");
-        xhttp.send(JSON.stringify({ graph: { nodes: nodesToCopy, edges: graph.getEdges() }, code, size }));
-      }
-    }
-  };
-  xhttp.open("GET", `http://${domain}/hotspot/newCode`, true);
-  xhttp.send();
-}
+        const addPuzzleRequest = new Request(`http://${domain}/hotspot/`, addPuzzleRequestInit);
+
+        fetch(addPuzzleRequest)
+          .then((addPuzzleResponse) => {
+            if (!addPuzzleResponse.ok) {
+              throw new Error("Error with response to adding puzzle");
+            }
+            // Successfully added puzzle, so load page with puzzle
+            window.location=`http://${domain}/hotspot/${code}`;
+          })
+          .catch((error) => {
+            throw new Error(error);
+          });
+      })
+      .catch((error) => {
+        throw new Error(error);
+      });
+    })
+    .catch((error) => {
+      throw new Error(error);
+    });
+};
 
 const goToNextStage = function goToNextStage() {
   if (stage === 'intro') {

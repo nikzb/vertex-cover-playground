@@ -76,15 +76,13 @@ const setUpNetwork = function setUpNetwork(nodeArray, edgeArray) {
 
 const addCodeToListOfAttemptedPuzzles = function addCodeToListOfAttemptedPuzzles(code) {
   const puzzleList = JSON.parse(localStorage.getItem('hotspotPuzzlesAttempted')) || [];
-  console.log("Puzzle list from local storage: ");
-  console.log(puzzleList);
+
   let found = false;
   for (let i = 0; i < puzzleList.length; i += 1) {
     if (puzzleList[i].code === code) {
       found = true;
     }
   }
-  console.log(`Code ${code} was found: ${found}`);
   if (!found) {
     puzzleList.push({ code });
   }
@@ -92,16 +90,15 @@ const addCodeToListOfAttemptedPuzzles = function addCodeToListOfAttemptedPuzzles
 };
 
 const handleResponseToPuzzleRequest = function handleResponseToPuzzleRequest(response, code) {
-  console.log(`handling response ${response} to code ${code}`);
   if (response.ok) {
-    console.log(`response is ok`);
     const contentType = response.headers.get('content-type');
     if (contentType && contentType.indexOf('application/json') !== -1) {
       return response.json().then((json) => {
-        console.log('calling setUpNetwork');
         setUpNetwork(json.puzzle.graph.nodes, json.puzzle.graph.edges);
         addCodeToListOfAttemptedPuzzles(code);
-      }).catch(error => console.log("Error with JSON file"));
+      }).catch((error) => {
+        throw new Error(`${error}, Error with JSON file`);
+      });
     }
     throw new Error('Unexpected content type');
   }
@@ -115,8 +112,8 @@ const usePuzzle = function usePuzzle(code) {
         handleResponseToPuzzleRequest(response, code);
       }
     )
-    .catch(() => {
-      // handle error condition
+    .catch((error) => {
+      throw new Error(error);
     });
 };
 
@@ -141,11 +138,8 @@ const setUpClickHandlersForNextGraphLinks = function setUpClickHandlersForNextGr
     link.addEventListener("click", () => {
       // Need to get a puzzle that hasn't been attempted yet based on what is in localStorage
       const puzzleListString = localStorage.getItem('hotspotPuzzlesAttempted');
-      console.log("List of attempted puzzles: ");
-      console.log(puzzleListString);
 
       const myHeaders = new Headers({
-        // 'Content-Type': 'text/html'
         'Content-Type': 'application/json'
       });
 
@@ -167,14 +161,15 @@ const setUpClickHandlersForNextGraphLinks = function setUpClickHandlersForNextGr
                 // Reload the page so that the code in the URL and the code shown on the page match the puzzle shown
                 window.location=`http://${domain}/hotspot/${code}`;
               }
+            })
+            .catch((error) => {
+              throw new Error(error);
             });
           }
         )
-        .catch(
-          (response) => {
-            // handle error
-          }
-        );
+        .catch((error) => {
+          throw new Error(error);
+        });
     });
   });
 };
@@ -205,7 +200,7 @@ const setUpClickHandlerForMessageBox = function setUpClickHandlerForMessageBox(m
   });
 };
 
-setUpClickHandlers = function () {
+setUpClickHandlers = () => {
   const messageDiv = document.querySelector('.message-box');
 
   setUpClickHandlerForGraph();

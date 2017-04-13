@@ -52416,225 +52416,6 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 1 */
 /***/ (function(module, exports, __webpack_require__) {
 
-"use strict";
-
-
-var getOptionsForPuzzle = function getOptionsForPuzzle() {
-  return {
-    nodes: {
-      shape: 'dot',
-      size: 15,
-      font: {
-        size: 32
-      },
-      borderWidth: 0,
-      shadow: {
-        enabled: true,
-        size: 3
-      },
-      fixed: true,
-      labelHighlightBold: false
-    },
-    edges: {
-      width: 2,
-      shadow: false,
-      dashes: false,
-      color: {
-        color: 'darkgrey'
-        // inherit: 'both'
-      },
-      selectionWidth: 0
-    },
-    interaction: {
-      // hover:true,
-    },
-    groups: {
-      useDefaultGroups: false,
-      noService: {
-        color: {
-          background: 'red',
-          highlight: { background: 'red', border: 'red', borderWidth: 0 }
-        },
-        size: 15
-      },
-      hotspot: {
-        color: {
-          background: 'orange',
-          highlight: { background: 'orange', border: 'orange', borderWidth: 0 }
-        },
-        size: 18
-      },
-      service: {
-        color: {
-          background: 'yellow',
-          highlight: { background: 'yellow', border: 'yellow', borderWidth: 0 }
-        },
-        size: 15
-      }
-    }
-  };
-};
-
-var getOptionsForCreatePuzzle = function getOptionsForCreatePuzzle() {
-  return {
-    manipulation: {
-      // enabled: true, //set to false to hide edit button
-      // addNode: getAddNodeFunc('hotspot'),
-      // addEdge: false,
-      // deleteNode: true,
-      // initiallyActive: false
-      enabled: false
-    },
-    groups: {
-      useDefaultGroups: false,
-      hotspot: {
-        color: {
-          background: 'black',
-          border: 'black',
-          highlight: { background: 'orange', border: 'lightskyblue', borderWidth: 4 }
-        },
-        border: 'black',
-        size: 15
-      },
-      service: {
-        color: {
-          background: 'white',
-          border: 'black',
-          highlight: { background: 'yellow', border: 'lightskyblue', borderWidth: 4 }
-        },
-        size: 15
-      }
-    },
-    edges: {
-      smooth: {
-        type: 'continuous',
-        forceDirection: 'none',
-        roundness: 0
-      }
-    },
-    physics: {
-      enabled: false
-    }
-  };
-};
-
-var getAddNodeFunc = function getAddNodeFunc(group, network) {
-  return function (nodeData, callback) {
-    nodeData.label = '';
-    nodeData.original = group === 'hotspot';
-    nodeData.group = group;
-    nodeData.connectedToWithinCluster = [];
-    callback(nodeData);
-    network.addNodeMode();
-  };
-};
-
-var updateNetworkOptions = function updateNetworkOptions(network, options) {
-  network.setOptions(options);
-};
-
-var setUpOptionsForAddHotspots = function setUpOptionsForAddHotspots(network, options) {
-  options.manipulation.addNode = getAddNodeFunc('hotspot', network);
-  options.manipulation.addEdge = false;
-  options.manipulation.deleteNode = true;
-  // options.manipulation.enabled = true;
-  updateNetworkOptions(network, options);
-  network.addNodeMode();
-};
-
-var setUpOptionsForAddServicedNodes = function setUpOptionsForAddServicedNodes(network, options) {
-  options.manipulation.addNode = getAddNodeFunc('service', network);
-  options.manipulation.addEdge = false;
-  options.manipulation.deleteNode = true;
-  updateNetworkOptions(network, options);
-  network.addNodeMode();
-};
-
-var setUpOptionsForMakeClusters = function setUpOptionsForMakeClusters(network, graph, options) {
-  options.manipulation.addNode = false;
-  options.manipulation.deleteNode = false;
-  options.manipulation.editEdge = false;
-  options.manipulation.addEdge = function (nodeData, callback) {
-    // Need to ensure that new edge connects a lonely service node to a hotspot
-    var from = graph.getNode(nodeData.from);
-    var to = graph.getNode(nodeData.to);
-
-    if (from.group !== to.group) {
-      var serviceNode = void 0;
-      var hotspot = void 0;
-      if (from.group === 'service') {
-        serviceNode = from;
-        hotspot = to;
-      } else {
-        serviceNode = to;
-        hotspot = from;
-      }
-      if (serviceNode.connectedToWithinCluster.length === 0) {
-        serviceNode.connectedToWithinCluster.push(hotspot.id);
-        hotspot.connectedToWithinCluster.push(serviceNode.id);
-        callback(nodeData);
-        network.addEdgeMode();
-      }
-    }
-  };
-  updateNetworkOptions(network, options);
-  network.addEdgeMode();
-};
-
-var setUpOptionsForConnectClusters = function setUpOptionsForConnectClusters(network, graph, options) {
-  var inSameCluster = function inSameCluster(nodeA, nodeB) {
-    var hotspot = graph.getNode(nodeA.connectedToWithinCluster[0]);
-
-    for (var i = 0; i < hotspot.connectedToWithinCluster.length; i += 1) {
-      if (hotspot.connectedToWithinCluster[i] === nodeB.id) {
-        return true;
-      }
-    }
-
-    return false;
-  };
-
-  options.manipulation.addNode = false;
-  options.manipulation.deleteNode = false;
-  options.manipulation.editEdge = false;
-  options.manipulation.addEdge = function (nodeData, callback) {
-    // Need to ensure that new edge connects a lonely service node to a hotspot
-    var from = graph.getNode(nodeData.from);
-    var to = graph.getNode(nodeData.to);
-
-    if (nodeData.to !== nodeData.from && from.group === 'service' && to.group === 'service' && !inSameCluster(from, to)) {
-      nodeData.dashes = 'true';
-      callback(nodeData);
-      network.addEdgeMode();
-    }
-  };
-  updateNetworkOptions(network, options);
-  network.addEdgeMode();
-};
-
-var setUpOptionsForFinished = function setUpOptionsForFinished(network, options) {
-  options.manipulation.addNode = false;
-  options.manipulation.deleteNode = false;
-  options.manipulation.editEdge = false;
-  options.manipulation.addEdge = false;
-  options.manipulation.deleteEdge = false;
-  updateNetworkOptions(network, options);
-};
-
-module.exports = {
-  getOptionsForPuzzle: getOptionsForPuzzle,
-  getOptionsForCreatePuzzle: getOptionsForCreatePuzzle,
-  setUpOptionsForAddHotspots: setUpOptionsForAddHotspots,
-  setUpOptionsForAddServicedNodes: setUpOptionsForAddServicedNodes,
-  setUpOptionsForMakeClusters: setUpOptionsForMakeClusters,
-  setUpOptionsForConnectClusters: setUpOptionsForConnectClusters,
-  setUpOptionsForFinished: setUpOptionsForFinished
-};
-
-/***/ }),
-/* 2 */
-/***/ (function(module, exports, __webpack_require__) {
-
 /* WEBPACK VAR INJECTION */(function(process, Promise, global) {var require;/*** IMPORTS FROM imports-loader ***/
 (function() {
 
@@ -52774,7 +52555,7 @@ function flush() {
 function attemptVertx() {
   try {
     var r = require;
-    var vertx = __webpack_require__(8);
+    var vertx = __webpack_require__(6);
     vertxNext = vertx.runOnLoop || vertx.runOnContext;
     return useVertxTimer();
   } catch (e) {
@@ -53801,10 +53582,10 @@ return Promise;
 /*** EXPORTS FROM exports-loader ***/
 module.exports = global.Promise;
 }.call(global));
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(7), __webpack_require__(2), __webpack_require__(3)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5), __webpack_require__(1), __webpack_require__(2)))
 
 /***/ }),
-/* 3 */
+/* 2 */
 /***/ (function(module, exports) {
 
 var g;
@@ -53831,169 +53612,226 @@ module.exports = g;
 
 
 /***/ }),
-/* 4 */
+/* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var vis = __webpack_require__(0);
-
-var nodes = null;
-var edges = null;
-var data = null;
-var optimalAnswer = null;
-
-var updateOptimalAnswer = function updateOptimalAnswer() {
-  optimalAnswer = nodes.get().reduce(function (total, node) {
-    return node.original ? total + 1 : total;
-  }, 0);
-};
-
-var getOptimalAnswer = function getOptimalAnswer() {
-  return optimalAnswer;
-};
-
-var updateConnectedNodes = function updateConnectedNodes() {
-  // Reset all serviced nodes to unserviced (but leave hotspots alone)
-  nodes.forEach(function (node) {
-    if (node.group === 'service') {
-      node.group = 'noService';
-      nodes.update(node);
+var getOptionsForPuzzle = function getOptionsForPuzzle() {
+  return {
+    nodes: {
+      shape: 'dot',
+      size: 15,
+      font: {
+        size: 32
+      },
+      borderWidth: 0,
+      shadow: {
+        enabled: true,
+        size: 3
+      },
+      fixed: true,
+      labelHighlightBold: false
+    },
+    edges: {
+      width: 2,
+      shadow: false,
+      dashes: false,
+      color: {
+        color: 'darkgrey'
+        // inherit: 'both'
+      },
+      selectionWidth: 0
+    },
+    interaction: {
+      // hover:true,
+    },
+    groups: {
+      useDefaultGroups: false,
+      noService: {
+        color: {
+          background: 'red',
+          highlight: { background: 'red', border: 'red', borderWidth: 0 }
+        },
+        size: 15
+      },
+      hotspot: {
+        color: {
+          background: 'orange',
+          highlight: { background: 'orange', border: 'orange', borderWidth: 0 }
+        },
+        size: 18
+      },
+      service: {
+        color: {
+          background: 'yellow',
+          highlight: { background: 'yellow', border: 'yellow', borderWidth: 0 }
+        },
+        size: 15
+      }
     }
-  });
-
-  // Find all the hotspot nodes and have them service all the connected non-hotspot nodes
-  nodes.forEach(function (node) {
-    if (node.group === 'hotspot') {
-      edges.forEach(function (edge) {
-        var servicedId = 0;
-        if (edge.from === node.id) {
-          servicedId = edge.to;
-        } else if (edge.to === node.id) {
-          servicedId = edge.from;
-        }
-
-        if (servicedId) {
-          var servicedNode = nodes.get(servicedId);
-
-          if (servicedNode.group === 'noService') {
-            servicedNode.group = 'service';
-            nodes.update(servicedNode);
-          }
-        }
-      });
-    }
-  });
-};
-
-var resetAllNodes = function resetAllNodes() {
-  nodes.forEach(function (node) {
-    node.group = 'noService';
-    nodes.update(node);
-  });
-};
-
-var setUpData = function setUpData(nodeArray, edgeArray) {
-  var newEdgeArray = [];
-  edgeArray.forEach(function (edge) {
-    newEdgeArray.push({ id: edge.id, from: edge.from, to: edge.to });
-  });
-
-  edges = new vis.DataSet(newEdgeArray);
-  nodes = new vis.DataSet(nodeArray);
-  resetAllNodes();
-  data = {
-    nodes: nodes,
-    edges: edges
   };
 };
 
-var getData = function getData() {
-  return data;
-};
-
-var allNodesHaveWifi = function allNodesHaveWifi() {
-  return nodes.get().every(function (node) {
-    return node.group !== 'noService';
-  });
-};
-
-var countHotspots = function countHotspots() {
-  var hotspots = 0;
-
-  nodes.forEach(function (node) {
-    if (node.group === 'hotspot') {
-      hotspots += 1;
+var getOptionsForCreatePuzzle = function getOptionsForCreatePuzzle() {
+  return {
+    manipulation: {
+      // enabled: true, //set to false to hide edit button
+      // addNode: getAddNodeFunc('hotspot'),
+      // addEdge: false,
+      // deleteNode: true,
+      // initiallyActive: false
+      enabled: false
+    },
+    groups: {
+      useDefaultGroups: false,
+      hotspot: {
+        color: {
+          background: 'black',
+          border: 'black',
+          highlight: { background: 'orange', border: 'lightskyblue', borderWidth: 4 }
+        },
+        border: 'black',
+        size: 15
+      },
+      service: {
+        color: {
+          background: 'white',
+          border: 'black',
+          highlight: { background: 'yellow', border: 'lightskyblue', borderWidth: 4 }
+        },
+        size: 15
+      }
+    },
+    edges: {
+      smooth: {
+        type: 'continuous',
+        forceDirection: 'none',
+        roundness: 0
+      }
+    },
+    physics: {
+      enabled: false
     }
-  });
-
-  return hotspots;
+  };
 };
 
-var processNodeClick = function processNodeClick(id) {
-  var node = nodes.get(id);
-  if (node.group !== 'hotspot') {
-    nodes.update({ id: id, group: 'hotspot' });
-  } else if (node.group === 'hotspot') {
-    nodes.update({ id: id, group: 'noService' });
-  }
-  // Update which nodes should be in group 'service'
-  updateConnectedNodes();
+var getAddNodeFunc = function getAddNodeFunc(group, network) {
+  return function (nodeData, callback) {
+    nodeData.label = '';
+    nodeData.original = group === 'hotspot';
+    nodeData.group = group;
+    nodeData.connectedToWithinCluster = [];
+    callback(nodeData);
+    network.addNodeMode();
+  };
 };
 
-var useDefaultPuzzle = function useDefaultPuzzle() {
-  var coordsArray = [[0, 0], [2, 0], [3, 0], [4, 0], [4, 2], [4, 3], [4, 4], [3, 4], [2, 4], [1, 4], [0, 4], [0, 3], [0, 2], [1, 2], [1, 1], [2, 1], [3, 1], [3, 2], [3, 3], [2, 3], [2, 2], [1, 3]];
+var updateNetworkOptions = function updateNetworkOptions(network, options) {
+  network.setOptions(options);
+};
 
-  coordsArray = coordsArray.map(function (coords) {
-    return [coords[0] * 0.707 - coords[1] * -0.707, coords[0] * -0.707 + coords[1] * 0.707 * 0.75];
-  });
-  var scaleFactor = 200;
+var setUpOptionsForAddHotspots = function setUpOptionsForAddHotspots(network, options) {
+  options.manipulation.addNode = getAddNodeFunc('hotspot', network);
+  options.manipulation.addEdge = false;
+  options.manipulation.deleteNode = true;
+  // options.manipulation.enabled = true;
+  updateNetworkOptions(network, options);
+  network.addNodeMode();
+};
 
-  var nodeArray = [];
-  var originals = [6, 12, 15, 17, 20];
+var setUpOptionsForAddServicedNodes = function setUpOptionsForAddServicedNodes(network, options) {
+  options.manipulation.addNode = getAddNodeFunc('service', network);
+  options.manipulation.addEdge = false;
+  options.manipulation.deleteNode = true;
+  updateNetworkOptions(network, options);
+  network.addNodeMode();
+};
 
-  for (var i = 1; i <= coordsArray.length; i += 1) {
-    var isOriginal = false;
-    if (originals.includes(i)) {
-      isOriginal = true;
+var setUpOptionsForMakeClusters = function setUpOptionsForMakeClusters(network, graph, options) {
+  options.manipulation.addNode = false;
+  options.manipulation.deleteNode = false;
+  options.manipulation.editEdge = false;
+  options.manipulation.addEdge = function (nodeData, callback) {
+    // Need to ensure that new edge connects a lonely service node to a hotspot
+    var from = graph.getNode(nodeData.from);
+    var to = graph.getNode(nodeData.to);
+
+    if (from.group !== to.group) {
+      var serviceNode = void 0;
+      var hotspot = void 0;
+      if (from.group === 'service') {
+        serviceNode = from;
+        hotspot = to;
+      } else {
+        serviceNode = to;
+        hotspot = from;
+      }
+      if (serviceNode.connectedToWithinCluster.length === 0) {
+        serviceNode.connectedToWithinCluster.push(hotspot.id);
+        hotspot.connectedToWithinCluster.push(serviceNode.id);
+        callback(nodeData);
+        network.addEdgeMode();
+      }
     }
-    nodeArray.push({
-      id: i,
-      group: 'noService',
-      // label: i,
-      original: isOriginal,
-      x: coordsArray[i - 1][0] * scaleFactor,
-      y: coordsArray[i - 1][1] * scaleFactor
-    });
-  }
+  };
+  updateNetworkOptions(network, options);
+  network.addEdgeMode();
+};
 
-  var edgePairs = [[1, 2], [1, 15], [1, 13], [2, 15], [2, 3], [2, 16], [3, 4], [3, 17], [5, 18], [5, 6], [6, 8], [6, 7], [7, 8], [8, 9], [9, 10], [9, 20], [10, 11], [10, 12], [11, 12], [12, 13], [13, 14], [14, 15], [14, 21], [15, 16], [16, 21], [17, 18], [18, 19], [18, 21], [19, 20], [20, 21], [4, 5], [4, 17], [12, 22], [14, 22]];
+var setUpOptionsForConnectClusters = function setUpOptionsForConnectClusters(network, graph, options) {
+  var inSameCluster = function inSameCluster(nodeA, nodeB) {
+    var hotspot = graph.getNode(nodeA.connectedToWithinCluster[0]);
 
-  var edgeArray = [];
+    for (var i = 0; i < hotspot.connectedToWithinCluster.length; i += 1) {
+      if (hotspot.connectedToWithinCluster[i] === nodeB.id) {
+        return true;
+      }
+    }
 
-  edgePairs.forEach(function (edgePair) {
-    return edgeArray.push({ from: edgePair[0], to: edgePair[1] });
-  });
+    return false;
+  };
 
-  // setUpNetwork(nodeArray, edgeArray);
+  options.manipulation.addNode = false;
+  options.manipulation.deleteNode = false;
+  options.manipulation.editEdge = false;
+  options.manipulation.addEdge = function (nodeData, callback) {
+    // Need to ensure that new edge connects a lonely service node to a hotspot
+    var from = graph.getNode(nodeData.from);
+    var to = graph.getNode(nodeData.to);
+
+    if (nodeData.to !== nodeData.from && from.group === 'service' && to.group === 'service' && !inSameCluster(from, to)) {
+      nodeData.dashes = 'true';
+      callback(nodeData);
+      network.addEdgeMode();
+    }
+  };
+  updateNetworkOptions(network, options);
+  network.addEdgeMode();
+};
+
+var setUpOptionsForFinished = function setUpOptionsForFinished(network, options) {
+  options.manipulation.addNode = false;
+  options.manipulation.deleteNode = false;
+  options.manipulation.editEdge = false;
+  options.manipulation.addEdge = false;
+  options.manipulation.deleteEdge = false;
+  updateNetworkOptions(network, options);
 };
 
 module.exports = {
-  allNodesHaveWifi: allNodesHaveWifi,
-  countHotspots: countHotspots,
-  getOptimalAnswer: getOptimalAnswer,
-  updateOptimalAnswer: updateOptimalAnswer,
-  resetAllNodes: resetAllNodes,
-  updateConnectedNodes: updateConnectedNodes,
-  processNodeClick: processNodeClick,
-  getData: getData,
-  setUpData: setUpData
+  getOptionsForPuzzle: getOptionsForPuzzle,
+  getOptionsForCreatePuzzle: getOptionsForCreatePuzzle,
+  setUpOptionsForAddHotspots: setUpOptionsForAddHotspots,
+  setUpOptionsForAddServicedNodes: setUpOptionsForAddServicedNodes,
+  setUpOptionsForMakeClusters: setUpOptionsForMakeClusters,
+  setUpOptionsForConnectClusters: setUpOptionsForConnectClusters,
+  setUpOptionsForFinished: setUpOptionsForFinished
 };
 
 /***/ }),
-/* 5 */,
-/* 6 */
+/* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(Promise, global) {/*** IMPORTS FROM imports-loader ***/
@@ -54465,10 +54303,10 @@ module.exports = {
 /*** EXPORTS FROM exports-loader ***/
 module.exports = global.fetch;
 }.call(global));
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2), __webpack_require__(3)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1), __webpack_require__(2)))
 
 /***/ }),
-/* 7 */
+/* 5 */
 /***/ (function(module, exports) {
 
 // shim for using process in browser
@@ -54654,12 +54492,174 @@ process.umask = function() { return 0; };
 
 
 /***/ }),
-/* 8 */
+/* 6 */
 /***/ (function(module, exports) {
 
 /* (ignored) */
 
 /***/ }),
+/* 7 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var vis = __webpack_require__(0);
+
+var nodes = null;
+var edges = null;
+var data = null;
+var optimalAnswer = null;
+
+var updateOptimalAnswer = function updateOptimalAnswer() {
+  optimalAnswer = nodes.get().reduce(function (total, node) {
+    return node.original ? total + 1 : total;
+  }, 0);
+};
+
+var getOptimalAnswer = function getOptimalAnswer() {
+  return optimalAnswer;
+};
+
+var updateConnectedNodes = function updateConnectedNodes() {
+  // Reset all serviced nodes to unserviced (but leave hotspots alone)
+  nodes.forEach(function (node) {
+    if (node.group === 'service') {
+      node.group = 'noService';
+      nodes.update(node);
+    }
+  });
+
+  // Find all the hotspot nodes and have them service all the connected non-hotspot nodes
+  nodes.forEach(function (node) {
+    if (node.group === 'hotspot') {
+      edges.forEach(function (edge) {
+        var servicedId = 0;
+        if (edge.from === node.id) {
+          servicedId = edge.to;
+        } else if (edge.to === node.id) {
+          servicedId = edge.from;
+        }
+
+        if (servicedId) {
+          var servicedNode = nodes.get(servicedId);
+
+          if (servicedNode.group === 'noService') {
+            servicedNode.group = 'service';
+            nodes.update(servicedNode);
+          }
+        }
+      });
+    }
+  });
+};
+
+var resetAllNodes = function resetAllNodes() {
+  nodes.forEach(function (node) {
+    node.group = 'noService';
+    nodes.update(node);
+  });
+};
+
+var setUpData = function setUpData(nodeArray, edgeArray) {
+  var newEdgeArray = [];
+  edgeArray.forEach(function (edge) {
+    newEdgeArray.push({ id: edge.id, from: edge.from, to: edge.to });
+  });
+
+  edges = new vis.DataSet(newEdgeArray);
+  nodes = new vis.DataSet(nodeArray);
+  resetAllNodes();
+  data = {
+    nodes: nodes,
+    edges: edges
+  };
+};
+
+var getData = function getData() {
+  return data;
+};
+
+var allNodesHaveWifi = function allNodesHaveWifi() {
+  return nodes.get().every(function (node) {
+    return node.group !== 'noService';
+  });
+};
+
+var countHotspots = function countHotspots() {
+  var hotspots = 0;
+
+  nodes.forEach(function (node) {
+    if (node.group === 'hotspot') {
+      hotspots += 1;
+    }
+  });
+
+  return hotspots;
+};
+
+var processNodeClick = function processNodeClick(id) {
+  var node = nodes.get(id);
+  if (node.group !== 'hotspot') {
+    nodes.update({ id: id, group: 'hotspot' });
+  } else if (node.group === 'hotspot') {
+    nodes.update({ id: id, group: 'noService' });
+  }
+  // Update which nodes should be in group 'service'
+  updateConnectedNodes();
+};
+
+var useDefaultPuzzle = function useDefaultPuzzle() {
+  var coordsArray = [[0, 0], [2, 0], [3, 0], [4, 0], [4, 2], [4, 3], [4, 4], [3, 4], [2, 4], [1, 4], [0, 4], [0, 3], [0, 2], [1, 2], [1, 1], [2, 1], [3, 1], [3, 2], [3, 3], [2, 3], [2, 2], [1, 3]];
+
+  coordsArray = coordsArray.map(function (coords) {
+    return [coords[0] * 0.707 - coords[1] * -0.707, coords[0] * -0.707 + coords[1] * 0.707 * 0.75];
+  });
+  var scaleFactor = 200;
+
+  var nodeArray = [];
+  var originals = [6, 12, 15, 17, 20];
+
+  for (var i = 1; i <= coordsArray.length; i += 1) {
+    var isOriginal = false;
+    if (originals.includes(i)) {
+      isOriginal = true;
+    }
+    nodeArray.push({
+      id: i,
+      group: 'noService',
+      // label: i,
+      original: isOriginal,
+      x: coordsArray[i - 1][0] * scaleFactor,
+      y: coordsArray[i - 1][1] * scaleFactor
+    });
+  }
+
+  var edgePairs = [[1, 2], [1, 15], [1, 13], [2, 15], [2, 3], [2, 16], [3, 4], [3, 17], [5, 18], [5, 6], [6, 8], [6, 7], [7, 8], [8, 9], [9, 10], [9, 20], [10, 11], [10, 12], [11, 12], [12, 13], [13, 14], [14, 15], [14, 21], [15, 16], [16, 21], [17, 18], [18, 19], [18, 21], [19, 20], [20, 21], [4, 5], [4, 17], [12, 22], [14, 22]];
+
+  var edgeArray = [];
+
+  edgePairs.forEach(function (edgePair) {
+    return edgeArray.push({ from: edgePair[0], to: edgePair[1] });
+  });
+
+  // setUpNetwork(nodeArray, edgeArray);
+};
+
+module.exports = {
+  allNodesHaveWifi: allNodesHaveWifi,
+  countHotspots: countHotspots,
+  getOptimalAnswer: getOptimalAnswer,
+  updateOptimalAnswer: updateOptimalAnswer,
+  resetAllNodes: resetAllNodes,
+  updateConnectedNodes: updateConnectedNodes,
+  processNodeClick: processNodeClick,
+  getData: getData,
+  setUpData: setUpData
+};
+
+/***/ }),
+/* 8 */,
 /* 9 */,
 /* 10 */
 /***/ (function(module, exports, __webpack_require__) {
@@ -54686,8 +54686,8 @@ process.umask = function() { return 0; };
 // ]);
 var vis = __webpack_require__(0);
 
-var Graph = __webpack_require__(4);
-var NetworkOptions = __webpack_require__(1);
+var Graph = __webpack_require__(7);
+var NetworkOptions = __webpack_require__(3);
 
 var container = null;
 var setUpClickHandlers = void 0;
@@ -54745,15 +54745,13 @@ var setUpNetwork = function setUpNetwork(nodeArray, edgeArray) {
 
 var addCodeToListOfAttemptedPuzzles = function addCodeToListOfAttemptedPuzzles(code) {
   var puzzleList = JSON.parse(localStorage.getItem('hotspotPuzzlesAttempted')) || [];
-  console.log("Puzzle list from local storage: ");
-  console.log(puzzleList);
+
   var found = false;
   for (var i = 0; i < puzzleList.length; i += 1) {
     if (puzzleList[i].code === code) {
       found = true;
     }
   }
-  console.log('Code ' + code + ' was found: ' + found);
   if (!found) {
     puzzleList.push({ code: code });
   }
@@ -54761,17 +54759,14 @@ var addCodeToListOfAttemptedPuzzles = function addCodeToListOfAttemptedPuzzles(c
 };
 
 var handleResponseToPuzzleRequest = function handleResponseToPuzzleRequest(response, code) {
-  console.log('handling response ' + response + ' to code ' + code);
   if (response.ok) {
-    console.log('response is ok');
     var contentType = response.headers.get('content-type');
     if (contentType && contentType.indexOf('application/json') !== -1) {
       return response.json().then(function (json) {
-        console.log('calling setUpNetwork');
         setUpNetwork(json.puzzle.graph.nodes, json.puzzle.graph.edges);
         addCodeToListOfAttemptedPuzzles(code);
       }).catch(function (error) {
-        return console.log("Error with JSON file");
+        throw new Error(error + ', Error with JSON file');
       });
     }
     throw new Error('Unexpected content type');
@@ -54782,8 +54777,8 @@ var handleResponseToPuzzleRequest = function handleResponseToPuzzleRequest(respo
 var usePuzzle = function usePuzzle(code) {
   fetch('http://' + domain + '/hotspot-data/' + code).then(function (response) {
     handleResponseToPuzzleRequest(response, code);
-  }).catch(function () {
-    // handle error condition
+  }).catch(function (error) {
+    throw new Error(error);
   });
 };
 
@@ -54808,11 +54803,8 @@ var setUpClickHandlersForNextGraphLinks = function setUpClickHandlersForNextGrap
     link.addEventListener("click", function () {
       // Need to get a puzzle that hasn't been attempted yet based on what is in localStorage
       var puzzleListString = localStorage.getItem('hotspotPuzzlesAttempted');
-      console.log("List of attempted puzzles: ");
-      console.log(puzzleListString);
 
       var myHeaders = new Headers({
-        // 'Content-Type': 'text/html'
         'Content-Type': 'application/json'
       });
 
@@ -54832,9 +54824,11 @@ var setUpClickHandlersForNextGraphLinks = function setUpClickHandlersForNextGrap
             // Reload the page so that the code in the URL and the code shown on the page match the puzzle shown
             window.location = 'http://' + domain + '/hotspot/' + code;
           }
+        }).catch(function (error) {
+          throw new Error(error);
         });
-      }).catch(function (response) {
-        // handle error
+      }).catch(function (error) {
+        throw new Error(error);
       });
     });
   });
@@ -54880,7 +54874,7 @@ setUpClickHandlers = function setUpClickHandlers() {
 module.exports = {
   usePuzzle: usePuzzle
 };
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(6)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ })
 /******/ ]);

@@ -43,6 +43,20 @@ const removeLonelyNodes = function removeLonelyNodes() {
   }
 };
 
+const getSize = function getSize() {
+  const nodesToCopy = getNodes();
+  let size;
+  if (nodesToCopy.length <= 15) {
+    size = "small";
+  } else if (nodesToCopy.length <= 25) {
+    size = "medium";
+  } else {
+    size = "large";
+  }
+
+  return size;
+};
+
 module.exports = {
   getNode,
   updateNode,
@@ -50,5 +64,6 @@ module.exports = {
   getEdges,
   getData,
   reset,
-  removeLonelyNodes
+  removeLonelyNodes,
+  getSize
 };
