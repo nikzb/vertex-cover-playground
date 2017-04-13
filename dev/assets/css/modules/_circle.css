@@ -1,5 +1,7 @@
 .circle {
   border-radius: 50%;
+  border: 1px solid $darkBorder;
+  box-shadow: 3px 3px 3px $darkBorder;
   width: 40px;
   height: 40px;
   flex: 0 0 40px;

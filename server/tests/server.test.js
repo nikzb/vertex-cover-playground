@@ -1,33 +1,31 @@
-"use strict";
-
 const expect = require('expect');
 const request = require('supertest');
-const {ObjectID} = require('mongodb');
+const { ObjectID } = require('mongodb');
 
-const {app} = require('./../server');
-const {HotspotPuzzle} = require('./../models/hotspotPuzzle');
+const { app } = require('./../server');
+const { HotspotPuzzle } = require('./../models/hotspotPuzzle');
 
 const puzzle = {
   code: '1',
   size: "small",
   graph: {
     nodes: [
-      {id: 1, group: "noService", original: false},
-      {id: 2, group: "noService", original: true},
-      {id: 3, group: "noService", original: true},
-      {id: 4, group: "noService", original: false},
-      {id: 5, group: "noService", original: false},
-      {id: 6, group: "noService", original: false}
+      { id: 1, group: "noService", original: false },
+      { id: 2, group: "noService", original: true },
+      { id: 3, group: "noService", original: true },
+      { id: 4, group: "noService", original: false },
+      { id: 5, group: "noService", original: false },
+      { id: 6, group: "noService", original: false }
     ],
     edges: [
-      {from: 1, to: 2},
-      {from: 1, to: 5},
-      {from: 2, to: 4},
-      {from: 3, to: 5},
-      {from: 3, to: 6}
+      { from: 1, to: 2 },
+      { from: 1, to: 5 },
+      { from: 2, to: 4 },
+      { from: 3, to: 5 },
+      { from: 3, to: 6 }
     ]
   }
-}
+};
 
 beforeEach((done) => {
   HotspotPuzzle.remove({}).then(() => {
@@ -66,7 +64,6 @@ describe('GET /hotspot/:code', () => {
       .expect(200)
       .expect((res) => {
         expect(res.text).toExist();
-        //console.log('logging response for render puzzle page: ', res.text);
       })
       .end(done);
   });
@@ -88,19 +85,19 @@ describe('POST /hotspot', () => {
       size: "small",
       graph: {
         nodes: [
-          {id: 1, group: "noService", original: false},
-          {id: 2, group: "noService", original: true},
-          {id: 3, group: "noService", original: true},
-          {id: 4, group: "noService", original: false},
-          {id: 5, group: "noService", original: false},
-          {id: 6, group: "noService", original: false}
+          { id: 1, group: "noService", original: false },
+          { id: 2, group: "noService", original: true },
+          { id: 3, group: "noService", original: true },
+          { id: 4, group: "noService", original: false },
+          { id: 5, group: "noService", original: false },
+          { id: 6, group: "noService", original: false }
         ],
         edges: [
-          {from: 1, to: 3},
-          {from: 1, to: 6},
-          {from: 2, to: 5},
-          {from: 2, to: 6},
-          {from: 3, to: 4}
+          { from: 1, to: 3 },
+          { from: 1, to: 6 },
+          { from: 2, to: 5 },
+          { from: 2, to: 6 },
+          { from: 3, to: 4 }
         ]
       }
     };
@@ -120,10 +117,10 @@ describe('POST /hotspot', () => {
         }
         HotspotPuzzle.find({}).then((puzzles) => {
           expect(puzzles.length).toBe(2);
-          done();
-        }).catch((e) => {
-          done(e);
-        });
+          return done();
+        }).catch(e => done(e));
+
+        return done();
       });
   });
 
@@ -139,8 +136,10 @@ describe('POST /hotspot', () => {
 
         HotspotPuzzle.find().then((puzzles) => {
           expect(puzzles.length).toBe(1);
-          done();
-        }).catch((e) => done(e));
+          return done();
+        }).catch(e => done(e));
+
+        return done();
       });
   });
 });

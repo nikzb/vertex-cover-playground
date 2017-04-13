@@ -1,14 +1,16 @@
+const webpack = require('webpack');
+
 module.exports = {
   entry: {
-    //create: './dev/assets/js/create.js',
+    create: './dev/assets/js/create.js',
     puzzle: './dev/assets/js/puzzle.js'
   },
   output: {
     path: './public/js',
-    //filename: '[name].js',
-    filename: 'puzzle.js',
+    filename: '[name].js',
     libraryTarget: 'var',
-    //library: ['GlobalAccess', '[name]']
+    // If you need to keep various entry points separate, can try to do like this:
+    // library: ['GlobalAccess', '[name]']
     library: 'EntryPoint'
 
   },
@@ -23,5 +25,11 @@ module.exports = {
         exclude: /node_modules/
       }
     ]
-  }
-}
+  },
+  plugins: [
+    new webpack.ProvidePlugin({
+      Promise: 'imports-loader?this=>global!exports-loader?global.Promise!es6-promise',
+      fetch: 'imports-loader?this=>global!exports-loader?global.fetch!whatwg-fetch'
+    })
+  ]
+};

@@ -8,10 +8,6 @@ const HotspotPuzzle = mongoose.model('HotspotPuzzle', {
   graph: {
     type: Object,
     required: true
-  },
-  size: {
-    type: String,
-    required: true
   }
 });
 

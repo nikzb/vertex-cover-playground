@@ -1,24 +1,21 @@
+const vis = require('vis');
+
+const graph = require('./modules/GraphForCreate');
+const NetworkOptions = require('./modules/NetworkOptions');
+
 // Variables for manipulating the DOM
-var instructDiv = null;
-var buttonDiv = null;
-var prevButton = null;
-var resetButton = null;
-var instruct = null;
-var hotspotCountDiv = null;
-// var keyDiv = null;
+let instructDiv = null;
+let buttonDiv = null;
+let prevButton = null;
+let resetButton = null;
+let instruct = null;
+let hotspotCountDiv = null;
 
-var stageInstructIndex = 0;
-var stageInstructions = null;
+let stageInstructions = null;
 
-populateStageInstructions();
-
-var nodes = null;
-var edges = null;
-var network = null;
-var data = null;
-
-var container;
-var domain = 'localhost:3001';
+let network = null;
+let container;
+const domain = 'localhost:3001';
 
 // The stages are
   // 0: intro
@@ -27,10 +24,10 @@ var domain = 'localhost:3001';
   // 3: make-clusters
   // 4: connect-clusters
   // 5: finished
-var stage = 'intro';
-var options;
+let stage = 'intro';
+let options;
 
-function populateStageInstructions() {
+const populateStageInstructions = function populateStageInstructions() {
   stageInstructions = [];
 
   stageInstructions[0] = `
@@ -39,14 +36,14 @@ function populateStageInstructions() {
       <li>It may be very difficult for someone else to solve your problem!</li>
     </ul>
     <h3 class='to-do'>Follow the instructions to create your own Wifi Hotspot Problem!</h3>
-  `
+  `;
 
   stageInstructions[1] = `
     <h2 class='step-label'>Step <span class='step-number'>1</span>: Add the Hotspots</h2>
     <ul class='instruct-details'>
       <li>Click in the graph canvas to add the hotspots.</li>
     </ul>
-  `
+  `;
 
   stageInstructions[2] = `
     <h2 class='step-label'>Step <span class='step-number'>2</span>: Add The Remaining Nodes</h2>
@@ -54,7 +51,7 @@ function populateStageInstructions() {
       <li>Click in the graph canvas to add the nodes that will receive service from the hotspots.</li>
       <li>You will connect the nodes in the next steps.</li>
     </ul>
-  `
+  `;
 
   stageInstructions[3] = `
     <h2 class='step-label'>Step <span class='step-number'>3</span>: Make Clusters</h2>
@@ -63,7 +60,7 @@ function populateStageInstructions() {
       <li>Each white node should be connected to exactly one black node.</li>
       <li>Black nodes can be connected to multiple white nodes to form a cluster of nodes.</li>
     </ul>
-  `
+  `;
 
   stageInstructions[4] = `
     <h2 class='step-label'>Step <span class='step-number'>4</span>: Connect the Clusters</h2>
@@ -72,7 +69,7 @@ function populateStageInstructions() {
       <li>You can connect nodes to multiple other nodes, as long as they are from different clusters.</li>
       <li>You will be able to adjust the positions of the nodes in the next step.</li>
     </ul>
-  `
+  `;
 
   stageInstructions[5] = `
     <h2 class='step-label'>Step <span class='step-number'>5</span>: Finish Up</h2>
@@ -80,179 +77,133 @@ function populateStageInstructions() {
       <li>Ajdust the final positioning of the nodes.</li>
       <li>Then click Next to create your puzzle!</li>
     </ul>
-  `
+  `;
 
   stageInstructions[6] = `
     <ul class='instruct-details'>
       <li>Click a node to add a hotspot. Click it again to remove it.</li>
       <li>Only nodes that do not already have service can become hotspots.</li>
     </ul>
-  `
-}
+  `;
+};
+
+populateStageInstructions();
 
 function setUpDragFix() {
-  network.on("dragEnd", function (params) {
+  network.on("dragEnd", (params) => {
     if (params.nodes.length > 0) {
-      var nodeId = params.nodes[0];
-      var node = nodes.get(nodeId);
+      const nodeId = params.nodes[0];
+      const node = graph.getNode(nodeId);
       node.x = params.pointer.canvas.x;
       node.y = params.pointer.canvas.y;
-      nodes.update(node);
+      graph.updateNode(node);
     }
   });
 }
 
-function resetPuzzleBuilder() {
+const resetPuzzleBuilder = function resetPuzzleBuilder() {
   network.destroy();
-  nodes = new vis.DataSet();
-  edges = new vis.DataSet();
-  data = {nodes: nodes, edges, edges};
-  network = new vis.Network(container, data, options);
+
+  graph.reset();
+  network = new vis.Network(container, graph.getData(), options);
   setUpDragFix();
 
   stage = 'add-hotspots';
   instruct.innerHTML = stageInstructions[1];
   prevButton.style.visibility = 'hidden';
-  setUpOptionsForAddHotspots();
+  NetworkOptions.setUpOptionsForAddHotspots(network, options);
+};
 
-}
-
-function updateNetworkOptions() {
-  network.setOptions(options);
-}
-
-function setUpOptionsForAddHotspots() {
-  options.manipulation.addNode = getAddNodeFunc('hotspot');
-  options.manipulation.addEdge = false;
-  options.manipulation.deleteNode = true;
-  // options.manipulation.enabled = true;
-  updateNetworkOptions();
-  network.addNodeMode();
-}
-
-function setUpOptionsForAddServicedNodes() {
-  options.manipulation.addNode = getAddNodeFunc('service');
-  options.manipulation.addEdge = false;
-  options.manipulation.deleteNode = true;
-  updateNetworkOptions();
-  network.addNodeMode();
-}
-
-function setUpOptionsForMakeClusters() {
-  options.manipulation.addNode = false;
-  options.manipulation.deleteNode = false;
-  options.manipulation.editEdge = false;
-  options.manipulation.addEdge = function (data, callback) {
-    // Need to ensure that new edge connects a lonely service node to a hotspot
-    var from = nodes.get(data.from);
-    var to = nodes.get(data.to);
-
-    if (from.group !== to.group) {
-      var serviceNode;
-      var hotspot;
-      if (from.group === 'service') {
-        serviceNode = from;
-        hotspot = to;
-      }
-      else {
-        serviceNode = to;
-        hotspot = from;
-      }
-      if (serviceNode.connectedToWithinCluster.length === 0) {
-        serviceNode.connectedToWithinCluster.push(hotspot.id);
-        hotspot.connectedToWithinCluster.push(serviceNode.id);
-        callback(data);
-        network.addEdgeMode();
-      }
-    }
+const savePuzzleAndLoad = function savePuzzleAndLoad() {
+  const newCodeHeaders = new Headers({
+    'Content-Type': 'text/html'
+  });
+  const newCodeInit = {
+    method: 'GET',
+    headers: newCodeHeaders
   };
-  updateNetworkOptions();
-  network.addEdgeMode();
-}
+  const requestNewCode = new Request(`http://${domain}/hotspot/newCode`, newCodeInit);
 
-function setUpOptionsForConnectClusters() {
-  options.manipulation.addNode = false;
-  options.manipulation.deleteNode = false;
-  options.manipulation.editEdge = false;
-  options.manipulation.addEdge = function (data, callback) {
-    // Need to ensure that new edge connects a lonely service node to a hotspot
-    var from = nodes.get(data.from);
-    var to = nodes.get(data.to);
+  // const requestNewCode = new Request(`http://${domain}/hotspot/newCode`);
 
-    if (data.to !== data.from &&
-        from.group === 'service' &&
-        to.group === 'service' &&
-        !InSameCluster(from, to)) {
-      data.dashes = 'true';
-      callback(data);
-      network.addEdgeMode();
-    }
-  };
-  updateNetworkOptions();
-  network.addEdgeMode();
-}
+  fetch(requestNewCode)
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error("Error in response to fetch request");
+      }
+      const contentType = response.headers.get('content-type');
+      if (!contentType || contentType.indexOf('text') === -1) {
+        throw new Error("Problem with content type");
+      }
+      // The text sent back is the code that will be used to save this puzzle
+      response.text().then((code) => {
+        // Figure out the correct size for the puzzle
+        const size = graph.getSize();
 
-function InSameCluster(nodeA, nodeB) {
+        const addPuzzleRequestHeaders = new Headers({
+          'Content-Type': 'application/json'
+        });
 
-  var hotspot = nodes.get(nodeA.connectedToWithinCluster[0]);
+        const addPuzzleRequestInit = {
+          method: 'POST',
+          headers: addPuzzleRequestHeaders,
+          body: JSON.stringify({
+            graph: {
+              nodes: graph.getNodes(),
+              edges: graph.getEdges()
+            },
+            code,
+            size
+          })
+        };
 
-  for (var i = 0; i < hotspot.connectedToWithinCluster.length; i += 1) {
-    if (hotspot.connectedToWithinCluster[i] === nodeB.id) {
-      return true;
-    }
-  }
+        const addPuzzleRequest = new Request(`http://${domain}/hotspot/`, addPuzzleRequestInit);
 
-  return false;
-}
+        fetch(addPuzzleRequest)
+          .then((addPuzzleResponse) => {
+            if (!addPuzzleResponse.ok) {
+              throw new Error("Error with response to adding puzzle");
+            }
+            // Successfully added puzzle, so load page with puzzle
+            window.location=`http://${domain}/hotspot/${code}`;
+          })
+          .catch((error) => {
+            throw new Error(error);
+          });
+      })
+      .catch((error) => {
+        throw new Error(error);
+      });
+    })
+    .catch((error) => {
+      throw new Error(error);
+    });
+};
 
-function setUpOptionsForFinished() {
-  options.manipulation.addNode = false;
-  options.manipulation.deleteNode = false;
-  options.manipulation.editEdge = false;
-  options.manipulation.addEdge = false;
-  options.manipulation.deleteEdge = false;
-  updateNetworkOptions();
-
-}
-
-function removeLonelyNodes() {
-  var i = 0;
-
-  var nodesArray = nodes.get();
-
-  while (i < nodesArray.length) {
-    if (nodesArray[i].connectedToWithinCluster.length === 0) {
-      nodes.remove(nodesArray[i].id);
-    }
-    i++;
-  }
-
-}
-
-function goToNextStage() {
+const goToNextStage = function goToNextStage() {
   if (stage === 'intro') {
     stage = 'add-hotspots';
-    setUpOptionsForAddHotspots();
+    NetworkOptions.setUpOptionsForAddHotspots(network, options);
     instruct.innerHTML = stageInstructions[1];
     resetButton.style.visibility = 'visible';
   } else if (stage === 'add-hotspots') {
     stage = 'add-serviced-nodes';
-    setUpOptionsForAddServicedNodes();
+    NetworkOptions.setUpOptionsForAddServicedNodes(network, options);
     instruct.innerHTML = stageInstructions[2];
     prevButton.style.visibility = 'visible';
   } else if (stage === 'add-serviced-nodes') {
     stage = 'make-clusters';
-    setUpOptionsForMakeClusters();
+    NetworkOptions.setUpOptionsForMakeClusters(network, graph, options);
     instruct.innerHTML = stageInstructions[3];
   } else if (stage === 'make-clusters') {
     stage = 'connect-clusters';
-    removeLonelyNodes();
-    setUpOptionsForConnectClusters();
+    graph.removeLonelyNodes();
+    NetworkOptions.setUpOptionsForConnectClusters(network, graph, options);
     instruct.innerHTML = stageInstructions[4];
   } else if (stage === 'connect-clusters') {
     stage = 'finished';
-    removeLonelyNodes();
-    setUpOptionsForFinished();
+    graph.removeLonelyNodes();
+    NetworkOptions.setUpOptionsForFinished(network, options);
     instruct.innerHTML = stageInstructions[5];
   } else if (stage === 'finished') {
     buttonDiv.style.display = 'none';
@@ -261,148 +212,43 @@ function goToNextStage() {
     instructDiv.querySelector('.info-container__title').textContent = 'Instructions';
     hotspotCountDiv.style.visibility = 'visible';
     savePuzzleAndLoad();
-
   }
-}
+};
 
-function goToPrevStage() {
+const goToPrevStage = function goToPrevStage() {
   if (stage === 'add-serviced-nodes') {
     stage = 'add-hotspots';
-    setUpOptionsForAddHotspots();
+    NetworkOptions.setUpOptionsForAddHotspots(network, options);
     instruct.innerHTML = stageInstructions[1];
     prevButton.style.visibility = 'hidden';
   } else if (stage === 'make-clusters') {
     stage = 'add-serviced-nodes';
-    setUpOptionsForAddServicedNodes();
+    NetworkOptions.setUpOptionsForAddServicedNodes(network, options);
     instruct.innerHTML = stageInstructions[2];
   } else if (stage === 'connect-clusters') {
     stage = 'make-clusters';
-    setUpOptionsForMakeClusters();
+    NetworkOptions.setUpOptionsForMakeClusters(network, graph, options);
     instruct.innerHTML = stageInstructions[3];
   } else if (stage === 'finished') {
     stage = 'connect-clusters';
-    setUpOptionsForConnectClusters();
+    NetworkOptions.setUpOptionsForConnectClusters(network, graph, options);
     instruct.innerHTML = stageInstructions[4];
   }
-}
+};
 
-function getAddNodeFunc(group) {
-  return function (data, callback) {
-    data.label = '';
-    data.original = (group === 'hotspot');
-    data.group = group;
-    data.connectedToWithinCluster = [];
-    callback(data);
-    network.addNodeMode();
-  }
-}
-
-function draw() {
+const draw = function draw() {
   // Create a network
-
   container = document.querySelector('.graph-area__graph-canvas');
 
-  options = {
-    manipulation: {
-      // enabled: true, //set to false to hide edit button
-      // addNode: getAddNodeFunc('hotspot'),
-      // addEdge: false,
-      // deleteNode: true,
-      // initiallyActive: false
-      enabled: false
-    },
-    groups: {
-      useDefaultGroups: false,
-      hotspot: {
-        color: {
-          background:'black',
-          border: 'black',
-          highlight: { background: 'orange', border: 'lightskyblue', borderWidth: 4 }
-        },
-        border: 'black',
-        size:15
-      },
-      service: {
-        color: {
-          background:'white',
-          border:'black',
-          highlight: { background: 'yellow', border: 'lightskyblue', borderWidth: 4 }
-        },
-        size:15
-      }
-    },
-    edges: {
-      smooth: {
-        type: 'continuous',
-        forceDirection: 'none',
-        roundness: 0
-      }
-    },
-    physics: {
-      enabled: false
-    }
-  };
+  options = NetworkOptions.getOptionsForCreatePuzzle();
+  graph.reset();
 
-  nodes = new vis.DataSet();
-  edges = new vis.DataSet();
-
-  data = {
-      nodes: nodes,
-      edges: edges
-  };
-
-  network = new vis.Network(container, data, options);
+  network = new vis.Network(container, graph.getData(), options);
 
   setUpDragFix();
+};
 
-}
-
-function savePuzzleAndLoad() {
-  // Need to ask the server to generate a code for this puzzle
-  var xhttp = new XMLHttpRequest();
-
-  xhttp.onreadystatechange = function() {
-    if (this.readyState == 4 && this.status == 200) {
-      var code = this.responseText;
-      console.log("Code from server: " + code);
-      if (code === 'Error') {
-        // Load an error page?
-      }
-      else {
-        xhttp = new XMLHttpRequest();
-
-        xhttp.onreadystatechange = function() {
-          if (this.readyState == 4 && this.status == 200) {
-            console.log("done saving new puzzle");
-
-            // Need to load the newly created puzzle
-            window.location="http://" + domain + "/hotspot/" + code;
-          }
-        };
-
-        var nodesToCopy = nodes.get();
-        var size;
-        if (nodesToCopy.length <= 15) {
-          size = "small";
-        }
-        else if (nodesToCopy.length <= 25) {
-          size = "medium";
-        }
-        else {
-          size = "large";
-        }
-        console.log("Determined size of puzzle: " + size);
-        xhttp.open("POST", "http://" + domain + "/hotspot/", true);
-        xhttp.setRequestHeader("Content-type", "application/json");
-        xhttp.send(JSON.stringify({graph: {nodes: nodesToCopy, edges: edges.get()}, code: code, size: size}));
-      }
-    }
-  };
-  xhttp.open("GET", "http://" + domain + "/hotspot/newCode", true);
-  xhttp.send();
-}
-
-function init() {
+const init = function init() {
   document.querySelector('button[name="next"]').addEventListener('click', goToNextStage);
   document.querySelector('button[name="prev"]').addEventListener('click', goToPrevStage);
   document.querySelector('button[name="reset"]').addEventListener("click", resetPuzzleBuilder);
@@ -424,14 +270,8 @@ function init() {
   hotspotCountDiv.style.visibility = 'hidden';
 
   draw();
-}
+};
 
-/* To Do
-
--Probably should eliminate this functionality for now and implement later
-  -Add proper deleteNode functions
-  -Add proper deleteEdge functions
-
--Known Bugs
-  -Clicking "Start Over" on puzzle builder makes the graph canvas resize to smaller size when it starts out very wide
-*/
+module.exports = {
+  init
+};
