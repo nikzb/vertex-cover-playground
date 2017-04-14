@@ -1,4 +1,5 @@
 const vis = require('vis');
+const _ = require('lodash');
 
 let nodes = null;
 let edges = null;
@@ -22,6 +23,26 @@ const getEdges = function getEdges() {
 
 const getData = function getData() {
   return data;
+};
+
+const getNumberOfHotspots = function getNumberOfHotspots() {
+  return nodes.reduce((sum, node) => {
+    if (node.original) {
+      return sum + 1;
+    } else {
+      return sum;
+    }
+  }, 0);
+};
+
+const getNumberOfServicedNodes = function getNumberOfServicedNodes() {
+  return nodes.reduce((sum, node) => {
+    if (node.original) {
+      return sum;
+    } else {
+      return sum + 1;
+    }
+  }, 0);
 };
 
 const reset = function reset() {
@@ -65,5 +86,7 @@ module.exports = {
   getData,
   reset,
   removeLonelyNodes,
-  getSize
+  getSize,
+  getNumberOfHotspots,
+  getNumberOfServicedNodes
 };

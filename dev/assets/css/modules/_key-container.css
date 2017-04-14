@@ -1,17 +1,19 @@
 .key-container {
   display: flex;
-  padding: 0 0 15px 20px;
+  padding: 15px 20px 15px 20px;
   /*background-image: linear-gradient(300deg, #D8D8D8, #EEEEEE);*/
   border: 1px solid $darkBorder;
+  justify-content: center;
 
   &__title-container {
     display: flex;
     /*flex-direction: column;*/
     align-items: center;
+    padding: 20px;
   }
 
   &__list {
-    margin-bottom: 0;
+    margin: 0;
     padding-left: 20px;
   }
 

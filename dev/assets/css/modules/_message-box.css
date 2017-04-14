@@ -13,7 +13,7 @@
 
   text-shadow: 0.05em 0.05em #666;
   height: 250px;
-  max-width: 540px;
+  min-width: 80%;
 
   &__message {
     font-size: 2em;
