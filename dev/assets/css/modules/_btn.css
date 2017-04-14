@@ -1,15 +1,33 @@
 .btn {
   &--full-width {
     font-size: 1.7rem;
+    font-weight: 300;
     background-color: #EEE;
     border: 1px solid $lightBorder;
-    font-family: monospace;
   }
 
   &--small {
-    font-size: 1.5em;
-    background-color: #EEE;
-    flex: 1;
-    max-width: 50%;
+    font-size: 2rem;
+    background-color: #FFF;
+    flex: 0 0 1;
+    border: none;
+    padding: 0;
+  }
+
+  &__label {
+    font-size: 0.8rem;
+    text-shadow: 0 0;
+  }
+
+  &__label-next {
+    padding-right: 2px;
+  }
+
+  &__label-prev {
+    padding-left: 2px;
+  }
+
+  &__image {
+    text-shadow: 0 0.2rem orange;
   }
 }

@@ -9,7 +9,7 @@
   -->
 
   <link href="/node_modules/vis/dist/vis-network.min.css" rel="stylesheet" type="text/css" />
-
+  <link href="https://fonts.googleapis.com/css?family=Titillium+Web:300,400,500" rel="stylesheet">
   <link href="/css/styles.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
@@ -20,39 +20,38 @@
     <div class='graph-area'>
       <div class='graph-area__header'>
         <h2 class='title graph-area__header-title'>Graph</h2>
-        <div class='graph-area__count-wrap'>
-          <h2 class='graph-area__count-wrap-label'>Hotspots: <span class="graph-area_count-wrap-count">0</span></h2>
-        </div>
       </div>
       <div class='graph-area__graph-canvas'></div>
       <button class="btn btn--full-width" type="button" name="reset">Start Over</button>
     </div>
     <div class='guide'>
-      <!--
-      <div class='info-container challenge'>
-        <h2 class='info-container__title'>The Challenge</h2>
-        <div class='info-container__details challenge'>
-          <ul class='info-container__list'>
-            <li>The nodes in the graph represent zones in need of WIFI.</li>
-            <li>A hotspot can be placed at any node and will serve that node and all the nodes connected to it.</li>
-          </ul>
-          <h3 class='to-do'>Add enough hotspots to provide service to all the zones. Determine the minimum number of hotspots needed.</h3>
-        </div>
-      </div>
-      -->
-
       <div class='info-container instructions'>
         <h2 class='info-container__title'>Creating a Wifi Hotspot Problem</h2>
-        <div class='btn-container'>
-          <button class='btn--small' type="button" name="prev">Previous</button>
-          <button class='btn--small' type="button" name="next">Next</button>
+        <div class='info-container__nav'>
+          <button class='btn--small btn--step-nav' type="button" name="prev">
+            <div class='btn__image'>◀</div>
+            <div class='btn__label btn__label-prev'>PREV</div>
+          </button>
+          <h3 class='info-container__step-title'>Overview</h3>
+          <button class='btn--small btn--step-nav' type="button" name="next">
+            <div class='btn__image'>▶</div>
+            <div class='btn__label btn__label-next'>NEXT</div>
+          </button>
         </div>
         <div class='info-container__details instructions'>
+          <h2 class='info-container__step-label'>Introduction</h2>
+          <h3 class='info-container__todo'>Click the NEXT arrow above to begin creating your own Wifi Hotspot Problem!</h3>
           <ul class='info-container__list'>
-            <li>It is relatively easy to create one of these problems.</li>
-            <li>It may be very difficult for someone else to solve your problem!</li>
+            <li>It is relatively easy to create one of these problems. It may be very difficult for someone else to solve your problem!</li>
           </ul>
-          <h3 class='to-do'>Follow the instructions to create your own Wifi Hotspot Problem!</h3>
+          <h4 class='info-container__sub-list-header'>Steps to Complete</h4>
+          <ul class='info-container__sub-list'>
+            <li>Add hotspot nodes.</li>
+            <li>Add nodes that will receive service from the hotspots.</li>
+            <li>Connect each serviced node to exactly one hotspot.</li>
+            <li>Connect serviced nodes to other serviced nodes.</li>
+            <li>Make final adjustments to the positions of your nodes.</li>
+          </ul>
         </div>
       </div>
       <!--

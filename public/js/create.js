@@ -54593,7 +54593,7 @@ var buttonDiv = null;
 var prevButton = null;
 var resetButton = null;
 var instruct = null;
-var hotspotCountDiv = null;
+var stepTitle = null;
 
 var stageInstructions = null;
 
@@ -54614,19 +54614,17 @@ var options = void 0;
 var populateStageInstructions = function populateStageInstructions() {
   stageInstructions = [];
 
-  stageInstructions[0] = '\n    <ul class=\'info-container__list\'\'>\n      <li>It is relatively easy to create one of these problems.</li>\n      <li>It may be very difficult for someone else to solve your problem!</li>\n    </ul>\n    <h3 class=\'to-do\'>Follow the instructions to create your own Wifi Hotspot Problem!</h3>\n  ';
+  stageInstructions[0] = '\n    <h2 class=\'info-container__step-label\'>Overview</h2>\n    <h3 class=\'info-container__todo\'>Click the NEXT arrow above to begin creating your own Wifi Hotspot Problem!</h3>\n    <ul class=\'info-container__list\'>\n      <li>It is relatively easy to create one of these problems. It may be very difficult for someone else to solve your problem!</li>\n    </ul>\n    <h4 class=\'info-container__sub-list-header\'>5 Steps: Create a Wifi Hotspot Problem</h4>\n    <ul class=\'info-container__sub-list\'>\n      <li>Add hotspot nodes.</li>\n      <li>Add nodes that will receive service from the hotspots.</li>\n      <li>Connect each serviced node to exactly one hotspot.</li>\n      <li>Connect serviced nodes to other serviced nodes.</li>\n      <li>Make final adjustments to the positions of your nodes.</li>\n    </ul>\n  ';
 
-  stageInstructions[1] = '\n    <h2 class=\'step-label\'>Step <span class=\'step-number\'>1</span>: Add the Hotspots</h2>\n    <ul class=\'instruct-details\'>\n      <li>Click in the graph canvas to add the hotspots.</li>\n    </ul>\n  ';
+  stageInstructions[1] = '\n    <h2 class=\'info-container__step-label\'>Add the Hotspots</h2>\n    <h3 class=\'info-container__todo\'>Click in the graph canvas to add the hotspots.</h3>\n    <ul class=\'info-container__list\'>\n      <li>The nodes that will receive service will be added in the next step.</li>\n    </ul>\n  ';
 
-  stageInstructions[2] = '\n    <h2 class=\'step-label\'>Step <span class=\'step-number\'>2</span>: Add The Remaining Nodes</h2>\n    <ul class=\'instruct-details\'>\n      <li>Click in the graph canvas to add the nodes that will receive service from the hotspots.</li>\n      <li>You will connect the nodes in the next steps.</li>\n    </ul>\n  ';
+  stageInstructions[2] = '\n    <h2 class=\'info-container__step-label\'>Add The Serviced Nodes</h2>\n    <h3 class=\'info-container__todo\'>Click in the graph canvas to add the nodes that will receive service from the hotspots.</h3>\n    <ul class=\'info-container__list\'>\n      <li>You will connect the nodes in the next steps.</li>\n    </ul>\n  ';
 
-  stageInstructions[3] = '\n    <h2 class=\'step-label\'>Step <span class=\'step-number\'>3</span>: Make Clusters</h2>\n    <ul class=\'instruct-details\'>\n      <li>Click the white nodes and drag to connect them to a black node.</li>\n      <li>Each white node should be connected to exactly one black node.</li>\n      <li>Black nodes can be connected to multiple white nodes to form a cluster of nodes.</li>\n    </ul>\n  ';
+  stageInstructions[3] = '\n    <h2 class=\'info-container__step-label\'>Make Clusters</h2>\n    <h3 class=\'info-container__todo\'>Click the white nodes and drag to connect them to a black node.</h3>\n    <ul class=\'info-container__list\'>\n      <li>Each white node should be connected to exactly one black node.</li>\n      <li>Black nodes can be connected to multiple white nodes to form a cluster of nodes.</li>\n    </ul>\n  ';
 
-  stageInstructions[4] = '\n    <h2 class=\'step-label\'>Step <span class=\'step-number\'>4</span>: Connect the Clusters</h2>\n    <ul class=\'instruct-details\'>\n      <li>Connect white nodes from different clusters.</li>\n      <li>You can connect nodes to multiple other nodes, as long as they are from different clusters.</li>\n      <li>You will be able to adjust the positions of the nodes in the next step.</li>\n    </ul>\n  ';
+  stageInstructions[4] = '\n    <h2 class=\'info-container__step-label\'>Connect the Clusters</h2>\n    <h3 class=\'info-container__todo\'>Connect white nodes from different clusters.</h3>\n    <ul class=\'info-container__list\'>\n      <li>You can connect nodes to multiple other nodes, as long as they are from different clusters.</li>\n      <li>You will be able to adjust the positions of the nodes in the next step.</li>\n    </ul>\n  ';
 
-  stageInstructions[5] = '\n    <h2 class=\'step-label\'>Step <span class=\'step-number\'>5</span>: Finish Up</h2>\n    <ul class=\'instruct-details\'>\n      <li>Ajdust the final positioning of the nodes.</li>\n      <li>Then click Next to create your puzzle!</li>\n    </ul>\n  ';
-
-  stageInstructions[6] = '\n    <ul class=\'instruct-details\'>\n      <li>Click a node to add a hotspot. Click it again to remove it.</li>\n      <li>Only nodes that do not already have service can become hotspots.</li>\n    </ul>\n  ';
+  stageInstructions[5] = '\n    <h2 class=\'info-container__step-label\'>Finish Up</h2>\n    <h3 class=\'info-container__todo\'>Ajdust the final positioning of the nodes and you are done!</h3>\n    <ul class=\'info-container__list\'>\n      <li>Click the NEXT arrow to finish creating your puzzle.</li>\n    </ul>\n  ';
 };
 
 populateStageInstructions();
@@ -54652,6 +54650,7 @@ var resetPuzzleBuilder = function resetPuzzleBuilder() {
 
   stage = 'add-hotspots';
   instruct.innerHTML = stageInstructions[1];
+  stepTitle.innerHTML = 'Step 1';
   prevButton.style.visibility = 'hidden';
   NetworkOptions.setUpOptionsForAddHotspots(network, options);
 };
@@ -54720,32 +54719,32 @@ var goToNextStage = function goToNextStage() {
     stage = 'add-hotspots';
     NetworkOptions.setUpOptionsForAddHotspots(network, options);
     instruct.innerHTML = stageInstructions[1];
+    stepTitle.innerHTML = 'Step 1';
     resetButton.style.visibility = 'visible';
   } else if (stage === 'add-hotspots') {
     stage = 'add-serviced-nodes';
     NetworkOptions.setUpOptionsForAddServicedNodes(network, options);
     instruct.innerHTML = stageInstructions[2];
+    stepTitle.innerHTML = 'Step 2';
     prevButton.style.visibility = 'visible';
   } else if (stage === 'add-serviced-nodes') {
     stage = 'make-clusters';
     NetworkOptions.setUpOptionsForMakeClusters(network, graph, options);
     instruct.innerHTML = stageInstructions[3];
+    stepTitle.innerHTML = 'Step 3';
   } else if (stage === 'make-clusters') {
     stage = 'connect-clusters';
     graph.removeLonelyNodes();
     NetworkOptions.setUpOptionsForConnectClusters(network, graph, options);
     instruct.innerHTML = stageInstructions[4];
+    stepTitle.innerHTML = 'Step 4';
   } else if (stage === 'connect-clusters') {
     stage = 'finished';
     graph.removeLonelyNodes();
     NetworkOptions.setUpOptionsForFinished(network, options);
     instruct.innerHTML = stageInstructions[5];
+    stepTitle.innerHTML = 'Step 5';
   } else if (stage === 'finished') {
-    buttonDiv.style.display = 'none';
-    // keyDiv.style.display = 'initial';
-    instruct.innerHTML = stageInstructions[6];
-    instructDiv.querySelector('.info-container__title').textContent = 'Instructions';
-    hotspotCountDiv.style.visibility = 'visible';
     savePuzzleAndLoad();
   }
 };
@@ -54755,19 +54754,23 @@ var goToPrevStage = function goToPrevStage() {
     stage = 'add-hotspots';
     NetworkOptions.setUpOptionsForAddHotspots(network, options);
     instruct.innerHTML = stageInstructions[1];
+    stepTitle.innerHTML = 'Step 1';
     prevButton.style.visibility = 'hidden';
   } else if (stage === 'make-clusters') {
     stage = 'add-serviced-nodes';
     NetworkOptions.setUpOptionsForAddServicedNodes(network, options);
     instruct.innerHTML = stageInstructions[2];
+    stepTitle.innerHTML = 'Step 2';
   } else if (stage === 'connect-clusters') {
     stage = 'make-clusters';
     NetworkOptions.setUpOptionsForMakeClusters(network, graph, options);
     instruct.innerHTML = stageInstructions[3];
+    stepTitle.innerHTML = 'Step 3';
   } else if (stage === 'finished') {
     stage = 'connect-clusters';
     NetworkOptions.setUpOptionsForConnectClusters(network, graph, options);
     instruct.innerHTML = stageInstructions[4];
+    stepTitle.innerHTML = 'Step 4';
   }
 };
 
@@ -54791,18 +54794,13 @@ var init = function init() {
   // challengeDiv = document.querySelector('.info-container.challenge');
   instructDiv = document.querySelector('.info-container.instructions');
   instruct = document.querySelector('.info-container__details.instructions');
+  stepTitle = document.querySelector('.info-container__step-title');
   // keyDiv = document.querySelector('.key-container');
   buttonDiv = document.querySelector('.btn-container');
   prevButton = document.querySelector('button[name="prev"]');
   resetButton = document.querySelector('button[name="reset"]');
-  hotspotCountDiv = document.querySelector('.graph-area__count-wrap');
 
-  // challengeDiv.style.display = 'none';
-  // keyDiv.style.display = 'none';
   prevButton.style.visibility = 'hidden';
-
-  // resetButton.style.visibility = 'hidden';
-  hotspotCountDiv.style.visibility = 'hidden';
 
   draw();
 };

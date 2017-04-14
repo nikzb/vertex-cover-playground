@@ -11,6 +11,7 @@
     justify-content: space-between;
     align-items: center;
     border: 1px solid $lightBorder;
+    height: 68px;
   }
 
   &__header-title {
@@ -36,7 +37,7 @@
   &__graph-canvas {
     /*width: 100%;*/
     height: 600px;
-    border: 1px solid lightgray;
+    border: 1px solid $lightBorder;
     background-color: white;
   }
 
