@@ -54643,6 +54643,7 @@ var useDefaultPuzzle = function useDefaultPuzzle() {
     return edgeArray.push({ from: edgePair[0], to: edgePair[1] });
   });
 
+  return { nodeArray: nodeArray, edgeArray: edgeArray };
   // setUpNetwork(nodeArray, edgeArray);
 };
 
@@ -54655,7 +54656,8 @@ module.exports = {
   updateConnectedNodes: updateConnectedNodes,
   processNodeClick: processNodeClick,
   getData: getData,
-  setUpData: setUpData
+  setUpData: setUpData,
+  useDefaultPuzzle: useDefaultPuzzle
 };
 
 /***/ }),
@@ -54777,11 +54779,18 @@ var handleResponseToPuzzleRequest = function handleResponseToPuzzleRequest(respo
 };
 
 var usePuzzle = function usePuzzle(code) {
-  fetch('http://' + domain + '/hotspot-data/' + code).then(function (response) {
-    handleResponseToPuzzleRequest(response, code);
-  }).catch(function (error) {
-    throw new Error(error);
-  });
+  if (code === '') {
+    code = 'E2KB';
+    var arrays = Graph.useDefaultPuzzle();
+    setUpNetwork(arrays.nodeArray, arrays.edgeArray);
+    addCodeToListOfAttemptedPuzzles(code);
+  } else {
+    fetch('http://' + domain + '/hotspot-data/' + code).then(function (response) {
+      handleResponseToPuzzleRequest(response, code);
+    }).catch(function (error) {
+      throw new Error(error);
+    });
+  }
 };
 
 var setUpClickHandlerForGraph = function setUpClickHandlerForGraph() {

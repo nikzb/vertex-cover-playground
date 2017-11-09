@@ -146,6 +146,7 @@ const useDefaultPuzzle = function useDefaultPuzzle() {
     edgeArray.push({ from: edgePair[0], to: edgePair[1] })
   );
 
+  return { nodeArray, edgeArray };
   // setUpNetwork(nodeArray, edgeArray);
 };
 
@@ -158,5 +159,6 @@ module.exports = {
   updateConnectedNodes,
   processNodeClick,
   getData,
-  setUpData
+  setUpData,
+  useDefaultPuzzle
 };

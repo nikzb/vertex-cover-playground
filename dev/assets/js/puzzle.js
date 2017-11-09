@@ -106,15 +106,22 @@ const handleResponseToPuzzleRequest = function handleResponseToPuzzleRequest(res
 };
 
 const usePuzzle = function usePuzzle(code) {
-  fetch(`http://${domain}/hotspot-data/${code}`)
-    .then(
-      (response) => {
-        handleResponseToPuzzleRequest(response, code);
-      }
-    )
-    .catch((error) => {
-      throw new Error(error);
-    });
+  if (code === '') {
+    code = 'E2KB';
+    const arrays = Graph.useDefaultPuzzle();
+    setUpNetwork(arrays.nodeArray, arrays.edgeArray);
+    addCodeToListOfAttemptedPuzzles(code);
+  } else {
+    fetch(`http://${domain}/hotspot-data/${code}`)
+      .then(
+        (response) => {
+          handleResponseToPuzzleRequest(response, code);
+        }
+      )
+      .catch((error) => {
+        throw new Error(error);
+      });
+  }
 };
 
 const setUpClickHandlerForGraph = function setUpClickHandlerForGraph() {

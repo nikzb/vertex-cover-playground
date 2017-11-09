@@ -38,8 +38,8 @@ app.get('/create', (req, res) => {
 });
 
 app.get('/', (req, res) => {
-  // res.render('puzzle.hbs');
-  res.render('puzzle.hbs', { code: 'E2KB' });
+  res.render('puzzle.hbs');
+  // res.render('puzzle.hbs', { code: 'E2KB' });
 });
 
 // Render a puzzle page with the puzzle that has the requested code
