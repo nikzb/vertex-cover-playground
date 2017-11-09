@@ -54533,8 +54533,6 @@ var getData = function getData() {
 };
 
 var getNumberOfHotspots = function getNumberOfHotspots() {
-  console.log('In getNumberOfHotspots, nodes is: ');
-  console.log(nodes);
   var nodesArray = nodes.get();
   return nodesArray.reduce(function (sum, node) {
     if (node.original) {

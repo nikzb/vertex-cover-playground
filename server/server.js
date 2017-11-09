@@ -78,8 +78,9 @@ const getRandomCodeNotInListToAvoid = function getRandomCodeNotInListToAvoid(cod
 
   // Now choose a puzzle at random, if there are any to choose from
   if (filteredList.length === 0) {
-    // Nothing left to choose from
-    return null;
+    // Technically there is nothing left to choose from, so just choose one at random
+    const randomIndex = _.random(0, codesToChooseFrom.length - 1);
+    return codesToChooseFrom[randomIndex].code;
   }
   const randomIndex = _.random(0, filteredList.length - 1);
   return filteredList[randomIndex].code;
