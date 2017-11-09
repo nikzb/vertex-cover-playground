@@ -26,7 +26,10 @@ const getData = function getData() {
 };
 
 const getNumberOfHotspots = function getNumberOfHotspots() {
-  return nodes.reduce((sum, node) => {
+  console.log(`In getNumberOfHotspots, nodes is: `);
+  console.log(nodes);
+  const nodesArray = nodes.get();
+  return nodesArray.reduce((sum, node) => {
     if (node.original) {
       return sum + 1;
     } else {
@@ -36,7 +39,8 @@ const getNumberOfHotspots = function getNumberOfHotspots() {
 };
 
 const getNumberOfServicedNodes = function getNumberOfServicedNodes() {
-  return nodes.reduce((sum, node) => {
+  const nodesArray = nodes.get();
+  return nodesArray.reduce((sum, node) => {
     if (node.original) {
       return sum;
     } else {

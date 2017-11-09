@@ -703,6 +703,10 @@ li {
   font-size: 1.1rem;
 }
 
+.info-container__todo-warning {
+  color: red;
+}
+
 .graph-area {
   display: -webkit-box;
   display: -ms-flexbox;
@@ -808,8 +812,12 @@ li {
   padding-left: 2px;
 }
 
-.btn__image {
-  text-shadow: 0 0.2rem orange;
+.btn__image-next {
+  text-shadow: -0.2rem 0.2rem orange;
+}
+
+.btn__image-prev {
+  text-shadow: 0.2rem 0.2rem orange;
 }
 
 .main-container {

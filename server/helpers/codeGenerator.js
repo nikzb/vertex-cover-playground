@@ -5,15 +5,17 @@ const generateCode = function generateCode(res, callback) {
   let newCode = '';
   let alphaNumChar;
   for (let i = 0; i < 4; i+=1) {
-    let randNum = _.random(0, 35);
+    let randNum = _.random(1, 35);
+    // If the random number is in the range 1-9, turn the digit into a string
     if (randNum < 10) {
       alphaNumChar = `${randNum}`;
-    } else {
+    } else { // Turn the random number into a letter
       randNum += 55;
       alphaNumChar = String.fromCharCode(randNum);
     }
     newCode += alphaNumChar;
   }
+  // Check if code is already in use. If so, generate another one
   HotspotPuzzle.findOne({ code: newCode }).then((puzzle) => {
     if (!puzzle) {
       callback(res, newCode);

@@ -12,6 +12,7 @@ let instruct = null;
 let stepTitle = null;
 
 let stageInstructions = null;
+let needMoreNodesWarning = null;
 
 let network = null;
 let container;
@@ -82,10 +83,16 @@ const populateStageInstructions = function populateStageInstructions() {
 
   stageInstructions[5] = `
     <h2 class='info-container__step-label'>Finish Up</h2>
-    <h3 class='info-container__todo'>Ajdust the final positioning of the nodes and you are done!</h3>
+    <h3 class='info-container__todo'>Adjust the final positioning of the nodes and you are done!</h3>
     <ul class='info-container__list'>
       <li>Click the NEXT arrow to finish creating your puzzle.</li>
     </ul>
+  `;
+
+  needMoreNodesWarning = `
+    <h3 class='info-container__todo info-container__todo-warning'>
+      Your puzzle is too small! Go back and add some more nodes!
+    </h3>
   `;
 };
 
@@ -140,6 +147,8 @@ const savePuzzleAndLoad = function savePuzzleAndLoad() {
       response.text().then((code) => {
         // Figure out the correct size for the puzzle
         const size = graph.getSize();
+
+        // if (size <)
 
         const addPuzzleRequestHeaders = new Headers({
           'Content-Type': 'application/json'
@@ -212,7 +221,12 @@ const goToNextStage = function goToNextStage() {
     instruct.innerHTML = stageInstructions[5];
     stepTitle.innerHTML = 'Step 5';
   } else if (stage === 'finished') {
-    savePuzzleAndLoad();
+    // Make sure there are enough hotspots to make a legitimate puzzle
+    if (graph.getNumberOfHotspots() < 2 || graph.getNumberOfServicedNodes() < 2) {
+      instruct.innerHTML = stageInstructions[5] + needMoreNodesWarning;
+    } else {
+      savePuzzleAndLoad();
+    }
   }
 };
 

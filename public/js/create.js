@@ -54533,7 +54533,10 @@ var getData = function getData() {
 };
 
 var getNumberOfHotspots = function getNumberOfHotspots() {
-  return nodes.reduce(function (sum, node) {
+  console.log('In getNumberOfHotspots, nodes is: ');
+  console.log(nodes);
+  var nodesArray = nodes.get();
+  return nodesArray.reduce(function (sum, node) {
     if (node.original) {
       return sum + 1;
     } else {
@@ -54543,7 +54546,8 @@ var getNumberOfHotspots = function getNumberOfHotspots() {
 };
 
 var getNumberOfServicedNodes = function getNumberOfServicedNodes() {
-  return nodes.reduce(function (sum, node) {
+  var nodesArray = nodes.get();
+  return nodesArray.reduce(function (sum, node) {
     if (node.original) {
       return sum;
     } else {
@@ -71739,6 +71743,7 @@ var instruct = null;
 var stepTitle = null;
 
 var stageInstructions = null;
+var needMoreNodesWarning = null;
 
 var network = null;
 var container = void 0;
@@ -71767,7 +71772,9 @@ var populateStageInstructions = function populateStageInstructions() {
 
   stageInstructions[4] = '\n    <h2 class=\'info-container__step-label\'>Connect the Clusters</h2>\n    <h3 class=\'info-container__todo\'>Connect white nodes from different clusters.</h3>\n    <ul class=\'info-container__list\'>\n      <li>You can connect nodes to multiple other nodes, as long as they are from different clusters.</li>\n      <li>You will be able to adjust the positions of the nodes in the next step.</li>\n    </ul>\n  ';
 
-  stageInstructions[5] = '\n    <h2 class=\'info-container__step-label\'>Finish Up</h2>\n    <h3 class=\'info-container__todo\'>Ajdust the final positioning of the nodes and you are done!</h3>\n    <ul class=\'info-container__list\'>\n      <li>Click the NEXT arrow to finish creating your puzzle.</li>\n    </ul>\n  ';
+  stageInstructions[5] = '\n    <h2 class=\'info-container__step-label\'>Finish Up</h2>\n    <h3 class=\'info-container__todo\'>Adjust the final positioning of the nodes and you are done!</h3>\n    <ul class=\'info-container__list\'>\n      <li>Click the NEXT arrow to finish creating your puzzle.</li>\n    </ul>\n  ';
+
+  needMoreNodesWarning = '\n    <h3 class=\'info-container__todo info-container__todo-warning\'>\n      Your puzzle is too small! Go back and add some more nodes!\n    </h3>\n  ';
 };
 
 populateStageInstructions();
@@ -71820,6 +71827,8 @@ var savePuzzleAndLoad = function savePuzzleAndLoad() {
     response.text().then(function (code) {
       // Figure out the correct size for the puzzle
       var size = graph.getSize();
+
+      // if (size <)
 
       var addPuzzleRequestHeaders = new Headers({
         'Content-Type': 'application/json'
@@ -71888,7 +71897,12 @@ var goToNextStage = function goToNextStage() {
     instruct.innerHTML = stageInstructions[5];
     stepTitle.innerHTML = 'Step 5';
   } else if (stage === 'finished') {
-    savePuzzleAndLoad();
+    // Make sure there are enough hotspots to make a legitimate puzzle
+    if (graph.getNumberOfHotspots() < 2 || graph.getNumberOfServicedNodes() < 2) {
+      instruct.innerHTML = stageInstructions[5] + needMoreNodesWarning;
+    } else {
+      savePuzzleAndLoad();
+    }
   }
 };
 

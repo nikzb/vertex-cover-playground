@@ -58,6 +58,8 @@ app.get('/hotspot/:code', (req, res) => {
 app.get('/hotspot-data/:code', (req, res) => {
   const code = req.params.code;
 
+  console.log(`In hotspot-data get request, code is ${code}`);
+
   HotspotPuzzle.findOne({ code }).then((puzzle) => {
     if (!puzzle) {
       return res.status(404).send();

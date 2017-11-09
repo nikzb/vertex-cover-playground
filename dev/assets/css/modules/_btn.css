@@ -27,7 +27,11 @@
     padding-left: 2px;
   }
 
-  &__image {
-    text-shadow: 0 0.2rem orange;
+  &__image-next {
+    text-shadow: -0.2rem 0.2rem orange;
+  }
+
+  &__image-prev {
+    text-shadow: 0.2rem 0.2rem orange;
   }
 }
