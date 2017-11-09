@@ -38,18 +38,19 @@ app.get('/create', (req, res) => {
 });
 
 app.get('/', (req, res) => {
-  res.render('puzzle.hbs');
+  // res.render('puzzle.hbs');
+  res.render('puzzle.hbs', { code: 'E2KB' });
 });
 
 // Render a puzzle page with the puzzle that has the requested code
 app.get('/hotspot/:code', (req, res) => {
   const code = req.params.code;
-
   // if not a valid code, render the puzzle not found page
-  // return res.send('<h1>This puzzle does not exist!</h1>');
   HotspotPuzzle.findOne({ code }).then((puzzle) => {
     if (!puzzle) {
-      return res.send('<h1>This puzzle does not exist!</h1>');
+      return res.send(`
+        <h1>The code puzzle code ${code} is not valid!</h1>
+      `);
     }
     return res.render('puzzle.hbs', { code });
   }).catch(e => res.send('<h1>There was an error while attempting to load the puzzle</h1>'));

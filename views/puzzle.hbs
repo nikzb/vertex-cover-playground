@@ -66,12 +66,13 @@
 <script type="text/javascript" src="/js/puzzle.js"></script>
 <script>
 window.onload = function() {
-  EntryPoint.usePuzzle('{{code}}');
+  var code = '{{code}}';
+  if (code === '') {
+    code = 'E2KB'
+  }
+  EntryPoint.usePuzzle(code);
 }
 </script>
-<!--
-<script>GlobalAccess.puzzle.usePuzzle('{{code}}');</script>
--->
 
 <!-- <script src="../googleAnalytics.js"></script> -->
 </body>
