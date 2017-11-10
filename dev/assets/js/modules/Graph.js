@@ -111,7 +111,7 @@ const useDefaultPuzzle = function useDefaultPuzzle() {
   coordsArray = coordsArray.map(coords =>
    [(coords[0] * 0.707) - (coords[1] * -0.707), ((coords[0] * -0.707) + ((coords[1] * 0.707) * 0.75))]
   );
-  const scaleFactor = 200;
+  const scaleFactor = 100;
 
   const nodeArray = [];
   const originals = [6, 12, 15, 17, 20];

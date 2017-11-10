@@ -54615,7 +54615,7 @@ var useDefaultPuzzle = function useDefaultPuzzle() {
   coordsArray = coordsArray.map(function (coords) {
     return [coords[0] * 0.707 - coords[1] * -0.707, coords[0] * -0.707 + coords[1] * 0.707 * 0.75];
   });
-  var scaleFactor = 200;
+  var scaleFactor = 100;
 
   var nodeArray = [];
   var originals = [6, 12, 15, 17, 20];
