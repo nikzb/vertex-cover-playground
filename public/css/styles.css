@@ -976,3 +976,15 @@ li {
   -webkit-transform:translateY(-143%);
           transform:translateY(-143%);
 }
+
+.copyright-container {
+  display: block;
+}
+
+.copyright-container__copyright {
+  text-align: right;
+}
+
+.copyright-container__symbol {
+  font-size: 1em;
+}

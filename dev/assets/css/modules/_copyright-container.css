@@ -1,0 +1,11 @@
+.copyright-container {
+  display: block;
+
+  &__copyright {
+    text-align: right;
+  }
+
+  &__symbol {
+    font-size: 1em;
+  }
+}
