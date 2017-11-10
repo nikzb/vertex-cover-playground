@@ -106,11 +106,12 @@ const handleResponseToPuzzleRequest = function handleResponseToPuzzleRequest(res
 };
 
 const usePuzzle = function usePuzzle(code) {
-  if (code === '') {
-    code = 'E2KB';
+  if (code === '' || code === 'CODE') {
+    // code = 'E2KB';
+    console.log('no code or code is CODE');
     const arrays = Graph.useDefaultPuzzle();
     setUpNetwork(arrays.nodeArray, arrays.edgeArray);
-    addCodeToListOfAttemptedPuzzles(code);
+    // addCodeToListOfAttemptedPuzzles(code);
   } else {
     fetch(`http://${domain}/hotspot-data/${code}`)
       .then(

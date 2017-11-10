@@ -38,13 +38,27 @@ app.get('/create', (req, res) => {
 });
 
 app.get('/', (req, res) => {
-  res.render('puzzle.hbs');
+  // This doesn't pass a code, which in turn causes the default hard coded puzzle to be used
+  // res.render('puzzle.hbs');
+
+  // This can be used to always have a certain puzzle be the first one shown, just need to replace the code
   // res.render('puzzle.hbs', { code: 'E2KB' });
+
+  // This code chooses a random puzzle to use
+  HotspotPuzzle.find({}, 'code').then((codeList) => {
+    const randomIndex = _.random(0, codeList.length - 1);
+    const code = codeList[randomIndex].code;
+    return res.render('puzzle.hbs', { code });
+  });
 });
 
 // Render a puzzle page with the puzzle that has the requested code
 app.get('/hotspot/:code', (req, res) => {
   const code = req.params.code;
+
+  if (code === 'CODE') {
+    return res.render('puzzle.hbs', { code });
+  }
   // if not a valid code, render the puzzle not found page
   HotspotPuzzle.findOne({ code }).then((puzzle) => {
     if (!puzzle) {
@@ -94,7 +108,7 @@ app.post('/get-random-hotspot/', (req, res) => {
 
   console.log(`Must choose one not in this list`, codesToAvoid);
   HotspotPuzzle.find({}, 'code').then((codeList) => {
-    console.log(`Codes in databse: ${codeList}`);
+    console.log(`Codes in database: ${codeList}`);
     if (!codeList) {
       return res.status(404).send();
     }

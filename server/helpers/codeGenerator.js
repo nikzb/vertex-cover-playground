@@ -15,14 +15,19 @@ const generateCode = function generateCode(res, callback) {
     }
     newCode += alphaNumChar;
   }
-  // Check if code is already in use. If so, generate another one
-  HotspotPuzzle.findOne({ code: newCode }).then((puzzle) => {
-    if (!puzzle) {
-      callback(res, newCode);
-    } else {
-      generateCode(res, callback);
-    }
-  }).catch(e => 'Error');
+  // The code CODE is reserved for the Code.org puzzle
+  if (newCode === 'CODE') {
+    generateCode(res, callback);
+  } else {
+    // Check if code is already in use. If so, generate another one
+    HotspotPuzzle.findOne({ code: newCode }).then((puzzle) => {
+      if (!puzzle) {
+        callback(res, newCode);
+      } else {
+        generateCode(res, callback);
+      }
+    }).catch(e => 'Error');
+  }
 };
 
 module.exports = { generateCode };
