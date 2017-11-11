@@ -24,7 +24,10 @@ let container = null;
 let setUpClickHandlers;
 let options = null;
 let network = null;
-const domain = 'localhost:3001';
+// const domain = 'localhost:3001';
+const domain = window.location.host;
+
+console.log(domain);
 
 const removeActive = function removeActive(element) {
   if (element.classList.contains('active')) {

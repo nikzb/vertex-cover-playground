@@ -16,7 +16,8 @@ let needMoreNodesWarning = null;
 
 let network = null;
 let container;
-const domain = 'localhost:3001';
+// const domain = 'localhost:3001';
+const domain = window.location.host;
 
 // The stages are
   // 0: intro
