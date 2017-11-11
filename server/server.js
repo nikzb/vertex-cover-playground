@@ -2,6 +2,9 @@ require('./config/config');
 
 const _ = require('lodash');
 const fp = require('path');
+
+const http = require('http');
+const https = require('https');
 const express = require('express');
 const hbs = require('hbs');
 const bodyParser = require('body-parser');
@@ -12,6 +15,7 @@ const { HotspotPuzzle } = require('./models/hotspotPuzzle');
 const { generateCode } = require('./helpers/codeGenerator');
 
 const app = express();
+
 const port = process.env.PORT;
 
 console.log(`Printing port in server.js:${port}`);

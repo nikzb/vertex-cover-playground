@@ -133,7 +133,9 @@ const savePuzzleAndLoad = function savePuzzleAndLoad() {
     method: 'GET',
     headers: newCodeHeaders
   };
-  const requestNewCode = new Request(`https://${domain}/hotspot/newCode`, newCodeInit);
+
+  // const requestNewCode = new Request(`https://${domain}/hotspot/newCode`, newCodeInit);
+  const requestNewCode = new Request(`${domain}/hotspot/newCode`, newCodeInit);
 
   fetch(requestNewCode)
     .then((response) => {
@@ -168,7 +170,8 @@ const savePuzzleAndLoad = function savePuzzleAndLoad() {
           })
         };
 
-        const addPuzzleRequest = new Request(`https://${domain}/hotspot/`, addPuzzleRequestInit);
+        // const addPuzzleRequest = new Request(`https://${domain}/hotspot/`, addPuzzleRequestInit);
+        const addPuzzleRequest = new Request(`${domain}/hotspot/`, addPuzzleRequestInit);
 
         fetch(addPuzzleRequest)
           .then((addPuzzleResponse) => {

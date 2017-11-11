@@ -29,6 +29,7 @@ let network = null;
 const domain = window.location.host;
 
 console.log(domain);
+console.log('Updated');
 
 const removeActive = function removeActive(element) {
   if (element.classList.contains('active')) {
@@ -117,7 +118,8 @@ const usePuzzle = function usePuzzle(code) {
     setUpNetwork(arrays.nodeArray, arrays.edgeArray);
     // addCodeToListOfAttemptedPuzzles(code);
   } else {
-    fetch(`https://${domain}/hotspot-data/${code}`)
+    // fetch(`https://${domain}/hotspot-data/${code}`)
+    fetch(`${domain}/hotspot-data/${code}`)
       .then(
         (response) => {
           handleResponseToPuzzleRequest(response, code);
@@ -161,7 +163,8 @@ const setUpClickHandlersForNextGraphLinks = function setUpClickHandlersForNextGr
         body: puzzleListString
       };
 
-      const myRequest = new Request(`https://${domain}/get-random-hotspot/`, myInit);
+      // const myRequest = new Request(`https://${domain}/get-random-hotspot/`, myInit);
+      const myRequest = new Request(`${domain}/get-random-hotspot/`, myInit);
 
       fetch(myRequest)
         .then(

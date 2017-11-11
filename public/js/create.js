@@ -71812,7 +71812,9 @@ var savePuzzleAndLoad = function savePuzzleAndLoad() {
     method: 'GET',
     headers: newCodeHeaders
   };
-  var requestNewCode = new Request('https://' + domain + '/hotspot/newCode', newCodeInit);
+
+  // const requestNewCode = new Request(`https://${domain}/hotspot/newCode`, newCodeInit);
+  var requestNewCode = new Request(domain + '/hotspot/newCode', newCodeInit);
 
   fetch(requestNewCode).then(function (response) {
     if (!response.ok) {
@@ -71846,7 +71848,8 @@ var savePuzzleAndLoad = function savePuzzleAndLoad() {
         })
       };
 
-      var addPuzzleRequest = new Request('http://' + domain + '/hotspot/', addPuzzleRequestInit);
+      // const addPuzzleRequest = new Request(`https://${domain}/hotspot/`, addPuzzleRequestInit);
+      var addPuzzleRequest = new Request(domain + '/hotspot/', addPuzzleRequestInit);
 
       fetch(addPuzzleRequest).then(function (addPuzzleResponse) {
         if (!addPuzzleResponse.ok) {

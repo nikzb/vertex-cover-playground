@@ -54702,6 +54702,7 @@ var network = null;
 var domain = window.location.host;
 
 console.log(domain);
+console.log('Updated');
 
 var removeActive = function removeActive(element) {
   if (element.classList.contains('active')) {
@@ -54790,7 +54791,8 @@ var usePuzzle = function usePuzzle(code) {
     setUpNetwork(arrays.nodeArray, arrays.edgeArray);
     // addCodeToListOfAttemptedPuzzles(code);
   } else {
-    fetch('https://' + domain + '/hotspot-data/' + code).then(function (response) {
+    // fetch(`https://${domain}/hotspot-data/${code}`)
+    fetch(domain + '/hotspot-data/' + code).then(function (response) {
       handleResponseToPuzzleRequest(response, code);
     }).catch(function (error) {
       throw new Error(error);
@@ -54830,7 +54832,8 @@ var setUpClickHandlersForNextGraphLinks = function setUpClickHandlersForNextGrap
         body: puzzleListString
       };
 
-      var myRequest = new Request('https://' + domain + '/get-random-hotspot/', myInit);
+      // const myRequest = new Request(`https://${domain}/get-random-hotspot/`, myInit);
+      var myRequest = new Request(domain + '/get-random-hotspot/', myInit);
 
       fetch(myRequest).then(function (response) {
         response.text().then(function (code) {
