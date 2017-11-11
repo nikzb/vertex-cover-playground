@@ -117,7 +117,7 @@ const usePuzzle = function usePuzzle(code) {
     setUpNetwork(arrays.nodeArray, arrays.edgeArray);
     // addCodeToListOfAttemptedPuzzles(code);
   } else {
-    fetch(`https://${domain}/hotspot-data/${code}`)
+    fetch(`http://${domain}/hotspot-data/${code}`)
       .then(
         (response) => {
           handleResponseToPuzzleRequest(response, code);
@@ -161,7 +161,7 @@ const setUpClickHandlersForNextGraphLinks = function setUpClickHandlersForNextGr
         body: puzzleListString
       };
 
-      const myRequest = new Request(`https://${domain}/get-random-hotspot/`, myInit);
+      const myRequest = new Request(`http://${domain}/get-random-hotspot/`, myInit);
 
       fetch(myRequest)
         .then(
@@ -171,7 +171,7 @@ const setUpClickHandlersForNextGraphLinks = function setUpClickHandlersForNextGr
                 // This would work except then I would need to also update the graph code that shows up
                 // usePuzzle(code);
                 // Reload the page so that the code in the URL and the code shown on the page match the puzzle shown
-                window.location=`https://${domain}/hotspot/${code}`;
+                window.location=`http://${domain}/hotspot/${code}`;
               }
             })
             .catch((error) => {
@@ -191,7 +191,7 @@ const setUpClickHandlersForCreateOwnLinks = function setUpClickHandlersForCreate
 
   createOwnLinks.forEach((link) => {
     link.addEventListener("click", () => {
-      window.location=`https://${domain}/create`;
+      window.location=`http://${domain}/create`;
     });
   });
 };
