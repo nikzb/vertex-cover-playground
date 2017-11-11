@@ -71812,7 +71812,7 @@ var savePuzzleAndLoad = function savePuzzleAndLoad() {
     method: 'GET',
     headers: newCodeHeaders
   };
-  var requestNewCode = new Request('http://' + domain + '/hotspot/newCode', newCodeInit);
+  var requestNewCode = new Request('https://' + domain + '/hotspot/newCode', newCodeInit);
 
   fetch(requestNewCode).then(function (response) {
     if (!response.ok) {
@@ -71853,7 +71853,7 @@ var savePuzzleAndLoad = function savePuzzleAndLoad() {
           throw new Error("Error with response to adding puzzle");
         }
         // Successfully added puzzle, so load page with puzzle
-        window.location = 'http://' + domain + '/hotspot/' + code;
+        window.location = 'https://' + domain + '/hotspot/' + code;
       }).catch(function (error) {
         throw new Error(error);
       });
