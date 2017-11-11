@@ -71745,7 +71745,8 @@ var needMoreNodesWarning = null;
 
 var network = null;
 var container = void 0;
-var domain = 'localhost:3001';
+// const domain = 'localhost:3001';
+var domain = window.location.host;
 
 // The stages are
 // 0: intro

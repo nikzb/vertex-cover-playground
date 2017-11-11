@@ -54697,7 +54697,11 @@ var container = null;
 var setUpClickHandlers = void 0;
 var options = null;
 var network = null;
-var domain = 'localhost:3001';
+// const domain = 'localhost:3001';
+
+var domain = window.location.host;
+
+console.log(domain);
 
 var removeActive = function removeActive(element) {
   if (element.classList.contains('active')) {
