@@ -71814,7 +71814,7 @@ var savePuzzleAndLoad = function savePuzzleAndLoad() {
   };
 
   // const requestNewCode = new Request(`https://${domain}/hotspot/newCode`, newCodeInit);
-  var requestNewCode = new Request(domain + '/hotspot/newCode', newCodeInit);
+  var requestNewCode = new Request('//' + domain + '/hotspot/newCode', newCodeInit);
 
   fetch(requestNewCode).then(function (response) {
     if (!response.ok) {
@@ -71848,15 +71848,14 @@ var savePuzzleAndLoad = function savePuzzleAndLoad() {
         })
       };
 
-      // const addPuzzleRequest = new Request(`https://${domain}/hotspot/`, addPuzzleRequestInit);
-      var addPuzzleRequest = new Request(domain + '/hotspot/', addPuzzleRequestInit);
+      var addPuzzleRequest = new Request('//' + domain + '/hotspot/', addPuzzleRequestInit);
 
       fetch(addPuzzleRequest).then(function (addPuzzleResponse) {
         if (!addPuzzleResponse.ok) {
           throw new Error("Error with response to adding puzzle");
         }
         // Successfully added puzzle, so load page with puzzle
-        window.location = 'https://' + domain + '/hotspot/' + code;
+        window.location = 'http://' + domain + '/hotspot/' + code;
       }).catch(function (error) {
         throw new Error(error);
       });

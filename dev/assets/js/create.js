@@ -135,7 +135,7 @@ const savePuzzleAndLoad = function savePuzzleAndLoad() {
   };
 
   // const requestNewCode = new Request(`https://${domain}/hotspot/newCode`, newCodeInit);
-  const requestNewCode = new Request(`${domain}/hotspot/newCode`, newCodeInit);
+  const requestNewCode = new Request(`//${domain}/hotspot/newCode`, newCodeInit);
 
   fetch(requestNewCode)
     .then((response) => {
@@ -170,8 +170,7 @@ const savePuzzleAndLoad = function savePuzzleAndLoad() {
           })
         };
 
-        // const addPuzzleRequest = new Request(`https://${domain}/hotspot/`, addPuzzleRequestInit);
-        const addPuzzleRequest = new Request(`${domain}/hotspot/`, addPuzzleRequestInit);
+        const addPuzzleRequest = new Request(`//${domain}/hotspot/`, addPuzzleRequestInit);
 
         fetch(addPuzzleRequest)
           .then((addPuzzleResponse) => {
@@ -179,7 +178,7 @@ const savePuzzleAndLoad = function savePuzzleAndLoad() {
               throw new Error("Error with response to adding puzzle");
             }
             // Successfully added puzzle, so load page with puzzle
-            window.location=`https://${domain}/hotspot/${code}`;
+            window.location=`http://${domain}/hotspot/${code}`;
           })
           .catch((error) => {
             throw new Error(error);

@@ -54791,8 +54791,7 @@ var usePuzzle = function usePuzzle(code) {
     setUpNetwork(arrays.nodeArray, arrays.edgeArray);
     // addCodeToListOfAttemptedPuzzles(code);
   } else {
-    // fetch(`https://${domain}/hotspot-data/${code}`)
-    fetch(domain + '/hotspot-data/' + code).then(function (response) {
+    fetch('//' + domain + '/hotspot-data/' + code).then(function (response) {
       handleResponseToPuzzleRequest(response, code);
     }).catch(function (error) {
       throw new Error(error);
@@ -54832,8 +54831,7 @@ var setUpClickHandlersForNextGraphLinks = function setUpClickHandlersForNextGrap
         body: puzzleListString
       };
 
-      // const myRequest = new Request(`https://${domain}/get-random-hotspot/`, myInit);
-      var myRequest = new Request(domain + '/get-random-hotspot/', myInit);
+      var myRequest = new Request('//' + domain + '/get-random-hotspot/', myInit);
 
       fetch(myRequest).then(function (response) {
         response.text().then(function (code) {
@@ -54841,7 +54839,8 @@ var setUpClickHandlersForNextGraphLinks = function setUpClickHandlersForNextGrap
             // This would work except then I would need to also update the graph code that shows up
             // usePuzzle(code);
             // Reload the page so that the code in the URL and the code shown on the page match the puzzle shown
-            window.location = 'https://' + domain + '/hotspot/' + code;
+            // window.location=`http://${domain}/hotspot/${code}`;
+            window.location = '//' + domain + '/hotspot/' + code;
           }
         }).catch(function (error) {
           throw new Error(error);
@@ -54858,7 +54857,7 @@ var setUpClickHandlersForCreateOwnLinks = function setUpClickHandlersForCreateOw
 
   createOwnLinks.forEach(function (link) {
     link.addEventListener("click", function () {
-      window.location = 'https://' + domain + '/create';
+      window.location = 'http://' + domain + '/create';
     });
   });
 };
