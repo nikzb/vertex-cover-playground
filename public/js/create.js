@@ -71742,6 +71742,7 @@ var stepTitle = null;
 
 var stageInstructions = null;
 var needMoreNodesWarning = null;
+var nodesNeedMoreSpaceWarning = null;
 
 var network = null;
 var container = void 0;
@@ -71774,6 +71775,8 @@ var populateStageInstructions = function populateStageInstructions() {
   stageInstructions[5] = '\n    <h2 class=\'info-container__step-label\'>Finish Up</h2>\n    <h3 class=\'info-container__todo\'>Adjust the final positioning of the nodes and you are done!</h3>\n    <ul class=\'info-container__list\'>\n      <li>Click the NEXT arrow to finish creating your puzzle.</li>\n    </ul>\n  ';
 
   needMoreNodesWarning = '\n    <h3 class=\'info-container__todo info-container__todo-warning\'>\n      Your puzzle is too small! Go back and add some more nodes!\n    </h3>\n  ';
+
+  nodesNeedMoreSpaceWarning = '\n  <h3 class=\'info-container__todo info-container__todo-warning\'>\n    Some of your nodes are too close together! Move them a bit further apart from each other.\n  </h3>\n  ';
 };
 
 populateStageInstructions();
@@ -71804,6 +71807,27 @@ var resetPuzzleBuilder = function resetPuzzleBuilder() {
   NetworkOptions.setUpOptionsForAddHotspots(network, options);
 };
 
+var nodesHaveAdequateSpace = function nodesHaveAdequateSpace() {
+  // getPositions - takes array of node ids and returns object with ids as name and object with x, y as name and coords as values as value
+  var nodes = graph.getNodes();
+
+  for (var index = 0; index < nodes.length - 1; index += 1) {
+    for (var compIndex = index + 1; compIndex < nodes.length; compIndex += 1) {
+      var nodeA = nodes[index];
+      var nodeB = nodes[compIndex];
+
+      // distance is center to center
+      var distanceBetween = Math.hypot(nodeA.x - nodeB.x, nodeA.y - nodeB.y);
+
+      if (distanceBetween < 45) {
+        return false;
+      }
+    }
+  }
+
+  return true;
+};
+
 var savePuzzleAndLoad = function savePuzzleAndLoad() {
   var newCodeHeaders = new Headers({
     'Content-Type': 'text/html'
@@ -71828,8 +71852,6 @@ var savePuzzleAndLoad = function savePuzzleAndLoad() {
     response.text().then(function (code) {
       // Figure out the correct size for the puzzle
       var size = graph.getSize();
-
-      // if (size <)
 
       var addPuzzleRequestHeaders = new Headers({
         'Content-Type': 'application/json'
@@ -71898,9 +71920,20 @@ var goToNextStage = function goToNextStage() {
     instruct.innerHTML = stageInstructions[5];
     stepTitle.innerHTML = 'Step 5';
   } else if (stage === 'finished') {
-    // Make sure there are enough hotspots to make a legitimate puzzle
-    if (graph.getNumberOfHotspots() < 2 || graph.getNumberOfServicedNodes() < 2) {
-      instruct.innerHTML = stageInstructions[5] + needMoreNodesWarning;
+    // Validate puzzle
+    // 1) Make sure there are enough hotspots to make a legitimate puzzle
+    // 2) Make sure there is enough space between the nodes (not too crowded)
+    var warningMessage = '';
+    if (graph.getNumberOfHotspots() < 2 || graph.getNumberOfServicedNodes() < 4) {
+      warningMessage += needMoreNodesWarning;
+    }
+    if (!nodesHaveAdequateSpace()) {
+      warningMessage += nodesNeedMoreSpaceWarning;
+    }
+
+    // If there are warnings to give, show them, otherwise save puzzle
+    if (warningMessage.length > 0) {
+      instruct.innerHTML = stageInstructions[5] + warningMessage;
     } else {
       savePuzzleAndLoad();
     }

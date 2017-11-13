@@ -13,6 +13,7 @@ let stepTitle = null;
 
 let stageInstructions = null;
 let needMoreNodesWarning = null;
+let nodesNeedMoreSpaceWarning = null;
 
 let network = null;
 let container;
@@ -95,6 +96,12 @@ const populateStageInstructions = function populateStageInstructions() {
       Your puzzle is too small! Go back and add some more nodes!
     </h3>
   `;
+
+  nodesNeedMoreSpaceWarning = `
+  <h3 class='info-container__todo info-container__todo-warning'>
+    Some of your nodes are too close together! Move them a bit further apart from each other.
+  </h3>
+  `;
 };
 
 populateStageInstructions();
@@ -125,6 +132,27 @@ const resetPuzzleBuilder = function resetPuzzleBuilder() {
   NetworkOptions.setUpOptionsForAddHotspots(network, options);
 };
 
+const nodesHaveAdequateSpace = function nodesHaveAdequateSpace() {
+  // getPositions - takes array of node ids and returns object with ids as name and object with x, y as name and coords as values as value
+  const nodes = graph.getNodes();
+
+  for (let index = 0; index < nodes.length - 1; index += 1) {
+    for (let compIndex = index + 1; compIndex < nodes.length; compIndex += 1) {
+      const nodeA = nodes[index];
+      const nodeB = nodes[compIndex];
+
+      // distance is center to center
+      const distanceBetween = Math.hypot(nodeA.x - nodeB.x, nodeA.y - nodeB.y);
+
+      if (distanceBetween < 45) {
+        return false;
+      }
+    }
+  }
+
+  return true;
+};
+
 const savePuzzleAndLoad = function savePuzzleAndLoad() {
   const newCodeHeaders = new Headers({
     'Content-Type': 'text/html'
@@ -150,8 +178,6 @@ const savePuzzleAndLoad = function savePuzzleAndLoad() {
       response.text().then((code) => {
         // Figure out the correct size for the puzzle
         const size = graph.getSize();
-
-        // if (size <)
 
         const addPuzzleRequestHeaders = new Headers({
           'Content-Type': 'application/json'
@@ -224,9 +250,20 @@ const goToNextStage = function goToNextStage() {
     instruct.innerHTML = stageInstructions[5];
     stepTitle.innerHTML = 'Step 5';
   } else if (stage === 'finished') {
-    // Make sure there are enough hotspots to make a legitimate puzzle
-    if (graph.getNumberOfHotspots() < 2 || graph.getNumberOfServicedNodes() < 2) {
-      instruct.innerHTML = stageInstructions[5] + needMoreNodesWarning;
+    // Validate puzzle
+    // 1) Make sure there are enough hotspots to make a legitimate puzzle
+    // 2) Make sure there is enough space between the nodes (not too crowded)
+    let warningMessage = '';
+    if (graph.getNumberOfHotspots() < 2 || graph.getNumberOfServicedNodes() < 4) {
+      warningMessage += needMoreNodesWarning;
+    }
+    if (!nodesHaveAdequateSpace()) {
+      warningMessage += nodesNeedMoreSpaceWarning;
+    }
+
+    // If there are warnings to give, show them, otherwise save puzzle
+    if (warningMessage.length > 0) {
+      instruct.innerHTML = stageInstructions[5] + warningMessage;
     } else {
       savePuzzleAndLoad();
     }
