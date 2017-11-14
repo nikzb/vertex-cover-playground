@@ -66,9 +66,10 @@ app.get('/hotspot/:code', (req, res) => {
   // if not a valid code, render the puzzle not found page
   HotspotPuzzle.findOne({ code }).then((puzzle) => {
     if (!puzzle) {
-      return res.send(`
-        <h1>The code puzzle code ${code} is not valid!</h1>
-      `);
+      // return res.send(`
+      //   <h1>The code puzzle code ${code} is not valid!</h1>
+      // `);
+      return res.render('notFound.hbs', { code });
     }
     return res.render('puzzle.hbs', { code });
   }).catch(e => res.send('<h1>There was an error while attempting to load the puzzle</h1>'));

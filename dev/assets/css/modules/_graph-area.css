@@ -46,6 +46,14 @@
     justify-content: space-between;
   }
 
+  &__options-wrap--not-found {
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
+    align-items: center;
+    padding: 1em;
+  }
+
   &__options {
     margin: 14px 20px;
     font-weight: normal;

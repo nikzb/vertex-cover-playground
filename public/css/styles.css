@@ -778,6 +778,23 @@ li {
           justify-content: space-between;
 }
 
+.graph-area__options-wrap--not-found {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  padding: 1em;
+}
+
 .graph-area__options {
   margin: 14px 20px;
   font-weight: normal;
@@ -849,6 +866,13 @@ li {
   cursor: pointer;
 }
 
+.main-container--not-found {
+  max-width: 800px;
+  -webkit-box-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
+}
+
 .middle-container {
   display: -webkit-box;
   display: -ms-flexbox;
@@ -856,6 +880,15 @@ li {
   -webkit-box-flex: 1;
       -ms-flex: 1 1 auto;
           flex: 1 1 auto;
+}
+
+.middle-container--not-found {
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  text-align: center;
+  margin: 2em;
 }
 
 .key-container {
