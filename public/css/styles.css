@@ -888,7 +888,9 @@ li {
       -ms-flex-direction: column;
           flex-direction: column;
   text-align: center;
-  margin: 2em;
+  margin-top: 0.5em;
+  padding: 2em;
+  border: 1px solid lightgray;
 }
 
 .key-container {

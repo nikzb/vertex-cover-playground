@@ -33,9 +33,6 @@ let network = null;
 
 const domain = window.location.host;
 
-console.log(domain);
-console.log('Updated');
-
 const removeActive = function removeActive(element) {
   if (element.classList.contains('active')) {
     element.classList.remove('active');

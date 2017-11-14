@@ -64,11 +64,36 @@ var EntryPoint =
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 13);
+/******/ 	return __webpack_require__(__webpack_require__.s = 14);
 /******/ })
 /************************************************************************/
 /******/ ([
 /* 0 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var domain = window.location.host;
+
+var setUpClickHandlerForTitle = function setUpClickHandlersForTitle() {
+  var titleDiv = document.querySelector('.main-container__header__title');
+
+  titleDiv.addEventListener("click", function () {
+    window.location = '//' + domain + '/';
+  });
+
+  var logoImage = document.querySelector('.logo-image');
+
+  logoImage.addEventListener("click", function () {
+    window.location = '//' + domain + '/';
+  });
+};
+
+module.exports = setUpClickHandlerForTitle;
+
+/***/ }),
+/* 1 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -52413,7 +52438,7 @@ return /******/ (function(modules) { // webpackBootstrap
 ;
 
 /***/ }),
-/* 1 */
+/* 2 */
 /***/ (function(module, exports) {
 
 var g;
@@ -52440,7 +52465,7 @@ module.exports = g;
 
 
 /***/ }),
-/* 2 */
+/* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(process, Promise, global) {var require;/*** IMPORTS FROM imports-loader ***/
@@ -53609,10 +53634,10 @@ return Promise;
 /*** EXPORTS FROM exports-loader ***/
 module.exports = global.Promise;
 }.call(global));
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(6), __webpack_require__(2), __webpack_require__(1)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(6), __webpack_require__(3), __webpack_require__(2)))
 
 /***/ }),
-/* 3 */
+/* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -53829,31 +53854,6 @@ module.exports = {
   setUpOptionsForConnectClusters: setUpOptionsForConnectClusters,
   setUpOptionsForFinished: setUpOptionsForFinished
 };
-
-/***/ }),
-/* 4 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var domain = window.location.host;
-
-var setUpClickHandlerForTitle = function setUpClickHandlersForTitle() {
-  var titleDiv = document.querySelector('.main-container__header__title');
-
-  titleDiv.addEventListener("click", function () {
-    window.location = '//' + domain + '/';
-  });
-
-  var logoImage = document.querySelector('.logo-image');
-
-  logoImage.addEventListener("click", function () {
-    window.location = '//' + domain + '/';
-  });
-};
-
-module.exports = setUpClickHandlerForTitle;
 
 /***/ }),
 /* 5 */
@@ -54328,7 +54328,7 @@ module.exports = setUpClickHandlerForTitle;
 /*** EXPORTS FROM exports-loader ***/
 module.exports = global.fetch;
 }.call(global));
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2), __webpack_require__(1)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3), __webpack_require__(2)))
 
 /***/ }),
 /* 6 */
@@ -54529,7 +54529,7 @@ process.umask = function() { return 0; };
 "use strict";
 
 
-var vis = __webpack_require__(0);
+var vis = __webpack_require__(1);
 
 var nodes = null;
 var edges = null;
@@ -54690,7 +54690,8 @@ module.exports = {
 /* 10 */,
 /* 11 */,
 /* 12 */,
-/* 13 */
+/* 13 */,
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -54713,13 +54714,13 @@ module.exports = {
 //   {from: 2, to: 5},
 //   {from: 3, to: 6}
 // ]);
-var vis = __webpack_require__(0);
+var vis = __webpack_require__(1);
 
 var Graph = __webpack_require__(8);
-var NetworkOptions = __webpack_require__(3);
+var NetworkOptions = __webpack_require__(4);
 
 // Get title set up to link to main page
-var setUpTitleLink = __webpack_require__(4);
+var setUpTitleLink = __webpack_require__(0);
 
 setUpTitleLink();
 
@@ -54730,9 +54731,6 @@ var network = null;
 // const domain = 'localhost:3001';
 
 var domain = window.location.host;
-
-console.log(domain);
-console.log('Updated');
 
 var removeActive = function removeActive(element) {
   if (element.classList.contains('active')) {
