@@ -3,6 +3,11 @@ const vis = require('vis');
 const graph = require('./modules/GraphForCreate');
 const NetworkOptions = require('./modules/NetworkOptions');
 
+// Get title set up to link to main page
+const setUpTitleLink = require('./modules/title');
+
+setUpTitleLink();
+
 // Variables for manipulating the DOM
 let instructDiv = null;
 let buttonDiv = null;

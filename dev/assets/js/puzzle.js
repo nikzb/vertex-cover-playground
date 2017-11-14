@@ -20,6 +20,11 @@ const vis = require('vis');
 const Graph = require('./modules/Graph');
 const NetworkOptions = require('./modules/NetworkOptions');
 
+// Get title set up to link to main page
+const setUpTitleLink = require('./modules/title');
+
+setUpTitleLink();
+
 let container = null;
 let setUpClickHandlers;
 let options = null;
@@ -58,7 +63,7 @@ const checkForCompletion = function checkForCompletion() {
         link.style.display = 'block';
       });
     } else {
-      messageElem.innerHTML = 'Try again using less hotspots. You can do it!';
+      messageElem.innerHTML = `You used ${Graph.countHotspots()} hotspots.<br><br> Try again using less hotspots. You can do it!`;
       links.forEach((link) => {
         link.style.display = 'none';
       });
@@ -193,7 +198,7 @@ const setUpClickHandlersForCreateOwnLinks = function setUpClickHandlersForCreate
 
   createOwnLinks.forEach((link) => {
     link.addEventListener("click", () => {
-      window.location=`http://${domain}/create`;
+      window.location=`//${domain}/create`;
     });
   });
 };

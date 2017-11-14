@@ -64,7 +64,7 @@ var EntryPoint =
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 11);
+/******/ 	return __webpack_require__(__webpack_require__.s = 12);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -52582,7 +52582,7 @@ function flush() {
 function attemptVertx() {
   try {
     var r = require;
-    var vertx = __webpack_require__(6);
+    var vertx = __webpack_require__(7);
     vertxNext = vertx.runOnLoop || vertx.runOnContext;
     return useVertxTimer();
   } catch (e) {
@@ -53609,7 +53609,7 @@ return Promise;
 /*** EXPORTS FROM exports-loader ***/
 module.exports = global.Promise;
 }.call(global));
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5), __webpack_require__(2), __webpack_require__(1)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(6), __webpack_require__(2), __webpack_require__(1)))
 
 /***/ }),
 /* 3 */
@@ -53832,6 +53832,31 @@ module.exports = {
 
 /***/ }),
 /* 4 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var domain = window.location.host;
+
+var setUpClickHandlerForTitle = function setUpClickHandlersForTitle() {
+  var titleDiv = document.querySelector('.main-container__header__title');
+
+  titleDiv.addEventListener("click", function () {
+    window.location = '//' + domain + '/';
+  });
+
+  var logoImage = document.querySelector('.logo-image');
+
+  logoImage.addEventListener("click", function () {
+    window.location = '//' + domain + '/';
+  });
+};
+
+module.exports = setUpClickHandlerForTitle;
+
+/***/ }),
+/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(Promise, global) {/*** IMPORTS FROM imports-loader ***/
@@ -54306,7 +54331,7 @@ module.exports = global.fetch;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2), __webpack_require__(1)))
 
 /***/ }),
-/* 5 */
+/* 6 */
 /***/ (function(module, exports) {
 
 // shim for using process in browser
@@ -54492,21 +54517,21 @@ process.umask = function() { return 0; };
 
 
 /***/ }),
-/* 6 */
+/* 7 */
 /***/ (function(module, exports) {
 
 /* (ignored) */
 
 /***/ }),
-/* 7 */,
-/* 8 */
+/* 8 */,
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
 var vis = __webpack_require__(0);
-var _ = __webpack_require__(9);
+var _ = __webpack_require__(10);
 
 var nodes = null;
 var edges = null;
@@ -54601,7 +54626,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 9 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global, module) {var __WEBPACK_AMD_DEFINE_RESULT__;/**
@@ -71690,10 +71715,10 @@ module.exports = {
   }
 }.call(this));
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1), __webpack_require__(10)(module)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1), __webpack_require__(11)(module)))
 
 /***/ }),
-/* 10 */
+/* 11 */
 /***/ (function(module, exports) {
 
 module.exports = function(module) {
@@ -71721,7 +71746,7 @@ module.exports = function(module) {
 
 
 /***/ }),
-/* 11 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -71729,8 +71754,13 @@ module.exports = function(module) {
 
 var vis = __webpack_require__(0);
 
-var graph = __webpack_require__(8);
+var graph = __webpack_require__(9);
 var NetworkOptions = __webpack_require__(3);
+
+// Get title set up to link to main page
+var setUpTitleLink = __webpack_require__(4);
+
+setUpTitleLink();
 
 // Variables for manipulating the DOM
 var instructDiv = null;
@@ -71999,7 +72029,7 @@ var init = function init() {
 module.exports = {
   init: init
 };
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5)))
 
 /***/ })
 /******/ ]);

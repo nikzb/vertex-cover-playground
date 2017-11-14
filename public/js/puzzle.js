@@ -64,7 +64,7 @@ var EntryPoint =
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 12);
+/******/ 	return __webpack_require__(__webpack_require__.s = 13);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -52582,7 +52582,7 @@ function flush() {
 function attemptVertx() {
   try {
     var r = require;
-    var vertx = __webpack_require__(6);
+    var vertx = __webpack_require__(7);
     vertxNext = vertx.runOnLoop || vertx.runOnContext;
     return useVertxTimer();
   } catch (e) {
@@ -53609,7 +53609,7 @@ return Promise;
 /*** EXPORTS FROM exports-loader ***/
 module.exports = global.Promise;
 }.call(global));
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5), __webpack_require__(2), __webpack_require__(1)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(6), __webpack_require__(2), __webpack_require__(1)))
 
 /***/ }),
 /* 3 */
@@ -53832,6 +53832,31 @@ module.exports = {
 
 /***/ }),
 /* 4 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var domain = window.location.host;
+
+var setUpClickHandlerForTitle = function setUpClickHandlersForTitle() {
+  var titleDiv = document.querySelector('.main-container__header__title');
+
+  titleDiv.addEventListener("click", function () {
+    window.location = '//' + domain + '/';
+  });
+
+  var logoImage = document.querySelector('.logo-image');
+
+  logoImage.addEventListener("click", function () {
+    window.location = '//' + domain + '/';
+  });
+};
+
+module.exports = setUpClickHandlerForTitle;
+
+/***/ }),
+/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(Promise, global) {/*** IMPORTS FROM imports-loader ***/
@@ -54306,7 +54331,7 @@ module.exports = global.fetch;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2), __webpack_require__(1)))
 
 /***/ }),
-/* 5 */
+/* 6 */
 /***/ (function(module, exports) {
 
 // shim for using process in browser
@@ -54492,13 +54517,13 @@ process.umask = function() { return 0; };
 
 
 /***/ }),
-/* 6 */
+/* 7 */
 /***/ (function(module, exports) {
 
 /* (ignored) */
 
 /***/ }),
-/* 7 */
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -54661,11 +54686,11 @@ module.exports = {
 };
 
 /***/ }),
-/* 8 */,
 /* 9 */,
 /* 10 */,
 /* 11 */,
-/* 12 */
+/* 12 */,
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -54690,8 +54715,13 @@ module.exports = {
 // ]);
 var vis = __webpack_require__(0);
 
-var Graph = __webpack_require__(7);
+var Graph = __webpack_require__(8);
 var NetworkOptions = __webpack_require__(3);
+
+// Get title set up to link to main page
+var setUpTitleLink = __webpack_require__(4);
+
+setUpTitleLink();
 
 var container = null;
 var setUpClickHandlers = void 0;
@@ -54731,7 +54761,7 @@ var checkForCompletion = function checkForCompletion() {
         link.style.display = 'block';
       });
     } else {
-      messageElem.innerHTML = 'Try again using less hotspots. You can do it!';
+      messageElem.innerHTML = 'You used ' + Graph.countHotspots() + ' hotspots.<br><br> Try again using less hotspots. You can do it!';
       links.forEach(function (link) {
         link.style.display = 'none';
       });
@@ -54857,7 +54887,7 @@ var setUpClickHandlersForCreateOwnLinks = function setUpClickHandlersForCreateOw
 
   createOwnLinks.forEach(function (link) {
     link.addEventListener("click", function () {
-      window.location = 'http://' + domain + '/create';
+      window.location = '//' + domain + '/create';
     });
   });
 };
@@ -54892,7 +54922,7 @@ setUpClickHandlers = function setUpClickHandlers() {
 module.exports = {
   usePuzzle: usePuzzle
 };
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5)))
 
 /***/ })
 /******/ ]);

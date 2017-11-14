@@ -520,6 +520,7 @@ li {
   width: 100px;
   height: 65px;
   margin-left: 10px;
+  cursor: pointer;
 }
 
 .logo-image__node {
@@ -845,6 +846,7 @@ li {
 
 .main-container__header__title {
   margin-left: 20px;
+  cursor: pointer;
 }
 
 .middle-container {

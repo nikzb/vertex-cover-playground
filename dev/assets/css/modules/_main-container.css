@@ -12,5 +12,6 @@
 
   &__header__title {
     margin-left: 20px;
+    cursor: pointer;
   }
 }
