@@ -23,7 +23,7 @@ const NetworkOptions = require('./modules/NetworkOptions');
 // Get title set up to link to main page
 const setUpTitleLink = require('./modules/title');
 const setUpNextPuzzleLinks = require('./modules/nextPuzzle');
-const setUpCreateLinks = require('./modules/createOwnLinks');
+const setUpCreateLinks = require('./modules/goToCreate');
 
 let container = null;
 let setUpClickHandlers;
