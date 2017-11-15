@@ -22,8 +22,8 @@ const NetworkOptions = require('./modules/NetworkOptions');
 
 // Get title set up to link to main page
 const setUpTitleLink = require('./modules/title');
-
-setUpTitleLink();
+const setUpNextPuzzleLinks = require('./modules/nextPuzzle');
+const setUpCreateLinks = require('./modules/createOwnLinks');
 
 let container = null;
 let setUpClickHandlers;
@@ -146,60 +146,6 @@ const setUpClickHandlerForGraph = function setUpClickHandlerForGraph() {
   });
 };
 
-const setUpClickHandlersForNextGraphLinks = function setUpClickHandlersForNextGraphLinks() {
-  const nextGraphLinks = document.querySelectorAll('.next-graph');
-
-  nextGraphLinks.forEach((link) => {
-    link.addEventListener("click", () => {
-      // Need to get a puzzle that hasn't been attempted yet based on what is in localStorage
-      const puzzleListString = localStorage.getItem('hotspotPuzzlesAttempted');
-
-      const myHeaders = new Headers({
-        'Content-Type': 'application/json'
-      });
-
-      const myInit = {
-        method: 'POST',
-        headers: myHeaders,
-        body: puzzleListString
-      };
-
-      const myRequest = new Request(`//${domain}/get-random-hotspot/`, myInit);
-
-      fetch(myRequest)
-        .then(
-          (response) => {
-            response.text().then((code) => {
-              if (code) {
-                // This would work except then I would need to also update the graph code that shows up
-                // usePuzzle(code);
-                // Reload the page so that the code in the URL and the code shown on the page match the puzzle shown
-                // window.location=`http://${domain}/hotspot/${code}`;
-                window.location=`//${domain}/hotspot/${code}`;
-              }
-            })
-            .catch((error) => {
-              throw new Error(error);
-            });
-          }
-        )
-        .catch((error) => {
-          throw new Error(error);
-        });
-    });
-  });
-};
-
-const setUpClickHandlersForCreateOwnLinks = function setUpClickHandlersForCreateOwnLinks() {
-  const createOwnLinks = document.querySelectorAll('.create-own');
-
-  createOwnLinks.forEach((link) => {
-    link.addEventListener("click", () => {
-      window.location=`//${domain}/create`;
-    });
-  });
-};
-
 const setUpClickHandlerForResetButton = function setUpClickHandlerForResetButton(messageDiv) {
   document.querySelector('button[name="reset"]').addEventListener("click", () => {
     Graph.resetAllNodes();
@@ -220,8 +166,9 @@ setUpClickHandlers = () => {
   const messageDiv = document.querySelector('.message-box');
 
   setUpClickHandlerForGraph();
-  setUpClickHandlersForNextGraphLinks();
-  setUpClickHandlersForCreateOwnLinks();
+  setUpTitleLink();
+  setUpNextPuzzleLinks();
+  setUpCreateLinks();
   setUpClickHandlerForResetButton(messageDiv);
   setUpClickHandlerForMessageBox(messageDiv);
 };
