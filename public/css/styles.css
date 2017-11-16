@@ -1003,7 +1003,9 @@ input:valid {
   text-align: center;
 }
 
-.message-box__options {}
+.message-box__options {
+  text-align: center;
+}
 
 .message-box--slide-in {
   opacity:0;
