@@ -38,4 +38,27 @@
     transform:translateY(-143%);
   }
 
+  &__input-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  &__input-label {
+    font-size: 1.5em;
+  }
+
+  &__input {
+    font-size: 3em;
+    width: 3em;
+    text-align: center;
+  }
+
+  &__input-button {
+    font-size: 1.6em;
+    width: 3em;
+    line-height: 0;
+    padding: 0.8em 0;
+    margin: 0.2em;
+  }
 }

@@ -32,9 +32,16 @@
       </div>
       <div class='message-box message-box--slide-in hide-below'>
         <h2 class='message-box__message'></h2>
-        <a href='#'><h2 class='message-box__options next-graph'>Try Another Graph</h2></a>
-        <h2 class='message-box__options'>or</h2>
-        <a href='#'><h2 class='message-box__options create-own'>Create Your Own</h2></a>
+        <div class='message-box__input-container'>
+          <h3 class='message-box__input-label'>Type in a graph code:</h3>
+            <input class='message-box__input' type='text' name='code-input' required pattern="[A-Za-z0-9]{4}"/>
+            <button class='message-box__input-button'>Load</button>
+        </div>
+        <div class='message-box__options'>
+          <a href='#'><h2 class='message-box__options next-graph'>Try Another Graph</h2></a>
+          <h2 class='message-box__options'>or</h2>
+          <a href='#'><h2 class='message-box__options create-own'>Create Your Own</h2></a>
+        </div>
       </div>
     </div>
     <div class='guide'>

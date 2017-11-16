@@ -54798,6 +54798,9 @@ var container = null;
 var setUpClickHandlers = void 0;
 var options = null;
 var network = null;
+
+var messageInput = null;
+
 // const domain = 'localhost:3001';
 
 var domain = window.location.host;
@@ -54816,15 +54819,51 @@ var updateHotspotCount = function updateHotspotCount() {
   document.querySelector('.graph-area__count-wrap-count').innerHTML = Graph.countHotspots();
 };
 
+var showCodeSelection = function showCodeSelection() {
+  var messageDiv = document.querySelector('.message-box');
+  var messageElem = document.querySelector('.message-box__message');
+  var links = document.querySelectorAll('.message-box__options');
+
+  messageInput.style.display = 'flex';
+  messageElem.textContent = 'Load a Puzzle';
+  links.forEach(function (link) {
+    link.style.display = 'none';
+  });
+  messageDiv.classList.add('active');
+};
+
+var setUpUIFeatures = function setUpUIFeatures() {
+  messageInput = document.querySelector('.message-box__input-container');
+  messageInput.style.display = 'none';
+
+  var codeDisplay = document.querySelector('.graph-area__code');
+
+  var loadButton = document.querySelector('.message-box__input-button');
+
+  loadButton.addEventListener('click', function () {
+    var userCode = document.querySelector('.message-box__input').value;
+
+    if (userCode.length === 4) {
+      document.querySelector('.message-box__input').value = '';
+      window.location = 'http://' + domain + '/hotspot/' + userCode;
+    }
+  });
+
+  codeDisplay.addEventListener('click', function () {
+    showCodeSelection();
+  });
+};
+
 var checkForCompletion = function checkForCompletion() {
   var messageDiv = document.querySelector('.message-box');
   var messageElem = document.querySelector('.message-box__message');
   var links = document.querySelectorAll('.message-box__options');
+
   if (Graph.allNodesHaveWifi()) {
     // Display a message telling whether optimization is complete
     if (Graph.countHotspots() === Graph.getOptimalAnswer()) {
       // Success!
-      messageElem.innerHTML = 'You found an optimal solution!';
+      messageElem.textContent = 'You found an optimal solution!';
       links.forEach(function (link) {
         link.style.display = 'block';
       });
@@ -54836,7 +54875,7 @@ var checkForCompletion = function checkForCompletion() {
     }
     messageDiv.classList.add('active');
   } else {
-    document.querySelector('.message-box__message').innerHTML = '';
+    document.querySelector('.message-box__message').textContent = '';
     removeActive(messageDiv);
   }
 };
@@ -54882,11 +54921,13 @@ var handleResponseToPuzzleRequest = function handleResponseToPuzzleRequest(respo
 };
 
 var usePuzzle = function usePuzzle(code) {
+  setUpUIFeatures();
   if (code === '' || code === 'CODE') {
     // code = 'E2KB';
     console.log('no code or code is CODE');
     var arrays = Graph.useDefaultPuzzle();
     setUpNetwork(arrays.nodeArray, arrays.edgeArray);
+
     // addCodeToListOfAttemptedPuzzles(code);
   } else {
     fetch('//' + domain + '/hotspot-data/' + code).then(function (response) {
@@ -54922,8 +54963,11 @@ var setUpClickHandlerForResetButton = function setUpClickHandlerForResetButton(m
 };
 
 var setUpClickHandlerForMessageBox = function setUpClickHandlerForMessageBox(messageDiv) {
-  messageDiv.addEventListener("click", function () {
-    removeActive(messageDiv);
+  messageDiv.addEventListener("click", function (event) {
+    if (event.target.className !== 'message-box__input' && event.target.className !== 'message-box__input-button') {
+      removeActive(messageDiv);
+      document.querySelector('.message-box__input').value = '';
+    }
   });
 };
 

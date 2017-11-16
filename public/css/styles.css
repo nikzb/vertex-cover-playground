@@ -747,6 +747,7 @@ li {
 .graph-area__code {
   color: #666;
   font-weight: normal;
+  cursor: pointer;
 }
 
 .graph-area__count-wrap {
@@ -798,6 +799,14 @@ li {
 .graph-area__options {
   margin: 14px 20px;
   font-weight: normal;
+}
+
+input:invalid {
+  color: red;
+}
+
+input:valid {
+  color: green;
 }
 
 .btn--full-width {
@@ -987,7 +996,6 @@ li {
   text-shadow: 0.05em 0.05em #666;
   height: 250px;
   min-width: 80%;
-
 }
 
 .message-box__message {
@@ -1012,6 +1020,37 @@ li {
   opacity:1;
   -webkit-transform:translateY(-143%);
           transform:translateY(-143%);
+}
+
+.message-box__input-container {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+}
+
+.message-box__input-label {
+  font-size: 1.5em;
+}
+
+.message-box__input {
+  font-size: 3em;
+  width: 3em;
+  text-align: center;
+}
+
+.message-box__input-button {
+  font-size: 1.6em;
+  width: 3em;
+  line-height: 0;
+  padding: 0.8em 0;
+  margin: 0.2em;
 }
 
 .copyright-container {

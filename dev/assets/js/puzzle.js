@@ -29,6 +29,9 @@ let container = null;
 let setUpClickHandlers;
 let options = null;
 let network = null;
+
+let messageInput = null;
+
 // const domain = 'localhost:3001';
 
 const domain = window.location.host;
@@ -47,27 +50,63 @@ const updateHotspotCount = function updateHotspotCount() {
   document.querySelector('.graph-area__count-wrap-count').innerHTML = Graph.countHotspots();
 };
 
+const showCodeSelection = function showCodeSelection() {
+  const messageDiv = document.querySelector('.message-box');
+  const messageElem = document.querySelector('.message-box__message');
+  const links = document.querySelectorAll('.message-box__options');
+
+  messageInput.style.display = 'flex';
+  messageElem.textContent = 'Load a Puzzle';
+  links.forEach((link) => {
+    link.style.display = 'none';
+  });
+  messageDiv.classList.add('active');
+};
+
+const setUpUIFeatures = function setUpUIFeatures() {
+  messageInput = document.querySelector('.message-box__input-container');
+  messageInput.style.display = 'none';
+
+  const codeDisplay = document.querySelector('.graph-area__code');
+
+  const loadButton = document.querySelector('.message-box__input-button');
+
+  loadButton.addEventListener('click', () => {
+    const userCode = document.querySelector('.message-box__input').value;
+
+    if (userCode.length === 4) {
+      document.querySelector('.message-box__input').value = '';
+      window.location=`http://${domain}/hotspot/${userCode}`;
+    }
+  });
+
+  codeDisplay.addEventListener('click', () => {
+    showCodeSelection();
+  });
+};
+
 const checkForCompletion = function checkForCompletion() {
   const messageDiv = document.querySelector('.message-box');
   const messageElem = document.querySelector('.message-box__message');
   const links = document.querySelectorAll('.message-box__options');
+
   if (Graph.allNodesHaveWifi()) {
     // Display a message telling whether optimization is complete
     if (Graph.countHotspots() === Graph.getOptimalAnswer()) {
       // Success!
-      messageElem.innerHTML = 'You found an optimal solution!';
+      messageElem.textContent = 'You found an optimal solution!';
       links.forEach((link) => {
         link.style.display = 'block';
       });
     } else {
-      messageElem.innerHTML = `You used ${Graph.countHotspots()} hotspots.<br><br> Try again using less hotspots. You can do it!`;
+      messageElem.innerHTML= `You used ${Graph.countHotspots()} hotspots.<br><br> Try again using less hotspots. You can do it!`;
       links.forEach((link) => {
         link.style.display = 'none';
       });
     }
     messageDiv.classList.add('active');
   } else {
-    document.querySelector('.message-box__message').innerHTML = '';
+    document.querySelector('.message-box__message').textContent = '';
     removeActive(messageDiv);
   }
 };
@@ -113,11 +152,13 @@ const handleResponseToPuzzleRequest = function handleResponseToPuzzleRequest(res
 };
 
 const usePuzzle = function usePuzzle(code) {
+  setUpUIFeatures();
   if (code === '' || code === 'CODE') {
     // code = 'E2KB';
     console.log('no code or code is CODE');
     const arrays = Graph.useDefaultPuzzle();
     setUpNetwork(arrays.nodeArray, arrays.edgeArray);
+
     // addCodeToListOfAttemptedPuzzles(code);
   } else {
     fetch(`//${domain}/hotspot-data/${code}`)
@@ -157,8 +198,11 @@ const setUpClickHandlerForResetButton = function setUpClickHandlerForResetButton
 };
 
 const setUpClickHandlerForMessageBox = function setUpClickHandlerForMessageBox(messageDiv) {
-  messageDiv.addEventListener("click", () => {
-    removeActive(messageDiv);
+  messageDiv.addEventListener("click", (event) => {
+    if (event.target.className !== 'message-box__input' && event.target.className !== 'message-box__input-button') {
+      removeActive(messageDiv);
+      document.querySelector('.message-box__input').value = '';
+    }
   });
 };
 
