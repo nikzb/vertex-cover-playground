@@ -34,4 +34,12 @@
   &__image-prev {
     text-shadow: 0.2rem 0.2rem orange;
   }
+
+  &:hover {
+    background-color: #E8E8E8;
+  }
+
+  &:active {
+    background-color: #E0E0E0;
+  }
 }

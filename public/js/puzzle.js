@@ -54843,7 +54843,7 @@ var setUpUIFeatures = function setUpUIFeatures() {
   loadButton.addEventListener('click', function () {
     var userCode = document.querySelector('.message-box__input').value;
 
-    if (userCode.length === 4) {
+    if (userCode.length === 4 && /[A-Za-z0-9]{4}/.test(userCode)) {
       document.querySelector('.message-box__input').value = '';
       window.location = 'http://' + domain + '/hotspot/' + userCode;
     }
@@ -54964,9 +54964,10 @@ var setUpClickHandlerForResetButton = function setUpClickHandlerForResetButton(m
 
 var setUpClickHandlerForMessageBox = function setUpClickHandlerForMessageBox(messageDiv) {
   messageDiv.addEventListener("click", function (event) {
-    if (event.target.className !== 'message-box__input' && event.target.className !== 'message-box__input-button') {
+    if (event.target.className !== 'message-box__input' && event.target.className.indexOf('message-box__input-button') === -1) {
       removeActive(messageDiv);
       document.querySelector('.message-box__input').value = '';
+      messageInput.style.display = 'none';
     }
   });
 };
