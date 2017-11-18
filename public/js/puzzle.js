@@ -64,7 +64,7 @@ var EntryPoint =
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 16);
+/******/ 	return __webpack_require__(__webpack_require__.s = 17);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -54757,11 +54757,121 @@ module.exports = {
 
 /***/ }),
 /* 11 */,
-/* 12 */,
+/* 12 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var messageDiv = null;
+var messageElem = null;
+var links = null;
+var messageInput = null;
+var loadButton = null;
+var codeDisplay = null;
+
+var removeActive = function removeActive(element) {
+  if (element.classList.contains('active')) {
+    element.classList.remove('active');
+  }
+};
+
+var addActive = function addActive(element) {
+  if (!element.classList.contains('active')) {
+    element.classList.add('active');
+  }
+};
+
+var hideLinks = function hideLinks() {
+  links.forEach(function (link) {
+    link.style.display = 'none';
+  });
+};
+
+var showLinks = function showLinks() {
+  links.forEach(function (link) {
+    link.style.display = 'block';
+  });
+};
+
+var showCodeSelection = function showCodeSelection() {
+  messageInput.style.display = 'flex';
+  messageElem.textContent = 'Load a Puzzle';
+
+  hideLinks();
+  addActive(messageDiv);
+  var input = document.querySelector('.message-box__input');
+
+  setTimeout(function () {
+    input.focus();
+  }, 600);
+};
+
+var setUpClickHandlerForHide = function setUpClickHandlerForHide() {
+  messageDiv.addEventListener("click", function (event) {
+    if (event.target.className !== 'message-box__input' && event.target.className.indexOf('message-box__input-button') === -1) {
+      removeActive(messageDiv);
+      document.querySelector('.message-box__input').value = '';
+      messageInput.style.display = 'none';
+    }
+  });
+};
+
+var setUpClickHandlerForLoadButton = function setUpClickHandlerForLoadButton(domain) {
+  loadButton.addEventListener('click', function () {
+    var userCode = document.querySelector('.message-box__input').value;
+
+    if (userCode.length === 4 && /[A-Za-z0-9]{4}/.test(userCode)) {
+      document.querySelector('.message-box__input').value = '';
+      window.location = 'http://' + domain + '/hotspot/' + userCode;
+    }
+  });
+};
+
+var hide = function hide() {
+  removeActive(messageDiv);
+};
+
+var show = function show(status, numHotspots) {
+  if (status === 'success') {
+    messageElem.textContent = 'You found an optimal solution!';
+    showLinks();
+  } else if (status === 'retry') {
+    messageElem.innerHTML = 'You used ' + numHotspots + ' hotspots.<br><br> Try again using less hotspots. You can do it!';
+    hideLinks();
+  } else if (status === 'load') {
+    hideLinks();
+    showCodeSelection();
+  }
+  addActive(messageDiv);
+};
+
+var setUp = function setUp(domain) {
+  messageDiv = document.querySelector('.message-box');
+  messageElem = document.querySelector('.message-box__message');
+  links = document.querySelectorAll('.message-box__options');
+  messageInput = document.querySelector('.message-box__input-container');
+  codeDisplay = document.querySelector('.graph-area__code');
+  loadButton = document.querySelector('.message-box__input-button');
+
+  messageInput.style.display = 'none';
+
+  setUpClickHandlerForHide();
+  setUpClickHandlerForLoadButton(domain);
+
+  codeDisplay.addEventListener('click', function () {
+    show('load');
+  });
+};
+
+module.exports = { setUp: setUp, show: show, hide: hide };
+
+/***/ }),
 /* 13 */,
 /* 14 */,
 /* 15 */,
-/* 16 */
+/* 16 */,
+/* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -54793,23 +54903,13 @@ var NetworkOptions = __webpack_require__(7);
 var setUpTitleLink = __webpack_require__(3);
 var setUpNextPuzzleLinks = __webpack_require__(9);
 var setUpCreateLinks = __webpack_require__(8);
+var messageBox = __webpack_require__(12);
 
 var container = null;
-var setUpClickHandlers = void 0;
 var options = null;
 var network = null;
 
-var messageInput = null;
-
-// const domain = 'localhost:3001';
-
 var domain = window.location.host;
-
-var removeActive = function removeActive(element) {
-  if (element.classList.contains('active')) {
-    element.classList.remove('active');
-  }
-};
 
 var setUpContainer = function setUpContainer() {
   container = document.querySelector('.graph-area__graph-canvas');
@@ -54819,70 +54919,31 @@ var updateHotspotCount = function updateHotspotCount() {
   document.querySelector('.graph-area__count-wrap-count').innerHTML = Graph.countHotspots();
 };
 
-var showCodeSelection = function showCodeSelection() {
-  var messageDiv = document.querySelector('.message-box');
-  var messageElem = document.querySelector('.message-box__message');
-  var links = document.querySelectorAll('.message-box__options');
-
-  messageInput.style.display = 'flex';
-  messageElem.textContent = 'Load a Puzzle';
-  links.forEach(function (link) {
-    link.style.display = 'none';
-  });
-  messageDiv.classList.add('active');
-  var input = document.querySelector('.message-box__input');
-
-  setTimeout(function () {
-    input.focus();
-  }, 600);
-};
-
-var setUpUIFeatures = function setUpUIFeatures() {
-  messageInput = document.querySelector('.message-box__input-container');
-  messageInput.style.display = 'none';
-
-  var codeDisplay = document.querySelector('.graph-area__code');
-
-  var loadButton = document.querySelector('.message-box__input-button');
-
-  loadButton.addEventListener('click', function () {
-    var userCode = document.querySelector('.message-box__input').value;
-
-    if (userCode.length === 4 && /[A-Za-z0-9]{4}/.test(userCode)) {
-      document.querySelector('.message-box__input').value = '';
-      window.location = 'http://' + domain + '/hotspot/' + userCode;
-    }
-  });
-
-  codeDisplay.addEventListener('click', function () {
-    showCodeSelection();
-  });
-};
-
 var checkForCompletion = function checkForCompletion() {
-  var messageDiv = document.querySelector('.message-box');
-  var messageElem = document.querySelector('.message-box__message');
-  var links = document.querySelectorAll('.message-box__options');
-
   if (Graph.allNodesHaveWifi()) {
     // Display a message telling whether optimization is complete
     if (Graph.countHotspots() === Graph.getOptimalAnswer()) {
-      // Success!
-      messageElem.textContent = 'You found an optimal solution!';
-      links.forEach(function (link) {
-        link.style.display = 'block';
-      });
+      messageBox.show('success');
     } else {
-      messageElem.innerHTML = 'You used ' + Graph.countHotspots() + ' hotspots.<br><br> Try again using less hotspots. You can do it!';
-      links.forEach(function (link) {
-        link.style.display = 'none';
-      });
+      messageBox.show('retry', Graph.countHotspots());
     }
-    messageDiv.classList.add('active');
   } else {
-    document.querySelector('.message-box__message').textContent = '';
-    removeActive(messageDiv);
+    messageBox.hide();
   }
+};
+
+var setUpClickHandlerForGraph = function setUpClickHandlerForGraph() {
+  network.on("click", function (params) {
+    params.event = "[original event]";
+    if (params.nodes.length > 0) {
+      var id = params.nodes[0];
+
+      Graph.processNodeClick(id);
+
+      updateHotspotCount();
+      checkForCompletion();
+    }
+  });
 };
 
 var setUpNetwork = function setUpNetwork(nodeArray, edgeArray) {
@@ -54890,7 +54951,7 @@ var setUpNetwork = function setUpNetwork(nodeArray, edgeArray) {
   Graph.setUpData(nodeArray, edgeArray);
   setUpContainer();
   network = new vis.Network(container, Graph.getData(), options);
-  setUpClickHandlers();
+  setUpClickHandlerForGraph();
   Graph.updateOptimalAnswer();
 };
 
@@ -54909,12 +54970,31 @@ var addCodeToListOfAttemptedPuzzles = function addCodeToListOfAttemptedPuzzles(c
   localStorage.setItem('hotspotPuzzlesAttempted', JSON.stringify(puzzleList));
 };
 
+var setUpClickHandlerForResetButton = function setUpClickHandlerForResetButton(messageDiv) {
+  document.querySelector('button[name="reset"]').addEventListener("click", function () {
+    Graph.resetAllNodes();
+    updateHotspotCount();
+
+    messageBox.hide();
+  });
+};
+
+var setUpUIClickHandlers = function setUpUIClickHandlers() {
+  var messageDiv = document.querySelector('.message-box');
+  setUpTitleLink();
+  setUpNextPuzzleLinks();
+  setUpCreateLinks();
+  setUpClickHandlerForResetButton(messageDiv);
+};
+
 var handleResponseToPuzzleRequest = function handleResponseToPuzzleRequest(response, code) {
   if (response.ok) {
     var contentType = response.headers.get('content-type');
     if (contentType && contentType.indexOf('application/json') !== -1) {
       return response.json().then(function (json) {
         setUpNetwork(json.puzzle.graph.nodes, json.puzzle.graph.edges);
+        setUpUIClickHandlers();
+        messageBox.setUp(domain);
         addCodeToListOfAttemptedPuzzles(code);
       }).catch(function (error) {
         throw new Error(error + ', Error with JSON file');
@@ -54926,14 +55006,10 @@ var handleResponseToPuzzleRequest = function handleResponseToPuzzleRequest(respo
 };
 
 var usePuzzle = function usePuzzle(code) {
-  setUpUIFeatures();
   if (code === '' || code === 'CODE') {
-    // code = 'E2KB';
-    console.log('no code or code is CODE');
     var arrays = Graph.useDefaultPuzzle();
     setUpNetwork(arrays.nodeArray, arrays.edgeArray);
-
-    // addCodeToListOfAttemptedPuzzles(code);
+    setUpUIClickHandlers();
   } else {
     fetch('//' + domain + '/hotspot-data/' + code).then(function (response) {
       handleResponseToPuzzleRequest(response, code);
@@ -54941,51 +55017,6 @@ var usePuzzle = function usePuzzle(code) {
       throw new Error(error);
     });
   }
-};
-
-var setUpClickHandlerForGraph = function setUpClickHandlerForGraph() {
-  network.on("click", function (params) {
-    params.event = "[original event]";
-    if (params.nodes.length > 0) {
-      var id = params.nodes[0];
-
-      Graph.processNodeClick(id);
-
-      updateHotspotCount();
-      checkForCompletion();
-    }
-  });
-};
-
-var setUpClickHandlerForResetButton = function setUpClickHandlerForResetButton(messageDiv) {
-  document.querySelector('button[name="reset"]').addEventListener("click", function () {
-    Graph.resetAllNodes();
-    updateHotspotCount();
-    var messageElem = document.querySelector('.message-box__message');
-    messageElem.innerHTML = '';
-    removeActive(messageDiv);
-  });
-};
-
-var setUpClickHandlerForMessageBox = function setUpClickHandlerForMessageBox(messageDiv) {
-  messageDiv.addEventListener("click", function (event) {
-    if (event.target.className !== 'message-box__input' && event.target.className.indexOf('message-box__input-button') === -1) {
-      removeActive(messageDiv);
-      document.querySelector('.message-box__input').value = '';
-      messageInput.style.display = 'none';
-    }
-  });
-};
-
-setUpClickHandlers = function setUpClickHandlers() {
-  var messageDiv = document.querySelector('.message-box');
-
-  setUpClickHandlerForGraph();
-  setUpTitleLink();
-  setUpNextPuzzleLinks();
-  setUpCreateLinks();
-  setUpClickHandlerForResetButton(messageDiv);
-  setUpClickHandlerForMessageBox(messageDiv);
 };
 
 // Export this so that puzzle.hbs can call this function to get the puzzle set up
