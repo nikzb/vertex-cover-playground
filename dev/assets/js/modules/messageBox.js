@@ -35,7 +35,7 @@ const showCodeSelection = function showCodeSelection() {
   messageElem.textContent = 'Load a Puzzle';
 
   hideLinks();
-  addActive(messageDiv); 
+  addActive(messageDiv);
   const input = document.querySelector('.message-box__input');
 
   setTimeout(() => { input.focus(); }, 600);
@@ -52,14 +52,18 @@ const setUpClickHandlerForHide = function setUpClickHandlerForHide() {
   });
 };
 
+const attemptToLoad = function attemptToLoad(domain) {
+  const userCode = document.querySelector('.message-box__input').value;
+
+  if (userCode.length === 4 && /[A-Za-z0-9]{4}/.test(userCode)) {
+    document.querySelector('.message-box__input').value = '';
+    window.location=`http://${domain}/hotspot/${userCode}`;
+  }
+};
+
 const setUpClickHandlerForLoadButton = function setUpClickHandlerForLoadButton(domain) {
   loadButton.addEventListener('click', () => {
-    const userCode = document.querySelector('.message-box__input').value;
-
-    if (userCode.length === 4 && /[A-Za-z0-9]{4}/.test(userCode)) {
-      document.querySelector('.message-box__input').value = '';
-      window.location=`http://${domain}/hotspot/${userCode}`;
-    }
+    attemptToLoad(domain);
   });
 };
 
@@ -96,6 +100,12 @@ const setUp = function setUp(domain) {
 
   codeDisplay.addEventListener('click', () => {
     show('load');
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter' && messageDiv.classList.contains('active')) {
+      attemptToLoad(domain);
+    }
   });
 };
 

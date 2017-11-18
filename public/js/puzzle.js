@@ -54817,14 +54817,18 @@ var setUpClickHandlerForHide = function setUpClickHandlerForHide() {
   });
 };
 
+var attemptToLoad = function attemptToLoad(domain) {
+  var userCode = document.querySelector('.message-box__input').value;
+
+  if (userCode.length === 4 && /[A-Za-z0-9]{4}/.test(userCode)) {
+    document.querySelector('.message-box__input').value = '';
+    window.location = 'http://' + domain + '/hotspot/' + userCode;
+  }
+};
+
 var setUpClickHandlerForLoadButton = function setUpClickHandlerForLoadButton(domain) {
   loadButton.addEventListener('click', function () {
-    var userCode = document.querySelector('.message-box__input').value;
-
-    if (userCode.length === 4 && /[A-Za-z0-9]{4}/.test(userCode)) {
-      document.querySelector('.message-box__input').value = '';
-      window.location = 'http://' + domain + '/hotspot/' + userCode;
-    }
+    attemptToLoad(domain);
   });
 };
 
@@ -54861,6 +54865,12 @@ var setUp = function setUp(domain) {
 
   codeDisplay.addEventListener('click', function () {
     show('load');
+  });
+
+  document.addEventListener('keydown', function (event) {
+    if (event.key === 'Enter' && messageDiv.classList.contains('active')) {
+      attemptToLoad(domain);
+    }
   });
 };
 
@@ -54987,14 +54997,24 @@ var setUpUIClickHandlers = function setUpUIClickHandlers() {
   setUpClickHandlerForResetButton(messageDiv);
 };
 
+var setUpAll = function setUpAll(_ref) {
+  var nodes = _ref.nodes,
+      edges = _ref.edges;
+
+  setUpNetwork(nodes, edges);
+  setUpUIClickHandlers();
+  messageBox.setUp(domain);
+};
+
 var handleResponseToPuzzleRequest = function handleResponseToPuzzleRequest(response, code) {
   if (response.ok) {
     var contentType = response.headers.get('content-type');
     if (contentType && contentType.indexOf('application/json') !== -1) {
       return response.json().then(function (json) {
-        setUpNetwork(json.puzzle.graph.nodes, json.puzzle.graph.edges);
-        setUpUIClickHandlers();
-        messageBox.setUp(domain);
+        setUpAll({
+          nodes: json.puzzle.graph.nodes,
+          edges: json.puzzle.graph.edges
+        });
         addCodeToListOfAttemptedPuzzles(code);
       }).catch(function (error) {
         throw new Error(error + ', Error with JSON file');
@@ -55006,10 +55026,12 @@ var handleResponseToPuzzleRequest = function handleResponseToPuzzleRequest(respo
 };
 
 var usePuzzle = function usePuzzle(code) {
-  if (code === '' || code === 'CODE') {
+  if (code === 'CODE') {
     var arrays = Graph.useDefaultPuzzle();
-    setUpNetwork(arrays.nodeArray, arrays.edgeArray);
-    setUpUIClickHandlers();
+    setUpAll({
+      nodes: arrays.nodeArray,
+      edges: arrays.edgeArray
+    });
   } else {
     fetch('//' + domain + '/hotspot-data/' + code).then(function (response) {
       handleResponseToPuzzleRequest(response, code);

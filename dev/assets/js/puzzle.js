@@ -108,14 +108,21 @@ const setUpUIClickHandlers = () => {
   setUpClickHandlerForResetButton(messageDiv);
 };
 
+const setUpAll = function setUpAll({ nodes, edges }) {
+  setUpNetwork(nodes, edges);
+  setUpUIClickHandlers();
+  messageBox.setUp(domain);
+};
+
 const handleResponseToPuzzleRequest = function handleResponseToPuzzleRequest(response, code) {
   if (response.ok) {
     const contentType = response.headers.get('content-type');
     if (contentType && contentType.indexOf('application/json') !== -1) {
       return response.json().then((json) => {
-        setUpNetwork(json.puzzle.graph.nodes, json.puzzle.graph.edges);
-        setUpUIClickHandlers();
-        messageBox.setUp(domain);
+        setUpAll({
+          nodes: json.puzzle.graph.nodes,
+          edges: json.puzzle.graph.edges
+        });
         addCodeToListOfAttemptedPuzzles(code);
       }).catch((error) => {
         throw new Error(`${error}, Error with JSON file`);
@@ -127,10 +134,12 @@ const handleResponseToPuzzleRequest = function handleResponseToPuzzleRequest(res
 };
 
 const usePuzzle = function usePuzzle(code) {
-  if (code === '' || code === 'CODE') {
+  if (code === 'CODE') {
     const arrays = Graph.useDefaultPuzzle();
-    setUpNetwork(arrays.nodeArray, arrays.edgeArray);
-    setUpUIClickHandlers();
+    setUpAll({
+      nodes: arrays.nodeArray,
+      edges: arrays.edgeArray
+    });
   } else {
     fetch(`//${domain}/hotspot-data/${code}`)
       .then(
