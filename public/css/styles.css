@@ -744,6 +744,12 @@ li {
   margin-left: 20px;
 }
 
+.graph-area__code-area {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+}
+
 .graph-area__code {
   color: #666;
   font-weight: normal;
@@ -799,6 +805,12 @@ li {
 .graph-area__options {
   margin: 14px 20px;
   font-weight: normal;
+}
+
+.share-icon {
+  -ms-flex-item-align: center;
+      -ms-grid-row-align: center;
+      align-self: center;
 }
 
 input:invalid {
@@ -1081,4 +1093,71 @@ input:valid {
 
 .copyright-container__symbol {
   font-size: 1em;
+}
+
+.share-icon {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  margin-left: 10px;
+  cursor: pointer;
+}
+
+.share-icon__node {
+  position: absolute;
+  border-radius: 50%;
+  z-index: -1;
+}
+
+.share-icon__bottom {
+  background: black;
+  width: 25%;
+  height: 25%;
+  left: 40%;
+  top: 52.5%;
+}
+
+.share-icon__side {
+  background: black;
+  width: 25%;
+  height: 25%;
+  left: 0%;
+  top: 33%;
+}
+
+.share-icon__top {
+  background: black;
+  width: 25%;
+  height: 25%;
+  left: 40%;
+  top: 10%;
+}
+
+.share-icon__no-service-1 {
+  left: 50%;
+  top: 3.75%;
+}
+
+.share-icon__edge {
+  position: absolute;
+  background: black;
+  z-index: -2;
+}
+
+.share-icon__edge-1 {
+  -webkit-transform: rotate(27deg);
+          transform: rotate(27deg);
+  left: 20%;
+  top: 54%;
+  width: 25%;
+  height: 4%;
+}
+
+.share-icon__edge-2 {
+  -webkit-transform: rotate(-25deg);
+          transform: rotate(-25deg);
+  left: 15%;
+  top: 31%;
+  width: 40%;
+  height: 4%;
 }

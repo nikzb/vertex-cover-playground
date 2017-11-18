@@ -18,6 +18,10 @@
     margin-left: 20px;
   }
 
+  &__code-area {
+    display: flex;
+  }
+
   &__code {
     color: #666;
     font-weight: normal;
@@ -61,6 +65,9 @@
   }
 }
 
+.share-icon {
+  align-self: center;
+}
 
 input:invalid {
   color: red;

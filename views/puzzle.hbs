@@ -19,7 +19,13 @@
   <div class='middle-container'>
     <div class='graph-area'>
       <div class='graph-area__header'>
-        <h2 class='title graph-area__header-title'>Graph: <span class='graph-area__code'>{{code}}</span></h2>
+        <div class='graph-area__code-area'>
+          <h2 class='title graph-area__header-title'>Graph:
+            <span class='graph-area__code'>{{code}}</span>
+          </h2>
+          {{> shareIcon}}
+        </div>
+
         <div class='graph-area__count-wrap'>
           <h2 class='graph-area__count-wrap-label'>Hotspots: <span class="graph-area__count-wrap-count">0</span></h2>
         </div>
@@ -32,6 +38,8 @@
       </div>
       <div class='message-box message-box--slide-in hide-below'>
         <h2 class='message-box__message'></h2>
+        <div class='message-box__code-and-links'>
+        </div>
         <div class='message-box__input-container'>
           <h3 class='message-box__input-label'>Type in a graph code:</h3>
             <input class='message-box__input' type='text' name='code-input' required pattern="[A-Za-z0-9]{4}"/>

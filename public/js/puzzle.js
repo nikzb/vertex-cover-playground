@@ -54769,6 +54769,9 @@ var links = null;
 var messageInput = null;
 var loadButton = null;
 var codeDisplay = null;
+var input = null;
+var codeAndLinksElem = null;
+var code = null;
 
 var removeActive = function removeActive(element) {
   if (element.classList.contains('active')) {
@@ -54780,6 +54783,10 @@ var addActive = function addActive(element) {
   if (!element.classList.contains('active')) {
     element.classList.add('active');
   }
+};
+
+var isActive = function isActive() {
+  return messageDiv.classList.contains('active');
 };
 
 var hideLinks = function hideLinks() {
@@ -54794,13 +54801,18 @@ var showLinks = function showLinks() {
   });
 };
 
+var hideCodeSelectionInfo = function hideCodeSelectionInfo() {
+  messageInput.style.display = 'none';
+  messageElem.textContent = '';
+  input.style.display = 'none';
+};
+
 var showCodeSelection = function showCodeSelection() {
   messageInput.style.display = 'flex';
   messageElem.textContent = 'Load a Puzzle';
+  input.style.display = 'block';
 
-  hideLinks();
   addActive(messageDiv);
-  var input = document.querySelector('.message-box__input');
 
   setTimeout(function () {
     input.focus();
@@ -54836,27 +54848,65 @@ var hide = function hide() {
   removeActive(messageDiv);
 };
 
+var addCodeAndLinkToDocument = function addCodeAndLinkToDocument(domain) {
+  var codeElement = document.createElement("h2");
+  var text = document.createTextNode(code);
+  codeElement.appendChild(text);
+
+  codeAndLinksElem = document.querySelector('.message-box__code-and-links');
+  codeAndLinksElem.appendChild(codeElement);
+
+  var linkMessage = document.createElement("h3");
+  var linkMessageText = document.createTextNode("Link to your graph:");
+  linkMessage.appendChild(linkMessageText);
+
+  var linkInTextArea = document.createElement("textarea");
+  var textAreaText = document.createTextNode('http://' + domain + '/hotspot/' + code);
+  linkInTextArea.appendChild(textAreaText);
+};
+
+var showCodeAndLink = function showCodeAndLink() {
+  codeAndLinksElem.style.display = 'flex';
+};
+
+var hideCodeAndLink = function hideCodeAndLink() {
+  codeAndLinksElem.style.display = 'none';
+};
+
 var show = function show(status, numHotspots) {
   if (status === 'success') {
+    hideCodeSelectionInfo();
     messageElem.textContent = 'You found an optimal solution!';
     showLinks();
+    hideCodeAndLink();
   } else if (status === 'retry') {
+    hideCodeSelectionInfo();
     messageElem.innerHTML = 'You used ' + numHotspots + ' hotspots.<br><br> Try again using less hotspots. You can do it!';
     hideLinks();
+    hideCodeAndLink();
   } else if (status === 'load') {
     hideLinks();
     showCodeSelection();
+    hideCodeAndLink();
+  } else if (status === 'share') {
+    hideCodeSelectionInfo();
+    messageElem.textContent = 'Graph Code:';
+    showCodeAndLink();
   }
   addActive(messageDiv);
 };
 
-var setUp = function setUp(domain) {
+var setUp = function setUp(domain, codeToUse) {
   messageDiv = document.querySelector('.message-box');
   messageElem = document.querySelector('.message-box__message');
   links = document.querySelectorAll('.message-box__options');
   messageInput = document.querySelector('.message-box__input-container');
   codeDisplay = document.querySelector('.graph-area__code');
   loadButton = document.querySelector('.message-box__input-button');
+  input = document.querySelector('.message-box__input');
+  code = codeToUse;
+
+  addCodeAndLinkToDocument(domain);
 
   messageInput.style.display = 'none';
 
@@ -54864,7 +54914,11 @@ var setUp = function setUp(domain) {
   setUpClickHandlerForLoadButton(domain);
 
   codeDisplay.addEventListener('click', function () {
-    show('load');
+    if (isActive()) {
+      hide();
+    } else {
+      show('load');
+    }
   });
 
   document.addEventListener('keydown', function (event) {
