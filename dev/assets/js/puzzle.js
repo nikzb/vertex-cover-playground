@@ -61,6 +61,9 @@ const showCodeSelection = function showCodeSelection() {
     link.style.display = 'none';
   });
   messageDiv.classList.add('active');
+  const input = document.querySelector('.message-box__input');
+
+  setTimeout(() => { input.focus(); }, 600);
 };
 
 const setUpUIFeatures = function setUpUIFeatures() {

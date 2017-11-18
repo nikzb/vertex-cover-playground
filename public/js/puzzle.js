@@ -54830,6 +54830,11 @@ var showCodeSelection = function showCodeSelection() {
     link.style.display = 'none';
   });
   messageDiv.classList.add('active');
+  var input = document.querySelector('.message-box__input');
+
+  setTimeout(function () {
+    input.focus();
+  }, 600);
 };
 
 var setUpUIFeatures = function setUpUIFeatures() {

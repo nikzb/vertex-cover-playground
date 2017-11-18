@@ -1056,6 +1056,7 @@ input:valid {
   text-align: center;
   border-radius: 0.1em;
   border-style: solid;
+  outline: none;
 }
 
 .message-box__input-button {

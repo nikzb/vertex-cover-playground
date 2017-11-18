@@ -55,6 +55,7 @@
     text-align: center;
     border-radius: 0.1em;
     border-style: solid;
+    outline: none;
   }
 
   &__input-button {
