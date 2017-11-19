@@ -55088,7 +55088,7 @@ var setUpAll = function setUpAll(_ref) {
   messageBox.setUp(domain, code);
 };
 
-var handleResponseToPuzzleRequest = function handleResponseToPuzzleRequest(response, code) {
+var handleResponseToPuzzleRequest = function handleResponseToPuzzleRequest(response, code, isNew) {
   if (response.ok) {
     var contentType = response.headers.get('content-type');
     if (contentType && contentType.indexOf('application/json') !== -1) {
@@ -55098,6 +55098,9 @@ var handleResponseToPuzzleRequest = function handleResponseToPuzzleRequest(respo
           edges: json.puzzle.graph.edges,
           code: code
         });
+        if (isNew) {
+          messageBox.show('share');
+        }
         addCodeToListOfAttemptedPuzzles(code);
       }).catch(function (error) {
         throw new Error(error + ', Error with JSON file');
@@ -55108,7 +55111,7 @@ var handleResponseToPuzzleRequest = function handleResponseToPuzzleRequest(respo
   throw new Error('Error in network response');
 };
 
-var usePuzzle = function usePuzzle(code) {
+var usePuzzle = function usePuzzle(code, isNew) {
   if (code === 'CODE') {
     var arrays = Graph.useDefaultPuzzle();
     setUpAll({
@@ -55118,7 +55121,7 @@ var usePuzzle = function usePuzzle(code) {
     });
   } else {
     fetch('//' + domain + '/hotspot-data/' + code).then(function (response) {
-      handleResponseToPuzzleRequest(response, code);
+      handleResponseToPuzzleRequest(response, code, isNew);
     }).catch(function (error) {
       throw new Error(error);
     });

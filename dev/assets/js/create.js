@@ -209,7 +209,7 @@ const savePuzzleAndLoad = function savePuzzleAndLoad() {
               throw new Error("Error with response to adding puzzle");
             }
             // Successfully added puzzle, so load page with puzzle
-            window.location=`http://${domain}/hotspot/${code}`;
+            window.location=`http://${domain}/hotspot/${code}?new=true`;
           })
           .catch((error) => {
             throw new Error(error);

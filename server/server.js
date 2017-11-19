@@ -60,6 +60,8 @@ app.get('/', (req, res) => {
 app.get('/hotspot/:code', (req, res) => {
   const code = req.params.code;
 
+  const isNew = req.query.new || false;
+
   if (code === 'CODE') {
     return res.render('puzzle.hbs', { code });
   }
@@ -71,7 +73,7 @@ app.get('/hotspot/:code', (req, res) => {
       // `);
       return res.render('notFound.hbs', { code });
     }
-    return res.render('puzzle.hbs', { code });
+    return res.render('puzzle.hbs', { code, isNew });
   }).catch(e => res.send('<h1>There was an error while attempting to load the puzzle</h1>'));
 });
 

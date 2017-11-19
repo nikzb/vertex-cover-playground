@@ -140,7 +140,7 @@ const setUpAll = function setUpAll({ nodes, edges, code }) {
   messageBox.setUp(domain, code);
 };
 
-const handleResponseToPuzzleRequest = function handleResponseToPuzzleRequest(response, code) {
+const handleResponseToPuzzleRequest = function handleResponseToPuzzleRequest(response, code, isNew) {
   if (response.ok) {
     const contentType = response.headers.get('content-type');
     if (contentType && contentType.indexOf('application/json') !== -1) {
@@ -150,6 +150,9 @@ const handleResponseToPuzzleRequest = function handleResponseToPuzzleRequest(res
           edges: json.puzzle.graph.edges,
           code
         });
+        if (isNew) {
+          messageBox.show('share');
+        }
         addCodeToListOfAttemptedPuzzles(code);
       }).catch((error) => {
         throw new Error(`${error}, Error with JSON file`);
@@ -160,7 +163,7 @@ const handleResponseToPuzzleRequest = function handleResponseToPuzzleRequest(res
   throw new Error('Error in network response');
 };
 
-const usePuzzle = function usePuzzle(code) {
+const usePuzzle = function usePuzzle(code, isNew) {
   if (code === 'CODE') {
     const arrays = Graph.useDefaultPuzzle();
     setUpAll({
@@ -172,7 +175,7 @@ const usePuzzle = function usePuzzle(code) {
     fetch(`//${domain}/hotspot-data/${code}`)
       .then(
         (response) => {
-          handleResponseToPuzzleRequest(response, code);
+          handleResponseToPuzzleRequest(response, code, isNew);
         }
       )
       .catch((error) => {
