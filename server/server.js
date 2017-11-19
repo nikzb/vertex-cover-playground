@@ -63,7 +63,7 @@ app.get('/hotspot/:code', (req, res) => {
   const isNew = req.query.new || false;
 
   if (code === 'CODE') {
-    return res.render('puzzle.hbs', { code });
+    return res.render('puzzle.hbs', { code, isNew });
   }
   // if not a valid code, render the puzzle not found page
   HotspotPuzzle.findOne({ code }).then((puzzle) => {
