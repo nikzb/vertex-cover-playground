@@ -52,7 +52,7 @@ app.get('/', (req, res) => {
   HotspotPuzzle.find({}, 'code').then((codeList) => {
     const randomIndex = _.random(0, codeList.length - 1);
     const code = codeList[randomIndex].code;
-    return res.render('puzzle.hbs', { code });
+    return res.render('puzzle.hbs', { code, isNew: false });
   });
 });
 
