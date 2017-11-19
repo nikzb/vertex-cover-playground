@@ -1,4 +1,13 @@
 .info-container {
+
+  margin-left: 10px;
+  margin-right: 10px;
+
+  @mixin wide {
+    margin-left: 0;
+    margin-right: 0;
+  }
+
   &.instructions {
     /*margin-top: 10px;*/
     margin-bottom: 10px;

@@ -4,3 +4,12 @@
   flex: 0 0 30%;
   margin: 0 20px 10px 10px;
 }
+
+.instructions-and-key {
+  display: flex;
+  flex-direction: row;
+
+  @mixin wide {
+    flex-direction: column;
+  }
+}

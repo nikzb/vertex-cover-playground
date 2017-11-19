@@ -1,6 +1,7 @@
 .middle-container {
   display: flex;
   flex: 1 1 auto;
+  flex-direction: column-reverse;
 
   &--not-found {
     flex-direction: column;
@@ -8,5 +9,9 @@
     margin-top: 0.5em;
     padding: 2em;
     border: 1px solid $lightBorder;
+  }
+
+  @mixin wide {
+    flex-direction: row;
   }
 }
