@@ -100,18 +100,27 @@ const setUpClickHandlerForResetButton = function setUpClickHandlerForResetButton
   });
 };
 
-const setUpUIClickHandlers = () => {
+const setUpShareButton = function setUpShareButton() {
+  const shareIcon = document.querySelector('.share-icon');
+
+  shareIcon.addEventListener('click', () => {
+    messageBox.show('share');
+  });
+};
+
+const setUpUIClickHandlers = function setUpUIClickHandlers() {
   const messageDiv = document.querySelector('.message-box');
   setUpTitleLink();
   setUpNextPuzzleLinks();
   setUpCreateLinks();
+  setUpShareButton();
   setUpClickHandlerForResetButton(messageDiv);
 };
 
-const setUpAll = function setUpAll({ nodes, edges }) {
+const setUpAll = function setUpAll({ nodes, edges, code }) {
   setUpNetwork(nodes, edges);
   setUpUIClickHandlers();
-  messageBox.setUp(domain);
+  messageBox.setUp(domain, code);
 };
 
 const handleResponseToPuzzleRequest = function handleResponseToPuzzleRequest(response, code) {
@@ -121,7 +130,8 @@ const handleResponseToPuzzleRequest = function handleResponseToPuzzleRequest(res
       return response.json().then((json) => {
         setUpAll({
           nodes: json.puzzle.graph.nodes,
-          edges: json.puzzle.graph.edges
+          edges: json.puzzle.graph.edges,
+          code
         });
         addCodeToListOfAttemptedPuzzles(code);
       }).catch((error) => {
@@ -138,7 +148,8 @@ const usePuzzle = function usePuzzle(code) {
     const arrays = Graph.useDefaultPuzzle();
     setUpAll({
       nodes: arrays.nodeArray,
-      edges: arrays.edgeArray
+      edges: arrays.edgeArray,
+      code
     });
   } else {
     fetch(`//${domain}/hotspot-data/${code}`)

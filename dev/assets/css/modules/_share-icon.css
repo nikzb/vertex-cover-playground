@@ -2,17 +2,18 @@
   position: relative;
   width: 40px;
   height: 40px;
-  margin-left: 10px;
+  margin-left: 1.0em;
   cursor: pointer;
 
   &__node {
     position: absolute;
     border-radius: 50%;
     z-index: -1;
+    background: #333;
   }
 
   &__bottom {
-    background: black;
+
     width: 25%;
     height: 25%;
     left: 40%;
@@ -20,7 +21,6 @@
   }
 
   &__side {
-    background: black;
     width: 25%;
     height: 25%;
     left: 0%;
@@ -28,7 +28,6 @@
   }
 
   &__top {
-    background: black;
     width: 25%;
     height: 25%;
     left: 40%;
@@ -42,7 +41,7 @@
 
   &__edge {
     position: absolute;
-    background: black;
+    background: #333;
     z-index: -2;
   }
 

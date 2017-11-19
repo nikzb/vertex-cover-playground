@@ -86,18 +86,25 @@ const hide = function hide() {
 const addCodeAndLinkToDocument = function addCodeAndLinkToDocument(domain) {
   const codeElement = document.createElement("h2");
   const text = document.createTextNode(code);
+  codeElement.classList.add('message-box__code-element');
   codeElement.appendChild(text);
 
   codeAndLinksElem = document.querySelector('.message-box__code-and-links');
   codeAndLinksElem.appendChild(codeElement);
 
   const linkMessage = document.createElement("h3");
-  const linkMessageText = document.createTextNode("Link to your graph:");
+  const linkMessageText = document.createTextNode("Link to share:");
+  linkMessage.classList.add('message-box__link-message');
   linkMessage.appendChild(linkMessageText);
 
   const linkInTextArea = document.createElement("textarea");
   const textAreaText = document.createTextNode(`http://${domain}/hotspot/${code}`);
+  linkInTextArea.classList.add('message-box__link-in-text-area');
+  linkInTextArea.setAttributeNode(document.createAttribute('readonly'));
   linkInTextArea.appendChild(textAreaText);
+
+  codeAndLinksElem.appendChild(linkMessage);
+  codeAndLinksElem.appendChild(linkInTextArea);
 };
 
 const showCodeAndLink = function showCodeAndLink() {
@@ -124,6 +131,7 @@ const show = function show(status, numHotspots) {
     showCodeSelection();
     hideCodeAndLink();
   } else if (status === 'share') {
+    hideLinks();
     hideCodeSelectionInfo();
     messageElem.textContent = 'Graph Code:';
     showCodeAndLink();

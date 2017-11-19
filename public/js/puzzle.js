@@ -54851,18 +54851,25 @@ var hide = function hide() {
 var addCodeAndLinkToDocument = function addCodeAndLinkToDocument(domain) {
   var codeElement = document.createElement("h2");
   var text = document.createTextNode(code);
+  codeElement.classList.add('message-box__code-element');
   codeElement.appendChild(text);
 
   codeAndLinksElem = document.querySelector('.message-box__code-and-links');
   codeAndLinksElem.appendChild(codeElement);
 
   var linkMessage = document.createElement("h3");
-  var linkMessageText = document.createTextNode("Link to your graph:");
+  var linkMessageText = document.createTextNode("Link to share:");
+  linkMessage.classList.add('message-box__link-message');
   linkMessage.appendChild(linkMessageText);
 
   var linkInTextArea = document.createElement("textarea");
   var textAreaText = document.createTextNode('http://' + domain + '/hotspot/' + code);
+  linkInTextArea.classList.add('message-box__link-in-text-area');
+  linkInTextArea.setAttributeNode(document.createAttribute('readonly'));
   linkInTextArea.appendChild(textAreaText);
+
+  codeAndLinksElem.appendChild(linkMessage);
+  codeAndLinksElem.appendChild(linkInTextArea);
 };
 
 var showCodeAndLink = function showCodeAndLink() {
@@ -54889,6 +54896,7 @@ var show = function show(status, numHotspots) {
     showCodeSelection();
     hideCodeAndLink();
   } else if (status === 'share') {
+    hideLinks();
     hideCodeSelectionInfo();
     messageElem.textContent = 'Graph Code:';
     showCodeAndLink();
@@ -55043,21 +55051,31 @@ var setUpClickHandlerForResetButton = function setUpClickHandlerForResetButton(m
   });
 };
 
+var setUpShareButton = function setUpShareButton() {
+  var shareIcon = document.querySelector('.share-icon');
+
+  shareIcon.addEventListener('click', function () {
+    messageBox.show('share');
+  });
+};
+
 var setUpUIClickHandlers = function setUpUIClickHandlers() {
   var messageDiv = document.querySelector('.message-box');
   setUpTitleLink();
   setUpNextPuzzleLinks();
   setUpCreateLinks();
+  setUpShareButton();
   setUpClickHandlerForResetButton(messageDiv);
 };
 
 var setUpAll = function setUpAll(_ref) {
   var nodes = _ref.nodes,
-      edges = _ref.edges;
+      edges = _ref.edges,
+      code = _ref.code;
 
   setUpNetwork(nodes, edges);
   setUpUIClickHandlers();
-  messageBox.setUp(domain);
+  messageBox.setUp(domain, code);
 };
 
 var handleResponseToPuzzleRequest = function handleResponseToPuzzleRequest(response, code) {
@@ -55067,7 +55085,8 @@ var handleResponseToPuzzleRequest = function handleResponseToPuzzleRequest(respo
       return response.json().then(function (json) {
         setUpAll({
           nodes: json.puzzle.graph.nodes,
-          edges: json.puzzle.graph.edges
+          edges: json.puzzle.graph.edges,
+          code: code
         });
         addCodeToListOfAttemptedPuzzles(code);
       }).catch(function (error) {
@@ -55084,7 +55103,8 @@ var usePuzzle = function usePuzzle(code) {
     var arrays = Graph.useDefaultPuzzle();
     setUpAll({
       nodes: arrays.nodeArray,
-      edges: arrays.edgeArray
+      edges: arrays.edgeArray,
+      code: code
     });
   } else {
     fetch('//' + domain + '/hotspot-data/' + code).then(function (response) {

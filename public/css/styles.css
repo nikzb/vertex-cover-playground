@@ -1023,6 +1023,19 @@ input:valid {
   text-align: center;
 }
 
+.message-box__code-and-links {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+}
+
 .message-box__options {
   text-align: center;
 }
@@ -1083,6 +1096,29 @@ input:valid {
   border: 1px solid darkgray;
 }
 
+.message-box__link-in-text-area {
+  width: 24em;
+  font-size: 1.2em;
+  text-align: center;
+  resize: none;
+  height: 1.3em;
+}
+
+.message-box__code-element {
+  position: relative;
+  font-weight: 300;
+  font-size: 3em;
+  margin: 0;
+  color: #666;
+  top: -0.2em;
+}
+
+.message-box__link-message {
+  font-weight: 300;
+  font-size: 1.4em;
+  margin-bottom: 0.3em;
+}
+
 .copyright-container {
   display: block;
 }
@@ -1099,7 +1135,7 @@ input:valid {
   position: relative;
   width: 40px;
   height: 40px;
-  margin-left: 10px;
+  margin-left: 1.0em;
   cursor: pointer;
 }
 
@@ -1107,10 +1143,10 @@ input:valid {
   position: absolute;
   border-radius: 50%;
   z-index: -1;
+  background: #333;
 }
 
 .share-icon__bottom {
-  background: black;
   width: 25%;
   height: 25%;
   left: 40%;
@@ -1118,7 +1154,6 @@ input:valid {
 }
 
 .share-icon__side {
-  background: black;
   width: 25%;
   height: 25%;
   left: 0%;
@@ -1126,7 +1161,6 @@ input:valid {
 }
 
 .share-icon__top {
-  background: black;
   width: 25%;
   height: 25%;
   left: 40%;
@@ -1140,7 +1174,7 @@ input:valid {
 
 .share-icon__edge {
   position: absolute;
-  background: black;
+  background: #333;
   z-index: -2;
 }
 

@@ -20,6 +20,12 @@
     text-align: center;
   }
 
+  &__code-and-links {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
   &__options {
     text-align: center;
   }
@@ -68,5 +74,28 @@
     font-weight: 300;
     background-color: #EEE;
     border: 1px solid $darkBorder;
+  }
+
+  &__link-in-text-area {
+    width: 24em;
+    font-size: 1.2em;
+    text-align: center;
+    resize: none;
+    height: 1.3em;
+  }
+
+  &__code-element {
+    position: relative;
+    font-weight: 300;
+    font-size: 3em;
+    margin: 0;
+    color: #666;
+    top: -0.2em;
+  }
+
+  &__link-message {
+    font-weight: 300;
+    font-size: 1.4em;
+    margin-bottom: 0.3em;
   }
 }
