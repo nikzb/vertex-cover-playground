@@ -54768,7 +54768,6 @@ var messageElem = null;
 var links = null;
 var messageInput = null;
 var loadButton = null;
-var codeDisplay = null;
 var input = null;
 var codeAndLinksElem = null;
 var code = null;
@@ -54821,7 +54820,7 @@ var showCodeSelection = function showCodeSelection() {
 
 var setUpClickHandlerForHide = function setUpClickHandlerForHide() {
   messageDiv.addEventListener("click", function (event) {
-    if (event.target.className !== 'message-box__input' && event.target.className.indexOf('message-box__input-button') === -1) {
+    if (event.target.className !== 'message-box__input' && event.target.className.indexOf('message-box__input-button') === -1 && event.target.className !== 'message-box__link-in-text-area') {
       removeActive(messageDiv);
       document.querySelector('.message-box__input').value = '';
       messageInput.style.display = 'none';
@@ -54867,6 +54866,9 @@ var addCodeAndLinkToDocument = function addCodeAndLinkToDocument(domain) {
   linkInTextArea.classList.add('message-box__link-in-text-area');
   linkInTextArea.setAttributeNode(document.createAttribute('readonly'));
   linkInTextArea.appendChild(textAreaText);
+  linkInTextArea.addEventListener('click', function () {
+    linkInTextArea.select();
+  });
 
   codeAndLinksElem.appendChild(linkMessage);
   codeAndLinksElem.appendChild(linkInTextArea);
@@ -54909,7 +54911,6 @@ var setUp = function setUp(domain, codeToUse) {
   messageElem = document.querySelector('.message-box__message');
   links = document.querySelectorAll('.message-box__options');
   messageInput = document.querySelector('.message-box__input-container');
-  codeDisplay = document.querySelector('.graph-area__code');
   loadButton = document.querySelector('.message-box__input-button');
   input = document.querySelector('.message-box__input');
   code = codeToUse;
@@ -54921,14 +54922,6 @@ var setUp = function setUp(domain, codeToUse) {
   setUpClickHandlerForHide();
   setUpClickHandlerForLoadButton(domain);
 
-  codeDisplay.addEventListener('click', function () {
-    if (isActive()) {
-      hide();
-    } else {
-      show('load');
-    }
-  });
-
   document.addEventListener('keydown', function (event) {
     if (event.key === 'Enter' && messageDiv.classList.contains('active')) {
       attemptToLoad(domain);
@@ -54936,7 +54929,7 @@ var setUp = function setUp(domain, codeToUse) {
   });
 };
 
-module.exports = { setUp: setUp, show: show, hide: hide };
+module.exports = { setUp: setUp, show: show, hide: hide, isActive: isActive };
 
 /***/ }),
 /* 13 */,
@@ -55055,7 +55048,23 @@ var setUpShareButton = function setUpShareButton() {
   var shareIcon = document.querySelector('.share-icon');
 
   shareIcon.addEventListener('click', function () {
-    messageBox.show('share');
+    if (messageBox.isActive()) {
+      messageBox.hide();
+    } else {
+      messageBox.show('share');
+    }
+  });
+};
+
+var setUpCodeButton = function setUpCodeButton() {
+  var codeDisplay = document.querySelector('.graph-area__code');
+
+  codeDisplay.addEventListener('click', function () {
+    if (messageBox.isActive()) {
+      messageBox.hide();
+    } else {
+      messageBox.show('load');
+    }
   });
 };
 
@@ -55065,6 +55074,7 @@ var setUpUIClickHandlers = function setUpUIClickHandlers() {
   setUpNextPuzzleLinks();
   setUpCreateLinks();
   setUpShareButton();
+  setUpCodeButton();
   setUpClickHandlerForResetButton(messageDiv);
 };
 

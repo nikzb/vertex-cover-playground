@@ -104,7 +104,23 @@ const setUpShareButton = function setUpShareButton() {
   const shareIcon = document.querySelector('.share-icon');
 
   shareIcon.addEventListener('click', () => {
-    messageBox.show('share');
+    if (messageBox.isActive()) {
+      messageBox.hide();
+    } else {
+      messageBox.show('share');
+    }
+  });
+};
+
+const setUpCodeButton = function setUpCodeButton() {
+  const codeDisplay = document.querySelector('.graph-area__code');
+
+  codeDisplay.addEventListener('click', () => {
+    if (messageBox.isActive()) {
+      messageBox.hide();
+    } else {
+      messageBox.show('load');
+    }
   });
 };
 
@@ -114,6 +130,7 @@ const setUpUIClickHandlers = function setUpUIClickHandlers() {
   setUpNextPuzzleLinks();
   setUpCreateLinks();
   setUpShareButton();
+  setUpCodeButton();
   setUpClickHandlerForResetButton(messageDiv);
 };
 

@@ -4,7 +4,6 @@ let messageElem = null;
 let links = null;
 let messageInput = null;
 let loadButton = null;
-let codeDisplay = null;
 let input = null;
 let codeAndLinksElem = null;
 let code = null;
@@ -56,7 +55,8 @@ const showCodeSelection = function showCodeSelection() {
 const setUpClickHandlerForHide = function setUpClickHandlerForHide() {
   messageDiv.addEventListener("click", (event) => {
     if (event.target.className !== 'message-box__input' &&
-        event.target.className.indexOf('message-box__input-button') === -1) {
+        event.target.className.indexOf('message-box__input-button') === -1 &&
+        event.target.className !== 'message-box__link-in-text-area') {
       removeActive(messageDiv);
       document.querySelector('.message-box__input').value = '';
       messageInput.style.display = 'none';
@@ -102,6 +102,9 @@ const addCodeAndLinkToDocument = function addCodeAndLinkToDocument(domain) {
   linkInTextArea.classList.add('message-box__link-in-text-area');
   linkInTextArea.setAttributeNode(document.createAttribute('readonly'));
   linkInTextArea.appendChild(textAreaText);
+  linkInTextArea.addEventListener('click', () => {
+    linkInTextArea.select();
+  });
 
   codeAndLinksElem.appendChild(linkMessage);
   codeAndLinksElem.appendChild(linkInTextArea);
@@ -144,7 +147,6 @@ const setUp = function setUp(domain, codeToUse) {
   messageElem = document.querySelector('.message-box__message');
   links = document.querySelectorAll('.message-box__options');
   messageInput = document.querySelector('.message-box__input-container');
-  codeDisplay = document.querySelector('.graph-area__code');
   loadButton = document.querySelector('.message-box__input-button');
   input = document.querySelector('.message-box__input');
   code = codeToUse;
@@ -156,14 +158,6 @@ const setUp = function setUp(domain, codeToUse) {
   setUpClickHandlerForHide();
   setUpClickHandlerForLoadButton(domain);
 
-  codeDisplay.addEventListener('click', () => {
-    if (isActive()) {
-      hide();
-    } else {
-      show('load');
-    }
-  });
-
   document.addEventListener('keydown', (event) => {
     if (event.key === 'Enter' && messageDiv.classList.contains('active')) {
       attemptToLoad(domain);
@@ -171,4 +165,4 @@ const setUp = function setUp(domain, codeToUse) {
   });
 };
 
-module.exports = { setUp, show, hide };
+module.exports = { setUp, show, hide, isActive };
