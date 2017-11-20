@@ -1,23 +1,38 @@
 .message-box {
   display: flex;
+  position: absolute;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   align-self: center;
 
   background: linear-gradient(300deg, rgba(225,225,225,0.93), rgba(238,238,238,0.93));
-  margin: 30px;
-  padding: 100px 20px;
+  /*margin: 2em;*/
+
   border: 1px solid darkgray;
   outline: 5px solid orange;
 
   text-shadow: 0.05em 0.05em #666;
-  height: 250px;
-  min-width: 80%;
+  height: 15.625em;
+  min-width: 100%;
+
+  padding: 1.5em 0;
+  top: 32em;
+
+  @mixin wide {
+    padding: 6.5em 0;
+    top: 50em;
+    min-width: 80%;
+  }
 
   &__message {
     font-size: 2em;
     text-align: center;
+    margin: 0.2em;
+
+    @mixin wide {
+      margin: 0.5em;
+    }
   }
 
   &__code-and-links {
@@ -70,7 +85,7 @@
     line-height: 0;
     padding: 0.8em 0;
     margin: 0.3em;
-    font-size: 1.6rem;
+    font-size: 1.6em;
     font-weight: 300;
     background-color: #EEE;
     border: 1px solid $darkBorder;

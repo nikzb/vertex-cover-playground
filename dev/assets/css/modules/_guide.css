@@ -1,8 +1,12 @@
 .guide {
   display: flex;
   flex-direction: column;
-  flex: 2 0;
+  flex: 1;
   margin: 0 20px 10px 10px;
+
+  @mixin wide {
+    flex: 2;
+  }
 }
 
 .instructions-and-key {

@@ -1,17 +1,22 @@
 .graph-area {
   display: flex;
+  position: relative;
   flex-direction: column;
 
-  flex: 5 1;
+  flex: 1;
   margin: 0 20px;
   min-width: 500px;
+
+  @mixin wide {
+    flex: 5;
+  }
 
   &__header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     border: 1px solid $lightBorder;
-    height: 68px;
+    height: 4.2em;
   }
 
   &__header-title {

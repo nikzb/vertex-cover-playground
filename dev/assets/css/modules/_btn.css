@@ -1,13 +1,14 @@
 .btn {
   &--full-width {
-    font-size: 1.7rem;
+    font-size: 1.7em;
     font-weight: 300;
     background-color: #EEE;
     border: 1px solid $lightBorder;
+    height: 2.2em;
   }
 
   &--small {
-    font-size: 2rem;
+    font-size: 2em;
     background-color: #FFF;
     flex: 0 0 1;
     border: none;
@@ -15,7 +16,7 @@
   }
 
   &__label {
-    font-size: 0.8rem;
+    font-size: 0.8em;
     text-shadow: 0 0;
   }
 
