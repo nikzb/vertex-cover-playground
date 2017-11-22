@@ -114,6 +114,7 @@ populateStageInstructions();
 function setUpDragFix() {
   network.on("dragEnd", (params) => {
     if (params.nodes.length > 0) {
+      console.log(params.nodes);
       const nodeId = params.nodes[0];
       const node = graph.getNode(nodeId);
       node.x = params.pointer.canvas.x;
@@ -122,6 +123,21 @@ function setUpDragFix() {
     }
   });
 }
+
+// function setUpHandlers() {
+//   network.on("oncontext", (params) => {
+//     console.log(params);
+//   });
+//   // network.on("doubleClick", (params) => {
+//   //   console.log(params);
+//   // });
+//   // network.on("select", (params) => {
+//   //   console.log('select Event:', params);
+//   // });
+//   // network.on("selectNode", (params) => {
+//   //   console.log('selectNode Event:', params);
+//   // });
+// }
 
 const resetPuzzleBuilder = function resetPuzzleBuilder() {
   network.destroy();
@@ -134,7 +150,7 @@ const resetPuzzleBuilder = function resetPuzzleBuilder() {
   instruct.innerHTML = stageInstructions[1];
   stepTitle.innerHTML = 'Step 1';
   prevButton.style.visibility = 'hidden';
-  NetworkOptions.setUpOptionsForAddHotspots(network, options);
+  NetworkOptions.setUpOptionsForAddHotspots(network, graph, options);
 };
 
 const nodesHaveAdequateSpace = function nodesHaveAdequateSpace() {
@@ -227,13 +243,13 @@ const savePuzzleAndLoad = function savePuzzleAndLoad() {
 const goToNextStage = function goToNextStage() {
   if (stage === 'intro') {
     stage = 'add-hotspots';
-    NetworkOptions.setUpOptionsForAddHotspots(network, options);
+    NetworkOptions.setUpOptionsForAddHotspots(network, graph, options);
     instruct.innerHTML = stageInstructions[1];
     stepTitle.innerHTML = 'Step 1';
     resetButton.style.visibility = 'visible';
   } else if (stage === 'add-hotspots') {
     stage = 'add-serviced-nodes';
-    NetworkOptions.setUpOptionsForAddServicedNodes(network, options);
+    NetworkOptions.setUpOptionsForAddServicedNodes(network, graph, options);
     instruct.innerHTML = stageInstructions[2];
     stepTitle.innerHTML = 'Step 2';
     prevButton.style.visibility = 'visible';
@@ -278,13 +294,13 @@ const goToNextStage = function goToNextStage() {
 const goToPrevStage = function goToPrevStage() {
   if (stage === 'add-serviced-nodes') {
     stage = 'add-hotspots';
-    NetworkOptions.setUpOptionsForAddHotspots(network, options);
+    NetworkOptions.setUpOptionsForAddHotspots(network, graph, options);
     instruct.innerHTML = stageInstructions[1];
     stepTitle.innerHTML = 'Step 1';
     prevButton.style.visibility = 'hidden';
   } else if (stage === 'make-clusters') {
     stage = 'add-serviced-nodes';
-    NetworkOptions.setUpOptionsForAddServicedNodes(network, options);
+    NetworkOptions.setUpOptionsForAddServicedNodes(network, graph, options);
     instruct.innerHTML = stageInstructions[2];
     stepTitle.innerHTML = 'Step 2';
   } else if (stage === 'connect-clusters') {

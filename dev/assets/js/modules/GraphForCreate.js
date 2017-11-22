@@ -1,5 +1,4 @@
 const vis = require('vis');
-const _ = require('lodash');
 
 let nodes = null;
 let edges = null;
@@ -7,6 +6,10 @@ let data = null;
 
 const getNode = function getNode(id) {
   return nodes.get(id);
+};
+
+const getEdge = function getEdge(id) {
+  return edges.get(id);
 };
 
 const updateNode = function updateNode(node) {
@@ -23,6 +26,10 @@ const getEdges = function getEdges() {
 
 const getData = function getData() {
   return data;
+};
+
+const deleteNode = function deleteNode(id) {
+  nodes.remove(id);
 };
 
 const getNumberOfHotspots = function getNumberOfHotspots() {
@@ -82,10 +89,12 @@ const getSize = function getSize() {
 
 module.exports = {
   getNode,
+  getEdge,
   updateNode,
   getNodes,
   getEdges,
   getData,
+  deleteNode,
   reset,
   removeLonelyNodes,
   getSize,

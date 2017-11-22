@@ -54310,6 +54310,8 @@ process.umask = function() { return 0; };
 "use strict";
 
 
+var _ = __webpack_require__(10);
+
 var getOptionsForPuzzle = function getOptionsForPuzzle() {
   return {
     nodes: {
@@ -54420,31 +54422,140 @@ var getAddNodeFunc = function getAddNodeFunc(group, network) {
   };
 };
 
+var getDeleteNodeFunc = function getDeleteNodeFunc(network, graph) {
+  return function (nodeData, callback) {
+    var IDsOfNodesToDelete = nodeData.nodes;
+    console.log(IDsOfNodesToDelete);
+
+    IDsOfNodesToDelete.forEach(function (nodeId) {
+      var node = graph.getNode(nodeId);
+
+      console.log(node);
+
+      if (node.group === 'hotspot') {
+        node.connectedToWithinCluster.forEach(function (serviceNodeId) {
+          console.log('Deleting ' + serviceNodeId);
+          graph.deleteNode(serviceNodeId);
+        });
+        graph.deleteNode(nodeId);
+      } else {
+        // must be a service node
+        // Must remove nodeId from the hotspots connectedToWithinCluster list
+        var hotspotId = node.connectedToWithinCluster[0];
+        var hotspot = graph.getNode(hotspotId);
+        var index = _.findIndex(hotspot.connectedToWithinCluster, function (o) {
+          return o.id === nodeId;
+        });
+        hotspot.connectedToWithinCluster.splice(index, 1);
+
+        graph.deleteNode(nodeId);
+        graph.updateNode(hotspot);
+      }
+    });
+
+    callback(nodeData);
+  };
+};
+
+var getDeleteEdgeFunc = function getDeleteEdgeFunc(network, graph) {
+  return function (nodeData, callback) {
+    nodeData.edges.forEach(function (edgeId) {
+      var edge = graph.getEdge(edgeId);
+
+      console.log(edge);
+
+      var from = graph.getNode(edge.from);
+      var to = graph.getNode(edge.to);
+
+      // Check if is a cluster edge
+      if (from.group === 'hotspot' || to.group === 'hotspot') {
+        // Deleting a cluster edge must also delete the serviced node
+        var serviceNodeId = void 0;
+        var hotspotId = void 0;
+
+        if (from.group === 'service') {
+          serviceNodeId = edge.from;
+          hotspotId = edge.to;
+        } else {
+          serviceNodeId = edge.to;
+          hotspotId = edge.from;
+        }
+
+        graph.deleteNode(serviceNodeId);
+        var hotspot = graph.getNode(hotspotId);
+
+        // We need to remove the id of the serviced node from the hotspot's connectedToWithinCluster list
+        var index = hotspot.connectedToWithinCluster.indexOf(serviceNodeId);
+        hotspot.connectedToWithinCluster.splice(index, 1);
+        graph.updateNode(hotspot);
+      }
+    });
+
+    callback(nodeData);
+  };
+};
+
 var updateNetworkOptions = function updateNetworkOptions(network, options) {
   network.setOptions(options);
 };
 
-var setUpOptionsForAddHotspots = function setUpOptionsForAddHotspots(network, options) {
+var setUpOptionsForAddHotspots = function setUpOptionsForAddHotspots(network, graph, options) {
   options.manipulation.addNode = getAddNodeFunc('hotspot', network);
+  options.manipulation.editNode = function (nodeData, callback) {
+    callback(nodeData);
+  };
   options.manipulation.addEdge = false;
-  options.manipulation.deleteNode = true;
-  // options.manipulation.enabled = true;
+  options.manipulation.deleteNode = getDeleteNodeFunc(network, graph);
+  options.manipulation.deleteEdge = getDeleteEdgeFunc(network, graph);
+  options.manipulation.editEdge = false;
+  options.manipulation.enabled = true;
   updateNetworkOptions(network, options);
   network.addNodeMode();
 };
 
-var setUpOptionsForAddServicedNodes = function setUpOptionsForAddServicedNodes(network, options) {
+var setUpOptionsForAddServicedNodes = function setUpOptionsForAddServicedNodes(network, graph, options) {
   options.manipulation.addNode = getAddNodeFunc('service', network);
   options.manipulation.addEdge = false;
-  options.manipulation.deleteNode = true;
+  options.manipulation.deleteNode = getDeleteNodeFunc(network, graph);
+  options.manipulation.deleteEdge = getDeleteEdgeFunc(network, graph);
+  options.manipulation.editEdge = false;
   updateNetworkOptions(network, options);
   network.addNodeMode();
 };
 
 var setUpOptionsForMakeClusters = function setUpOptionsForMakeClusters(network, graph, options) {
   options.manipulation.addNode = false;
-  options.manipulation.deleteNode = false;
+  options.manipulation.deleteNode = getDeleteNodeFunc(network, graph);
   options.manipulation.editEdge = false;
+  options.manipulation.deleteEdge = getDeleteEdgeFunc(network, graph);
+  // options.manipulation.deleteEdge = (nodeData, callback) => {
+  //   // const edgeToDelete = graph.getEdge(nodeData.edges[0]);
+  //   nodeData.edges.forEach((edgeToDelete) => {
+  //     console.log(edgeToDelete);
+  //     const from = graph.getNode(edgeToDelete.from);
+  //     const to = graph.getNode(edgeToDelete.to);
+  //
+  //     let serviceNode;
+  //     let hotspot;
+  //
+  //     if (from.group === 'service') {
+  //       serviceNode = from;
+  //       hotspot = to;
+  //     } else {
+  //       serviceNode = to;
+  //       hotspot = from;
+  //     }
+  //
+  //     serviceNode.connectedToWithinCluster = [];
+  //     const index = hotspot.connectedToWithinCluster.indexOf(serviceNode.id);
+  //     hotspot.connectedToWithinCluster.splice(index, 1);
+  //
+  //     graph.updateNode(serviceNode);
+  //     graph.updateNode(hotspot);
+  //   });
+  //
+  //   callback(nodeData);
+  // };
   options.manipulation.addEdge = function (nodeData, callback) {
     // Need to ensure that new edge connects a lonely service node to a hotspot
     var from = graph.getNode(nodeData.from);
@@ -54460,6 +54571,7 @@ var setUpOptionsForMakeClusters = function setUpOptionsForMakeClusters(network, 
         serviceNode = to;
         hotspot = from;
       }
+
       if (serviceNode.connectedToWithinCluster.length === 0) {
         serviceNode.connectedToWithinCluster.push(hotspot.id);
         hotspot.connectedToWithinCluster.push(serviceNode.id);
@@ -54486,8 +54598,9 @@ var setUpOptionsForConnectClusters = function setUpOptionsForConnectClusters(net
   };
 
   options.manipulation.addNode = false;
-  options.manipulation.deleteNode = false;
+  options.manipulation.deleteNode = getDeleteNodeFunc(network, graph);
   options.manipulation.editEdge = false;
+  options.manipulation.deleteEdge = getDeleteEdgeFunc(network, graph);
   options.manipulation.addEdge = function (nodeData, callback) {
     // Need to ensure that new edge connects a lonely service node to a hotspot
     var from = graph.getNode(nodeData.from);
@@ -54525,111 +54638,7 @@ module.exports = {
 /***/ }),
 /* 8 */,
 /* 9 */,
-/* 10 */,
-/* 11 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var vis = __webpack_require__(4);
-var _ = __webpack_require__(13);
-
-var nodes = null;
-var edges = null;
-var data = null;
-
-var getNode = function getNode(id) {
-  return nodes.get(id);
-};
-
-var updateNode = function updateNode(node) {
-  nodes.update(node);
-};
-
-var getNodes = function getNodes() {
-  return nodes.get();
-};
-
-var getEdges = function getEdges() {
-  return edges.get();
-};
-
-var getData = function getData() {
-  return data;
-};
-
-var getNumberOfHotspots = function getNumberOfHotspots() {
-  var nodesArray = nodes.get();
-  return nodesArray.reduce(function (sum, node) {
-    if (node.original) {
-      return sum + 1;
-    } else {
-      return sum;
-    }
-  }, 0);
-};
-
-var getNumberOfServicedNodes = function getNumberOfServicedNodes() {
-  var nodesArray = nodes.get();
-  return nodesArray.reduce(function (sum, node) {
-    if (node.original) {
-      return sum;
-    } else {
-      return sum + 1;
-    }
-  }, 0);
-};
-
-var reset = function reset() {
-  nodes = new vis.DataSet();
-  edges = new vis.DataSet();
-  data = { nodes: nodes, edges: edges };
-};
-
-var removeLonelyNodes = function removeLonelyNodes() {
-  var i = 0;
-
-  var nodesArray = nodes.get();
-
-  while (i < nodesArray.length) {
-    if (nodesArray[i].connectedToWithinCluster.length === 0) {
-      nodes.remove(nodesArray[i].id);
-    }
-    i += 1;
-  }
-};
-
-var getSize = function getSize() {
-  var nodesToCopy = getNodes();
-  var size = void 0;
-  if (nodesToCopy.length <= 15) {
-    size = "small";
-  } else if (nodesToCopy.length <= 25) {
-    size = "medium";
-  } else {
-    size = "large";
-  }
-
-  return size;
-};
-
-module.exports = {
-  getNode: getNode,
-  updateNode: updateNode,
-  getNodes: getNodes,
-  getEdges: getEdges,
-  getData: getData,
-  reset: reset,
-  removeLonelyNodes: removeLonelyNodes,
-  getSize: getSize,
-  getNumberOfHotspots: getNumberOfHotspots,
-  getNumberOfServicedNodes: getNumberOfServicedNodes
-};
-
-/***/ }),
-/* 12 */,
-/* 13 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global, module) {var __WEBPACK_AMD_DEFINE_RESULT__;/**
@@ -71718,10 +71727,10 @@ module.exports = {
   }
 }.call(this));
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0), __webpack_require__(14)(module)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0), __webpack_require__(11)(module)))
 
 /***/ }),
-/* 14 */
+/* 11 */
 /***/ (function(module, exports) {
 
 module.exports = function(module) {
@@ -71749,6 +71758,119 @@ module.exports = function(module) {
 
 
 /***/ }),
+/* 12 */,
+/* 13 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var vis = __webpack_require__(4);
+
+var nodes = null;
+var edges = null;
+var data = null;
+
+var getNode = function getNode(id) {
+  return nodes.get(id);
+};
+
+var getEdge = function getEdge(id) {
+  return edges.get(id);
+};
+
+var updateNode = function updateNode(node) {
+  nodes.update(node);
+};
+
+var getNodes = function getNodes() {
+  return nodes.get();
+};
+
+var getEdges = function getEdges() {
+  return edges.get();
+};
+
+var getData = function getData() {
+  return data;
+};
+
+var deleteNode = function deleteNode(id) {
+  nodes.remove(id);
+};
+
+var getNumberOfHotspots = function getNumberOfHotspots() {
+  var nodesArray = nodes.get();
+  return nodesArray.reduce(function (sum, node) {
+    if (node.original) {
+      return sum + 1;
+    } else {
+      return sum;
+    }
+  }, 0);
+};
+
+var getNumberOfServicedNodes = function getNumberOfServicedNodes() {
+  var nodesArray = nodes.get();
+  return nodesArray.reduce(function (sum, node) {
+    if (node.original) {
+      return sum;
+    } else {
+      return sum + 1;
+    }
+  }, 0);
+};
+
+var reset = function reset() {
+  nodes = new vis.DataSet();
+  edges = new vis.DataSet();
+  data = { nodes: nodes, edges: edges };
+};
+
+var removeLonelyNodes = function removeLonelyNodes() {
+  var i = 0;
+
+  var nodesArray = nodes.get();
+
+  while (i < nodesArray.length) {
+    if (nodesArray[i].connectedToWithinCluster.length === 0) {
+      nodes.remove(nodesArray[i].id);
+    }
+    i += 1;
+  }
+};
+
+var getSize = function getSize() {
+  var nodesToCopy = getNodes();
+  var size = void 0;
+  if (nodesToCopy.length <= 15) {
+    size = "small";
+  } else if (nodesToCopy.length <= 25) {
+    size = "medium";
+  } else {
+    size = "large";
+  }
+
+  return size;
+};
+
+module.exports = {
+  getNode: getNode,
+  getEdge: getEdge,
+  updateNode: updateNode,
+  getNodes: getNodes,
+  getEdges: getEdges,
+  getData: getData,
+  deleteNode: deleteNode,
+  reset: reset,
+  removeLonelyNodes: removeLonelyNodes,
+  getSize: getSize,
+  getNumberOfHotspots: getNumberOfHotspots,
+  getNumberOfServicedNodes: getNumberOfServicedNodes
+};
+
+/***/ }),
+/* 14 */,
 /* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -71757,7 +71879,7 @@ module.exports = function(module) {
 
 var vis = __webpack_require__(4);
 
-var graph = __webpack_require__(11);
+var graph = __webpack_require__(13);
 var NetworkOptions = __webpack_require__(7);
 
 // Get title set up to link to main page
@@ -71817,6 +71939,7 @@ populateStageInstructions();
 function setUpDragFix() {
   network.on("dragEnd", function (params) {
     if (params.nodes.length > 0) {
+      console.log(params.nodes);
       var nodeId = params.nodes[0];
       var node = graph.getNode(nodeId);
       node.x = params.pointer.canvas.x;
@@ -71825,6 +71948,21 @@ function setUpDragFix() {
     }
   });
 }
+
+// function setUpHandlers() {
+//   network.on("oncontext", (params) => {
+//     console.log(params);
+//   });
+//   // network.on("doubleClick", (params) => {
+//   //   console.log(params);
+//   // });
+//   // network.on("select", (params) => {
+//   //   console.log('select Event:', params);
+//   // });
+//   // network.on("selectNode", (params) => {
+//   //   console.log('selectNode Event:', params);
+//   // });
+// }
 
 var resetPuzzleBuilder = function resetPuzzleBuilder() {
   network.destroy();
@@ -71837,7 +71975,7 @@ var resetPuzzleBuilder = function resetPuzzleBuilder() {
   instruct.innerHTML = stageInstructions[1];
   stepTitle.innerHTML = 'Step 1';
   prevButton.style.visibility = 'hidden';
-  NetworkOptions.setUpOptionsForAddHotspots(network, options);
+  NetworkOptions.setUpOptionsForAddHotspots(network, graph, options);
 };
 
 var nodesHaveAdequateSpace = function nodesHaveAdequateSpace() {
@@ -71925,13 +72063,13 @@ var savePuzzleAndLoad = function savePuzzleAndLoad() {
 var goToNextStage = function goToNextStage() {
   if (stage === 'intro') {
     stage = 'add-hotspots';
-    NetworkOptions.setUpOptionsForAddHotspots(network, options);
+    NetworkOptions.setUpOptionsForAddHotspots(network, graph, options);
     instruct.innerHTML = stageInstructions[1];
     stepTitle.innerHTML = 'Step 1';
     resetButton.style.visibility = 'visible';
   } else if (stage === 'add-hotspots') {
     stage = 'add-serviced-nodes';
-    NetworkOptions.setUpOptionsForAddServicedNodes(network, options);
+    NetworkOptions.setUpOptionsForAddServicedNodes(network, graph, options);
     instruct.innerHTML = stageInstructions[2];
     stepTitle.innerHTML = 'Step 2';
     prevButton.style.visibility = 'visible';
@@ -71976,13 +72114,13 @@ var goToNextStage = function goToNextStage() {
 var goToPrevStage = function goToPrevStage() {
   if (stage === 'add-serviced-nodes') {
     stage = 'add-hotspots';
-    NetworkOptions.setUpOptionsForAddHotspots(network, options);
+    NetworkOptions.setUpOptionsForAddHotspots(network, graph, options);
     instruct.innerHTML = stageInstructions[1];
     stepTitle.innerHTML = 'Step 1';
     prevButton.style.visibility = 'hidden';
   } else if (stage === 'make-clusters') {
     stage = 'add-serviced-nodes';
-    NetworkOptions.setUpOptionsForAddServicedNodes(network, options);
+    NetworkOptions.setUpOptionsForAddServicedNodes(network, graph, options);
     instruct.innerHTML = stageInstructions[2];
     stepTitle.innerHTML = 'Step 2';
   } else if (stage === 'connect-clusters') {
