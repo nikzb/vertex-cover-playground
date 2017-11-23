@@ -225,6 +225,64 @@ const getDeleteEdgeFunc = function getDeleteEdgeFunc(network, graph) {
   };
 };
 
+const getAddEdgeForMakeClustersFunc = function getAddEdgeForMakeClustersFunc(network, graph) {
+  return (nodeData, callback) => {
+    // Need to ensure that new edge connects a lonely service node to a hotspot
+    const from = graph.getNode(nodeData.from);
+    const to = graph.getNode(nodeData.to);
+
+    if (from.group !== to.group) {
+      let serviceNode;
+      let hotspot;
+      if (from.group === 'service') {
+        serviceNode = from;
+        hotspot = to;
+      } else {
+        serviceNode = to;
+        hotspot = from;
+      }
+
+      if (serviceNode.connectedToWithinCluster.length === 0) {
+        serviceNode.connectedToWithinCluster.push(hotspot.id);
+        hotspot.connectedToWithinCluster.push(serviceNode.id);
+        callback(nodeData);
+        network.addEdgeMode();
+      }
+    }
+  };
+};
+
+// Return true if nodeA and nodeB are in the same cluster
+// Precondition: nodeA and nodeB are both service nodes
+const inSameCluster = function inSameCluster(graph, nodeA, nodeB) {
+  const hotspot = graph.getNode(nodeA.connectedToWithinCluster[0]);
+
+  for (let i = 0; i < hotspot.connectedToWithinCluster.length; i += 1) {
+    if (hotspot.connectedToWithinCluster[i] === nodeB.id) {
+      return true;
+    }
+  }
+
+  return false;
+};
+
+const getAddEdgeForConnectClustersFunc = function getAddEdgeForConnectClustersFunc(network, graph) {
+  return (nodeData, callback) => {
+    // Need to ensure that new edge connects a lonely service node to a hotspot
+    const from = graph.getNode(nodeData.from);
+    const to = graph.getNode(nodeData.to);
+
+    if (nodeData.to !== nodeData.from &&
+        from.group === 'service' &&
+        to.group === 'service' &&
+        !inSameCluster(graph, from, to)) {
+      nodeData.dashes = 'true';
+      callback(nodeData);
+      network.addEdgeMode();
+    }
+  };
+};
+
 const updateNetworkOptions = function updateNetworkOptions(network, options) {
   network.setOptions(options);
 };
@@ -258,95 +316,17 @@ const setUpOptionsForMakeClusters = function setUpOptionsForMakeClusters(network
   options.manipulation.deleteNode = getDeleteNodeFunc(network, graph);
   options.manipulation.editEdge = false;
   options.manipulation.deleteEdge = getDeleteEdgeFunc(network, graph);
-  // options.manipulation.deleteEdge = (nodeData, callback) => {
-  //   // const edgeToDelete = graph.getEdge(nodeData.edges[0]);
-  //   nodeData.edges.forEach((edgeToDelete) => {
-  //     console.log(edgeToDelete);
-  //     const from = graph.getNode(edgeToDelete.from);
-  //     const to = graph.getNode(edgeToDelete.to);
-  //
-  //     let serviceNode;
-  //     let hotspot;
-  //
-  //     if (from.group === 'service') {
-  //       serviceNode = from;
-  //       hotspot = to;
-  //     } else {
-  //       serviceNode = to;
-  //       hotspot = from;
-  //     }
-  //
-  //     serviceNode.connectedToWithinCluster = [];
-  //     const index = hotspot.connectedToWithinCluster.indexOf(serviceNode.id);
-  //     hotspot.connectedToWithinCluster.splice(index, 1);
-  //
-  //     graph.updateNode(serviceNode);
-  //     graph.updateNode(hotspot);
-  //   });
-  //
-  //   callback(nodeData);
-  // };
-  options.manipulation.addEdge = (nodeData, callback) => {
-    // Need to ensure that new edge connects a lonely service node to a hotspot
-    const from = graph.getNode(nodeData.from);
-    const to = graph.getNode(nodeData.to);
-
-    if (from.group !== to.group) {
-      let serviceNode;
-      let hotspot;
-      if (from.group === 'service') {
-        serviceNode = from;
-        hotspot = to;
-      } else {
-        serviceNode = to;
-        hotspot = from;
-      }
-
-      if (serviceNode.connectedToWithinCluster.length === 0) {
-        serviceNode.connectedToWithinCluster.push(hotspot.id);
-        hotspot.connectedToWithinCluster.push(serviceNode.id);
-        callback(nodeData);
-        network.addEdgeMode();
-      }
-    }
-  };
+  options.manipulation.addEdge = getAddEdgeForMakeClustersFunc(network, graph);
   updateNetworkOptions(network, options);
   network.addEdgeMode();
 };
 
 const setUpOptionsForConnectClusters = function setUpOptionsForConnectClusters(network, graph, options) {
-  // Return true if nodeA and nodeB are in the same cluster
-  // Precondition: nodeA and nodeB are both service nodes
-  const inSameCluster = function inSameCluster(nodeA, nodeB) {
-    const hotspot = graph.getNode(nodeA.connectedToWithinCluster[0]);
-
-    for (let i = 0; i < hotspot.connectedToWithinCluster.length; i += 1) {
-      if (hotspot.connectedToWithinCluster[i] === nodeB.id) {
-        return true;
-      }
-    }
-
-    return false;
-  };
-
   options.manipulation.addNode = false;
   options.manipulation.deleteNode = getDeleteNodeFunc(network, graph);
   options.manipulation.editEdge = false;
   options.manipulation.deleteEdge = getDeleteEdgeFunc(network, graph);
-  options.manipulation.addEdge = (nodeData, callback) => {
-    // Need to ensure that new edge connects a lonely service node to a hotspot
-    const from = graph.getNode(nodeData.from);
-    const to = graph.getNode(nodeData.to);
-
-    if (nodeData.to !== nodeData.from &&
-        from.group === 'service' &&
-        to.group === 'service' &&
-        !inSameCluster(from, to)) {
-      nodeData.dashes = 'true';
-      callback(nodeData);
-      network.addEdgeMode();
-    }
-  };
+  options.manipulation.addEdge = getAddEdgeForConnectClustersFunc(network, graph);
   updateNetworkOptions(network, options);
   network.addEdgeMode();
 };
