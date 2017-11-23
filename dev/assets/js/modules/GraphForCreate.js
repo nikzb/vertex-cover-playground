@@ -32,6 +32,10 @@ const deleteNode = function deleteNode(id) {
   nodes.remove(id);
 };
 
+const deleteEdge = function deleteEdge(id) {
+  edges.remove(id);
+};
+
 const getNumberOfHotspots = function getNumberOfHotspots() {
   const nodesArray = nodes.get();
   return nodesArray.reduce((sum, node) => {
@@ -60,6 +64,7 @@ const reset = function reset() {
   data = { nodes, edges };
 };
 
+// Remove nodes that are not connected to any other nodes
 const removeLonelyNodes = function removeLonelyNodes() {
   let i = 0;
 
@@ -71,6 +76,8 @@ const removeLonelyNodes = function removeLonelyNodes() {
     }
     i += 1;
   }
+
+  console.log(nodes.get());
 };
 
 const getSize = function getSize() {
@@ -95,6 +102,7 @@ module.exports = {
   getEdges,
   getData,
   deleteNode,
+  deleteEdge,
   reset,
   removeLonelyNodes,
   getSize,

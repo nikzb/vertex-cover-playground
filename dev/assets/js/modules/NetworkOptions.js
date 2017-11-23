@@ -99,6 +99,14 @@ const getOptionsForCreatePuzzle = function getOptionsForCreatePuzzle() {
   };
 };
 
+const deleteEdgesTouchingNode = function deleteEdgesTouchingNode(graph, nodeId) {
+  graph.getEdges().forEach((edgeToCheck) => {
+    if (edgeToCheck.from === nodeId || edgeToCheck.to === nodeId) {
+      graph.deleteEdge(edgeToCheck.id);
+    }
+  });
+};
+
 const getAddNodeFunc = function getAddNodeFunc(group, network) {
   return (nodeData, callback) => {
     nodeData.label = '';
@@ -113,28 +121,51 @@ const getAddNodeFunc = function getAddNodeFunc(group, network) {
 const getDeleteNodeFunc = function getDeleteNodeFunc(network, graph) {
   return (nodeData, callback) => {
     const IDsOfNodesToDelete = nodeData.nodes;
+    console.log("IDs of nodes to delete");
     console.log(IDsOfNodesToDelete);
 
     IDsOfNodesToDelete.forEach((nodeId) => {
       const node = graph.getNode(nodeId);
 
+      console.log("Deleting this node:");
       console.log(node);
 
       if (node.group === 'hotspot') {
+        // Don't need this since next part will delete all the necessary edges
+        // Delete all the edges between this hotspot and the service nodes it connects to
+        // deleteEdgesTouchingNode(graph, nodeId);
+
+        // Delete all the edges touching the serviced nodes this hotspot is connected to
+        graph.getNode(nodeId).connectedToWithinCluster.forEach((serviceNodeId) => {
+          deleteEdgesTouchingNode(graph, serviceNodeId);
+        });
+
+        // Delete all the service nodes connected to the hotspot we are deleting
         node.connectedToWithinCluster.forEach((serviceNodeId) => {
-          console.log(`Deleting ${serviceNodeId}`);
+          console.log(`Deleting service node (because it is attached to hotspot we are deleting): ${serviceNodeId}`);
           graph.deleteNode(serviceNodeId);
         });
+
+        // Delete the hotspot
         graph.deleteNode(nodeId);
       } else { // must be a service node
         // Must remove nodeId from the hotspots connectedToWithinCluster list
         const hotspotId = node.connectedToWithinCluster[0];
         const hotspot = graph.getNode(hotspotId);
-        const index = _.findIndex(hotspot.connectedToWithinCluster, o => o.id === nodeId);
+        // const index = _.findIndex(hotspot.connectedToWithinCluster, o => o.id === nodeId);
+        const index = hotspot.connectedToWithinCluster.indexOf(nodeId);
         hotspot.connectedToWithinCluster.splice(index, 1);
-
-        graph.deleteNode(nodeId);
+        console.log(`Updating hotspot`);
+        console.log(hotspot);
+        console.log(`So it is no longer connected to `);
+        console.log(nodeId);
         graph.updateNode(hotspot);
+
+        // Delete all the edges touching the serviced node
+        deleteEdgesTouchingNode(graph, nodeId);
+
+        // Delete the service node
+        graph.deleteNode(nodeId);
       }
     });
 
@@ -147,32 +178,46 @@ const getDeleteEdgeFunc = function getDeleteEdgeFunc(network, graph) {
     nodeData.edges.forEach((edgeId) => {
       const edge = graph.getEdge(edgeId);
 
+      console.log("Edge to delete");
       console.log(edge);
 
-      const from = graph.getNode(edge.from);
-      const to = graph.getNode(edge.to);
+      const fromNode = graph.getNode(edge.from);
+      const toNode = graph.getNode(edge.to);
 
       // Check if is a cluster edge
-      if (from.group === 'hotspot' || to.group === 'hotspot') {
+      if (fromNode.group === 'hotspot' || toNode.group === 'hotspot') {
         // Deleting a cluster edge must also delete the serviced node
         let serviceNodeId;
         let hotspotId;
 
-        if (from.group === 'service') {
-          serviceNodeId = edge.from;
-          hotspotId = edge.to;
-        } else {
+        if (fromNode.group === 'hotspot') {
           serviceNodeId = edge.to;
           hotspotId = edge.from;
+        } else {
+          serviceNodeId = edge.from;
+          hotspotId = edge.to;
         }
 
-        graph.deleteNode(serviceNodeId);
+        // Need to remove the id of the serviced node from the hotspot's connectedToWithinCluster list
         const hotspot = graph.getNode(hotspotId);
-
-        // We need to remove the id of the serviced node from the hotspot's connectedToWithinCluster list
         const index = hotspot.connectedToWithinCluster.indexOf(serviceNodeId);
         hotspot.connectedToWithinCluster.splice(index, 1);
+        console.log('Updating hotspot (so no longer connected to serviceNode)');
+        console.log(hotspot);
         graph.updateNode(hotspot);
+
+        // Need to delete all the edges that touch the service node that is about to get deleted
+        deleteEdgesTouchingNode(graph, serviceNodeId);
+
+        console.log('Deleting service node');
+        console.log(serviceNodeId);
+        graph.deleteNode(serviceNodeId);
+      } else {
+        // This must be an edge connecting two different clusters.
+        // We only have to delete the selected edge from the graph
+        console.log('Deleting edge');
+        console.log(edgeId);
+        graph.deleteEdge(edgeId);
       }
     });
 
@@ -270,6 +315,8 @@ const setUpOptionsForMakeClusters = function setUpOptionsForMakeClusters(network
 };
 
 const setUpOptionsForConnectClusters = function setUpOptionsForConnectClusters(network, graph, options) {
+  // Return true if nodeA and nodeB are in the same cluster
+  // Precondition: nodeA and nodeB are both service nodes
   const inSameCluster = function inSameCluster(nodeA, nodeB) {
     const hotspot = graph.getNode(nodeA.connectedToWithinCluster[0]);
 

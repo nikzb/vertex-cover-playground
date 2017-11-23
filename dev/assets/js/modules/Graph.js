@@ -16,6 +16,8 @@ const getOptimalAnswer = function getOptimalAnswer() {
 };
 
 const updateConnectedNodes = function updateConnectedNodes() {
+  console.log(nodes);
+  
   // Reset all serviced nodes to unserviced (but leave hotspots alone)
   nodes.forEach((node) => {
     if (node.group === 'service') {

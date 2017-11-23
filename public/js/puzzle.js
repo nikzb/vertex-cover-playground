@@ -54411,6 +54411,14 @@ var getOptionsForCreatePuzzle = function getOptionsForCreatePuzzle() {
   };
 };
 
+var deleteEdgesTouchingNode = function deleteEdgesTouchingNode(graph, nodeId) {
+  graph.getEdges().forEach(function (edgeToCheck) {
+    if (edgeToCheck.from === nodeId || edgeToCheck.to === nodeId) {
+      graph.deleteEdge(edgeToCheck.id);
+    }
+  });
+};
+
 var getAddNodeFunc = function getAddNodeFunc(group, network) {
   return function (nodeData, callback) {
     nodeData.label = '';
@@ -54425,31 +54433,52 @@ var getAddNodeFunc = function getAddNodeFunc(group, network) {
 var getDeleteNodeFunc = function getDeleteNodeFunc(network, graph) {
   return function (nodeData, callback) {
     var IDsOfNodesToDelete = nodeData.nodes;
+    console.log("IDs of nodes to delete");
     console.log(IDsOfNodesToDelete);
 
     IDsOfNodesToDelete.forEach(function (nodeId) {
       var node = graph.getNode(nodeId);
 
+      console.log("Deleting this node:");
       console.log(node);
 
       if (node.group === 'hotspot') {
+        // Don't need this since next part will delete all the necessary edges
+        // Delete all the edges between this hotspot and the service nodes it connects to
+        // deleteEdgesTouchingNode(graph, nodeId);
+
+        // Delete all the edges touching the serviced nodes this hotspot is connected to
+        graph.getNode(nodeId).connectedToWithinCluster.forEach(function (serviceNodeId) {
+          deleteEdgesTouchingNode(graph, serviceNodeId);
+        });
+
+        // Delete all the service nodes connected to the hotspot we are deleting
         node.connectedToWithinCluster.forEach(function (serviceNodeId) {
-          console.log('Deleting ' + serviceNodeId);
+          console.log('Deleting service node (because it is attached to hotspot we are deleting): ' + serviceNodeId);
           graph.deleteNode(serviceNodeId);
         });
+
+        // Delete the hotspot
         graph.deleteNode(nodeId);
       } else {
         // must be a service node
         // Must remove nodeId from the hotspots connectedToWithinCluster list
         var hotspotId = node.connectedToWithinCluster[0];
         var hotspot = graph.getNode(hotspotId);
-        var index = _.findIndex(hotspot.connectedToWithinCluster, function (o) {
-          return o.id === nodeId;
-        });
+        // const index = _.findIndex(hotspot.connectedToWithinCluster, o => o.id === nodeId);
+        var index = hotspot.connectedToWithinCluster.indexOf(nodeId);
         hotspot.connectedToWithinCluster.splice(index, 1);
-
-        graph.deleteNode(nodeId);
+        console.log('Updating hotspot');
+        console.log(hotspot);
+        console.log('So it is no longer connected to ');
+        console.log(nodeId);
         graph.updateNode(hotspot);
+
+        // Delete all the edges touching the serviced node
+        deleteEdgesTouchingNode(graph, nodeId);
+
+        // Delete the service node
+        graph.deleteNode(nodeId);
       }
     });
 
@@ -54462,32 +54491,46 @@ var getDeleteEdgeFunc = function getDeleteEdgeFunc(network, graph) {
     nodeData.edges.forEach(function (edgeId) {
       var edge = graph.getEdge(edgeId);
 
+      console.log("Edge to delete");
       console.log(edge);
 
-      var from = graph.getNode(edge.from);
-      var to = graph.getNode(edge.to);
+      var fromNode = graph.getNode(edge.from);
+      var toNode = graph.getNode(edge.to);
 
       // Check if is a cluster edge
-      if (from.group === 'hotspot' || to.group === 'hotspot') {
+      if (fromNode.group === 'hotspot' || toNode.group === 'hotspot') {
         // Deleting a cluster edge must also delete the serviced node
         var serviceNodeId = void 0;
         var hotspotId = void 0;
 
-        if (from.group === 'service') {
-          serviceNodeId = edge.from;
-          hotspotId = edge.to;
-        } else {
+        if (fromNode.group === 'hotspot') {
           serviceNodeId = edge.to;
           hotspotId = edge.from;
+        } else {
+          serviceNodeId = edge.from;
+          hotspotId = edge.to;
         }
 
-        graph.deleteNode(serviceNodeId);
+        // Need to remove the id of the serviced node from the hotspot's connectedToWithinCluster list
         var hotspot = graph.getNode(hotspotId);
-
-        // We need to remove the id of the serviced node from the hotspot's connectedToWithinCluster list
         var index = hotspot.connectedToWithinCluster.indexOf(serviceNodeId);
         hotspot.connectedToWithinCluster.splice(index, 1);
+        console.log('Updating hotspot (so no longer connected to serviceNode)');
+        console.log(hotspot);
         graph.updateNode(hotspot);
+
+        // Need to delete all the edges that touch the service node that is about to get deleted
+        deleteEdgesTouchingNode(graph, serviceNodeId);
+
+        console.log('Deleting service node');
+        console.log(serviceNodeId);
+        graph.deleteNode(serviceNodeId);
+      } else {
+        // This must be an edge connecting two different clusters.
+        // We only have to delete the selected edge from the graph
+        console.log('Deleting edge');
+        console.log(edgeId);
+        graph.deleteEdge(edgeId);
       }
     });
 
@@ -54585,6 +54628,8 @@ var setUpOptionsForMakeClusters = function setUpOptionsForMakeClusters(network, 
 };
 
 var setUpOptionsForConnectClusters = function setUpOptionsForConnectClusters(network, graph, options) {
+  // Return true if nodeA and nodeB are in the same cluster
+  // Precondition: nodeA and nodeB are both service nodes
   var inSameCluster = function inSameCluster(nodeA, nodeB) {
     var hotspot = graph.getNode(nodeA.connectedToWithinCluster[0]);
 
@@ -71850,6 +71895,8 @@ var getOptimalAnswer = function getOptimalAnswer() {
 };
 
 var updateConnectedNodes = function updateConnectedNodes() {
+  console.log(nodes);
+
   // Reset all serviced nodes to unserviced (but leave hotspots alone)
   nodes.forEach(function (node) {
     if (node.group === 'service') {
@@ -72098,6 +72145,9 @@ var addCodeAndLinkToDocument = function addCodeAndLinkToDocument(domain) {
   var textAreaText = document.createTextNode('http://' + domain + '/hotspot/' + code);
   linkInTextArea.classList.add('message-box__link-in-text-area');
   linkInTextArea.setAttributeNode(document.createAttribute('readonly'));
+  var overflowAttr = document.createAttribute('overflow');
+  overflowAttr.value = 'hidden';
+  linkInTextArea.setAttributeNode(overflowAttr);
   linkInTextArea.appendChild(textAreaText);
   linkInTextArea.addEventListener('click', function () {
     linkInTextArea.select();

@@ -286,6 +286,7 @@ const goToNextStage = function goToNextStage() {
     if (warningMessage.length > 0) {
       instruct.innerHTML = stageInstructions[5] + warningMessage;
     } else {
+      console.log(graph.getNodes());
       savePuzzleAndLoad();
     }
   }

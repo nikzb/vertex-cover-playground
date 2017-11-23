@@ -101,6 +101,9 @@ const addCodeAndLinkToDocument = function addCodeAndLinkToDocument(domain) {
   const textAreaText = document.createTextNode(`http://${domain}/hotspot/${code}`);
   linkInTextArea.classList.add('message-box__link-in-text-area');
   linkInTextArea.setAttributeNode(document.createAttribute('readonly'));
+  const overflowAttr = document.createAttribute('overflow');
+  overflowAttr.value = 'hidden';
+  linkInTextArea.setAttributeNode(overflowAttr);
   linkInTextArea.appendChild(textAreaText);
   linkInTextArea.addEventListener('click', () => {
     linkInTextArea.select();
