@@ -45,7 +45,7 @@ const checkForCompletion = function checkForCompletion() {
   if (Graph.allNodesHaveWifi()) {
     // Display a message telling whether optimization is complete
     if (Graph.countHotspots() === Graph.getOptimalAnswer()) {
-      messageBox.show('success');
+      messageBox.show('success', Graph.countHotspots());
     } else {
       messageBox.show('retry', Graph.countHotspots());
     }

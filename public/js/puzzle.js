@@ -54371,11 +54371,6 @@ var getOptionsForPuzzle = function getOptionsForPuzzle() {
 var getOptionsForCreatePuzzle = function getOptionsForCreatePuzzle() {
   return {
     manipulation: {
-      // enabled: true, //set to false to hide edit button
-      // addNode: getAddNodeFunc('hotspot'),
-      // addEdge: false,
-      // deleteNode: true,
-      // initiallyActive: false
       enabled: false
     },
     groups: {
@@ -54427,58 +54422,6 @@ var getAddNodeFunc = function getAddNodeFunc(group, network) {
     nodeData.connectedToWithinCluster = [];
     callback(nodeData);
     network.addNodeMode();
-  };
-};
-
-var getDeleteEdgeFunc = function getDeleteEdgeFunc(network, graph) {
-  return function (nodeData, callback) {
-    nodeData.edges.forEach(function (edgeId) {
-      var edge = graph.getEdge(edgeId);
-
-      console.log("Edge to delete");
-      console.log(edge);
-
-      var fromNode = graph.getNode(edge.from);
-      var toNode = graph.getNode(edge.to);
-
-      // Check if is a cluster edge
-      if (fromNode.group === 'hotspot' || toNode.group === 'hotspot') {
-        // Deleting a cluster edge must also delete the serviced node
-        var serviceNodeId = void 0;
-        var hotspotId = void 0;
-
-        if (fromNode.group === 'hotspot') {
-          serviceNodeId = edge.to;
-          hotspotId = edge.from;
-        } else {
-          serviceNodeId = edge.from;
-          hotspotId = edge.to;
-        }
-
-        // Need to remove the id of the serviced node from the hotspot's connectedToWithinCluster list
-        var hotspot = graph.getNode(hotspotId);
-        var index = hotspot.connectedToWithinCluster.indexOf(serviceNodeId);
-        hotspot.connectedToWithinCluster.splice(index, 1);
-        console.log('Updating hotspot (so no longer connected to serviceNode)');
-        console.log(hotspot);
-        graph.updateNode(hotspot);
-
-        // Need to delete all the edges that touch the service node that is about to get deleted
-        deleteEdgesTouchingNode(graph, serviceNodeId);
-
-        console.log('Deleting service node');
-        console.log(serviceNodeId);
-        graph.deleteNode(serviceNodeId);
-      } else {
-        // This must be an edge connecting two different clusters.
-        // We only have to delete the selected edge from the graph
-        console.log('Deleting edge');
-        console.log(edgeId);
-        graph.deleteEdge(edgeId);
-      }
-    });
-
-    callback(nodeData);
   };
 };
 
@@ -54542,55 +54485,29 @@ var updateNetworkOptions = function updateNetworkOptions(network, options) {
 };
 
 var setUpOptionsForAddHotspots = function setUpOptionsForAddHotspots(network, graph, options) {
-  // options.manipulation.addNode = getAddNodeFunc('hotspot', network);
-  // options.manipulation.editNode = (nodeData, callback) => {
-  //   callback(nodeData);
-  // };
-  // options.manipulation.addEdge = false;
-  // options.manipulation.deleteNode = getDeleteNodeFunc(network, graph);
-  // options.manipulation.deleteEdge = getDeleteEdgeFunc(network, graph);
-  // options.manipulation.editEdge = false;
-  // options.manipulation.enabled = true;
-  // updateNetworkOptions(network, options);
-  // network.addNodeMode();
+  options.manipulation.addEdge = false;
+  updateNetworkOptions(network, options);
 };
 
 var setUpOptionsForAddServicedNodes = function setUpOptionsForAddServicedNodes(network, graph, options) {
-  // options.manipulation.addNode = getAddNodeFunc('service', network);
-  // options.manipulation.addEdge = false;
-  // options.manipulation.deleteNode = getDeleteNodeFunc(network, graph);
-  // options.manipulation.deleteEdge = getDeleteEdgeFunc(network, graph);
-  // options.manipulation.editEdge = false;
-  // updateNetworkOptions(network, options);
-  // network.addNodeMode();
+  options.manipulation.addEdge = false;
+  updateNetworkOptions(network, options);
 };
 
 var setUpOptionsForMakeClusters = function setUpOptionsForMakeClusters(network, graph, options) {
-  options.manipulation.addNode = false;
-  options.manipulation.deleteNode = false;
-  options.manipulation.editEdge = false;
-  options.manipulation.deleteEdge = false;
   options.manipulation.addEdge = getAddEdgeForMakeClustersFunc(network, graph);
   updateNetworkOptions(network, options);
   network.addEdgeMode();
 };
 
 var setUpOptionsForConnectClusters = function setUpOptionsForConnectClusters(network, graph, options) {
-  options.manipulation.addNode = false;
-  options.manipulation.deleteNode = false;
-  options.manipulation.editEdge = false;
-  options.manipulation.deleteEdge = false;
   options.manipulation.addEdge = getAddEdgeForConnectClustersFunc(network, graph);
   updateNetworkOptions(network, options);
   network.addEdgeMode();
 };
 
 var setUpOptionsForFinished = function setUpOptionsForFinished(network, options) {
-  options.manipulation.addNode = false;
-  options.manipulation.deleteNode = false;
-  options.manipulation.editEdge = false;
   options.manipulation.addEdge = false;
-  options.manipulation.deleteEdge = false;
   updateNetworkOptions(network, options);
 };
 
@@ -71969,6 +71886,7 @@ module.exports = {
 
 var messageDiv = null;
 var messageElem = null;
+var secondaryMessageElem = null;
 var links = null;
 var messageInput = null;
 var loadButton = null;
@@ -72089,15 +72007,26 @@ var hideCodeAndLink = function hideCodeAndLink() {
   codeAndLinksElem.style.display = 'none';
 };
 
+var updateMessage = function updateMessage(main, secondary) {
+  messageElem.textContent = main;
+  if (secondary !== null) {
+    secondaryMessageElem.style.display = 'block';
+    secondaryMessageElem.textContent = secondary;
+  } else {
+    secondaryMessageElem.style.display = 'none';
+    secondaryMessageElem.textContent = '';
+  }
+};
+
 var show = function show(status, numHotspots) {
   if (status === 'success') {
     hideCodeSelectionInfo();
-    messageElem.textContent = 'You found an optimal solution!';
+    updateMessage('You found an optimal solution!', 'You used only ' + numHotspots + ' hotspots!');
     showLinks();
     hideCodeAndLink();
   } else if (status === 'retry') {
     hideCodeSelectionInfo();
-    messageElem.innerHTML = 'You used ' + numHotspots + ' hotspots.<br><br> Try again using less hotspots. You can do it!';
+    updateMessage('You used ' + numHotspots + ' hotspots.', 'Try again using less hotspots.');
     hideLinks();
     hideCodeAndLink();
   } else if (status === 'load') {
@@ -72107,7 +72036,7 @@ var show = function show(status, numHotspots) {
   } else if (status === 'share') {
     hideLinks();
     hideCodeSelectionInfo();
-    messageElem.textContent = 'Graph Code:';
+    updateMessage('Graph Code:', null);
     showCodeAndLink();
   }
   addActive(messageDiv);
@@ -72116,6 +72045,7 @@ var show = function show(status, numHotspots) {
 var setUp = function setUp(domain, codeToUse) {
   messageDiv = document.querySelector('.message-box');
   messageElem = document.querySelector('.message-box__message');
+  secondaryMessageElem = document.querySelector('.message-box__message-secondary');
   links = document.querySelectorAll('.message-box__options');
   messageInput = document.querySelector('.message-box__input-container');
   loadButton = document.querySelector('.message-box__input-button');
@@ -72194,7 +72124,7 @@ var checkForCompletion = function checkForCompletion() {
   if (Graph.allNodesHaveWifi()) {
     // Display a message telling whether optimization is complete
     if (Graph.countHotspots() === Graph.getOptimalAnswer()) {
-      messageBox.show('success');
+      messageBox.show('success', Graph.countHotspots());
     } else {
       messageBox.show('retry', Graph.countHotspots());
     }

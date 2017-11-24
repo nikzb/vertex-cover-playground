@@ -1187,6 +1187,20 @@ input:valid {
   }
 }
 
+.message-box__message-secondary {
+  font-size: 1.5em;
+  text-align: center;
+  margin: 0.4em;
+}
+
+@media (min-width: 1000px) {
+
+  .message-box__message-secondary {
+    margin-top: 0.5em;
+    margin-bottom: 1.6em;
+  }
+}
+
 .message-box__code-and-links {
   display: -webkit-box;
   display: -ms-flexbox;

@@ -35,6 +35,17 @@
     }
   }
 
+  &__message-secondary {
+    font-size: 1.5em;
+    text-align: center;
+    margin: 0.4em;
+
+    @mixin wide {
+      margin-top: 0.5em;
+      margin-bottom: 1.6em;
+    }
+  }
+
   &__code-and-links {
     display: flex;
     flex-direction: column;

@@ -1,6 +1,7 @@
 
 let messageDiv = null;
 let messageElem = null;
+let secondaryMessageElem = null;
 let links = null;
 let messageInput = null;
 let loadButton = null;
@@ -121,15 +122,26 @@ const hideCodeAndLink = function hideCodeAndLink() {
   codeAndLinksElem.style.display = 'none';
 };
 
+const updateMessage = function updateMessage(main, secondary) {
+  messageElem.textContent = main;
+  if (secondary !== null) {
+    secondaryMessageElem.style.display = 'block';
+    secondaryMessageElem.textContent = secondary;
+  } else {
+    secondaryMessageElem.style.display = 'none';
+    secondaryMessageElem.textContent = '';
+  }
+};
+
 const show = function show(status, numHotspots) {
   if (status === 'success') {
     hideCodeSelectionInfo();
-    messageElem.textContent = 'You found an optimal solution!';
+    updateMessage('You found an optimal solution!', `You used only ${numHotspots} hotspots!`);
     showLinks();
     hideCodeAndLink();
   } else if (status === 'retry') {
     hideCodeSelectionInfo();
-    messageElem.innerHTML= `You used ${numHotspots} hotspots.<br><br> Try again using less hotspots. You can do it!`;
+    updateMessage(`You used ${numHotspots} hotspots.`, 'Try again using less hotspots.');
     hideLinks();
     hideCodeAndLink();
   } else if (status === 'load') {
@@ -139,7 +151,7 @@ const show = function show(status, numHotspots) {
   } else if (status === 'share') {
     hideLinks();
     hideCodeSelectionInfo();
-    messageElem.textContent = 'Graph Code:';
+    updateMessage('Graph Code:', null);
     showCodeAndLink();
   }
   addActive(messageDiv);
@@ -148,6 +160,7 @@ const show = function show(status, numHotspots) {
 const setUp = function setUp(domain, codeToUse) {
   messageDiv = document.querySelector('.message-box');
   messageElem = document.querySelector('.message-box__message');
+  secondaryMessageElem = document.querySelector('.message-box__message-secondary');
   links = document.querySelectorAll('.message-box__options');
   messageInput = document.querySelector('.message-box__input-container');
   loadButton = document.querySelector('.message-box__input-button');
