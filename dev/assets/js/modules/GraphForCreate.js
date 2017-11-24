@@ -36,6 +36,10 @@ const deleteEdge = function deleteEdge(id) {
   edges.remove(id);
 };
 
+const addNode = function addNode(newNode) {
+  nodes.add(newNode);
+};
+
 const getNumberOfHotspots = function getNumberOfHotspots() {
   const nodesArray = nodes.get();
   return nodesArray.reduce((sum, node) => {
@@ -103,6 +107,7 @@ module.exports = {
   getData,
   deleteNode,
   deleteEdge,
+  addNode,
   reset,
   removeLonelyNodes,
   getSize,

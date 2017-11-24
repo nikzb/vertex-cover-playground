@@ -1,4 +1,17 @@
 .btn {
+  font-weight: 300;
+  background-color: #EEE;
+  border: 1px solid $lightBorder;
+
+  &--delete {
+    font-size: 1.4em;
+    margin-right: 0.5em;
+    height: 2.2em;
+    padding: 0 1em;
+    border: 1px solid red;
+    display: none;
+  }
+
   &--full-width {
     font-size: 1.7em;
     font-weight: 300;

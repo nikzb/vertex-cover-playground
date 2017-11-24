@@ -288,27 +288,27 @@ const updateNetworkOptions = function updateNetworkOptions(network, options) {
 };
 
 const setUpOptionsForAddHotspots = function setUpOptionsForAddHotspots(network, graph, options) {
-  options.manipulation.addNode = getAddNodeFunc('hotspot', network);
-  options.manipulation.editNode = (nodeData, callback) => {
-    callback(nodeData);
-  };
-  options.manipulation.addEdge = false;
-  options.manipulation.deleteNode = getDeleteNodeFunc(network, graph);
-  options.manipulation.deleteEdge = getDeleteEdgeFunc(network, graph);
-  options.manipulation.editEdge = false;
-  options.manipulation.enabled = true;
-  updateNetworkOptions(network, options);
-  network.addNodeMode();
+  // options.manipulation.addNode = getAddNodeFunc('hotspot', network);
+  // options.manipulation.editNode = (nodeData, callback) => {
+  //   callback(nodeData);
+  // };
+  // options.manipulation.addEdge = false;
+  // options.manipulation.deleteNode = getDeleteNodeFunc(network, graph);
+  // options.manipulation.deleteEdge = getDeleteEdgeFunc(network, graph);
+  // options.manipulation.editEdge = false;
+  // options.manipulation.enabled = true;
+  // updateNetworkOptions(network, options);
+  // network.addNodeMode();
 };
 
 const setUpOptionsForAddServicedNodes = function setUpOptionsForAddServicedNodes(network, graph, options) {
-  options.manipulation.addNode = getAddNodeFunc('service', network);
-  options.manipulation.addEdge = false;
-  options.manipulation.deleteNode = getDeleteNodeFunc(network, graph);
-  options.manipulation.deleteEdge = getDeleteEdgeFunc(network, graph);
-  options.manipulation.editEdge = false;
-  updateNetworkOptions(network, options);
-  network.addNodeMode();
+  // options.manipulation.addNode = getAddNodeFunc('service', network);
+  // options.manipulation.addEdge = false;
+  // options.manipulation.deleteNode = getDeleteNodeFunc(network, graph);
+  // options.manipulation.deleteEdge = getDeleteEdgeFunc(network, graph);
+  // options.manipulation.editEdge = false;
+  // updateNetworkOptions(network, options);
+  // network.addNodeMode();
 };
 
 const setUpOptionsForMakeClusters = function setUpOptionsForMakeClusters(network, graph, options) {

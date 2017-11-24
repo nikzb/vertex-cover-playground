@@ -54538,68 +54538,8 @@ var getDeleteEdgeFunc = function getDeleteEdgeFunc(network, graph) {
   };
 };
 
-var updateNetworkOptions = function updateNetworkOptions(network, options) {
-  network.setOptions(options);
-};
-
-var setUpOptionsForAddHotspots = function setUpOptionsForAddHotspots(network, graph, options) {
-  options.manipulation.addNode = getAddNodeFunc('hotspot', network);
-  options.manipulation.editNode = function (nodeData, callback) {
-    callback(nodeData);
-  };
-  options.manipulation.addEdge = false;
-  options.manipulation.deleteNode = getDeleteNodeFunc(network, graph);
-  options.manipulation.deleteEdge = getDeleteEdgeFunc(network, graph);
-  options.manipulation.editEdge = false;
-  options.manipulation.enabled = true;
-  updateNetworkOptions(network, options);
-  network.addNodeMode();
-};
-
-var setUpOptionsForAddServicedNodes = function setUpOptionsForAddServicedNodes(network, graph, options) {
-  options.manipulation.addNode = getAddNodeFunc('service', network);
-  options.manipulation.addEdge = false;
-  options.manipulation.deleteNode = getDeleteNodeFunc(network, graph);
-  options.manipulation.deleteEdge = getDeleteEdgeFunc(network, graph);
-  options.manipulation.editEdge = false;
-  updateNetworkOptions(network, options);
-  network.addNodeMode();
-};
-
-var setUpOptionsForMakeClusters = function setUpOptionsForMakeClusters(network, graph, options) {
-  options.manipulation.addNode = false;
-  options.manipulation.deleteNode = getDeleteNodeFunc(network, graph);
-  options.manipulation.editEdge = false;
-  options.manipulation.deleteEdge = getDeleteEdgeFunc(network, graph);
-  // options.manipulation.deleteEdge = (nodeData, callback) => {
-  //   // const edgeToDelete = graph.getEdge(nodeData.edges[0]);
-  //   nodeData.edges.forEach((edgeToDelete) => {
-  //     console.log(edgeToDelete);
-  //     const from = graph.getNode(edgeToDelete.from);
-  //     const to = graph.getNode(edgeToDelete.to);
-  //
-  //     let serviceNode;
-  //     let hotspot;
-  //
-  //     if (from.group === 'service') {
-  //       serviceNode = from;
-  //       hotspot = to;
-  //     } else {
-  //       serviceNode = to;
-  //       hotspot = from;
-  //     }
-  //
-  //     serviceNode.connectedToWithinCluster = [];
-  //     const index = hotspot.connectedToWithinCluster.indexOf(serviceNode.id);
-  //     hotspot.connectedToWithinCluster.splice(index, 1);
-  //
-  //     graph.updateNode(serviceNode);
-  //     graph.updateNode(hotspot);
-  //   });
-  //
-  //   callback(nodeData);
-  // };
-  options.manipulation.addEdge = function (nodeData, callback) {
+var getAddEdgeForMakeClustersFunc = function getAddEdgeForMakeClustersFunc(network, graph) {
+  return function (nodeData, callback) {
     // Need to ensure that new edge connects a lonely service node to a hotspot
     var from = graph.getNode(nodeData.from);
     var to = graph.getNode(nodeData.to);
@@ -54623,40 +54563,80 @@ var setUpOptionsForMakeClusters = function setUpOptionsForMakeClusters(network, 
       }
     }
   };
-  updateNetworkOptions(network, options);
-  network.addEdgeMode();
 };
 
-var setUpOptionsForConnectClusters = function setUpOptionsForConnectClusters(network, graph, options) {
-  // Return true if nodeA and nodeB are in the same cluster
-  // Precondition: nodeA and nodeB are both service nodes
-  var inSameCluster = function inSameCluster(nodeA, nodeB) {
-    var hotspot = graph.getNode(nodeA.connectedToWithinCluster[0]);
+// Return true if nodeA and nodeB are in the same cluster
+// Precondition: nodeA and nodeB are both service nodes
+var inSameCluster = function inSameCluster(graph, nodeA, nodeB) {
+  var hotspot = graph.getNode(nodeA.connectedToWithinCluster[0]);
 
-    for (var i = 0; i < hotspot.connectedToWithinCluster.length; i += 1) {
-      if (hotspot.connectedToWithinCluster[i] === nodeB.id) {
-        return true;
-      }
+  for (var i = 0; i < hotspot.connectedToWithinCluster.length; i += 1) {
+    if (hotspot.connectedToWithinCluster[i] === nodeB.id) {
+      return true;
     }
+  }
 
-    return false;
-  };
+  return false;
+};
 
-  options.manipulation.addNode = false;
-  options.manipulation.deleteNode = getDeleteNodeFunc(network, graph);
-  options.manipulation.editEdge = false;
-  options.manipulation.deleteEdge = getDeleteEdgeFunc(network, graph);
-  options.manipulation.addEdge = function (nodeData, callback) {
+var getAddEdgeForConnectClustersFunc = function getAddEdgeForConnectClustersFunc(network, graph) {
+  return function (nodeData, callback) {
     // Need to ensure that new edge connects a lonely service node to a hotspot
     var from = graph.getNode(nodeData.from);
     var to = graph.getNode(nodeData.to);
 
-    if (nodeData.to !== nodeData.from && from.group === 'service' && to.group === 'service' && !inSameCluster(from, to)) {
+    if (nodeData.to !== nodeData.from && from.group === 'service' && to.group === 'service' && !inSameCluster(graph, from, to)) {
       nodeData.dashes = 'true';
       callback(nodeData);
       network.addEdgeMode();
     }
   };
+};
+
+var updateNetworkOptions = function updateNetworkOptions(network, options) {
+  network.setOptions(options);
+};
+
+var setUpOptionsForAddHotspots = function setUpOptionsForAddHotspots(network, graph, options) {
+  // options.manipulation.addNode = getAddNodeFunc('hotspot', network);
+  // options.manipulation.editNode = (nodeData, callback) => {
+  //   callback(nodeData);
+  // };
+  // options.manipulation.addEdge = false;
+  // options.manipulation.deleteNode = getDeleteNodeFunc(network, graph);
+  // options.manipulation.deleteEdge = getDeleteEdgeFunc(network, graph);
+  // options.manipulation.editEdge = false;
+  // options.manipulation.enabled = true;
+  // updateNetworkOptions(network, options);
+  // network.addNodeMode();
+};
+
+var setUpOptionsForAddServicedNodes = function setUpOptionsForAddServicedNodes(network, graph, options) {
+  // options.manipulation.addNode = getAddNodeFunc('service', network);
+  // options.manipulation.addEdge = false;
+  // options.manipulation.deleteNode = getDeleteNodeFunc(network, graph);
+  // options.manipulation.deleteEdge = getDeleteEdgeFunc(network, graph);
+  // options.manipulation.editEdge = false;
+  // updateNetworkOptions(network, options);
+  // network.addNodeMode();
+};
+
+var setUpOptionsForMakeClusters = function setUpOptionsForMakeClusters(network, graph, options) {
+  options.manipulation.addNode = false;
+  options.manipulation.deleteNode = getDeleteNodeFunc(network, graph);
+  options.manipulation.editEdge = false;
+  options.manipulation.deleteEdge = getDeleteEdgeFunc(network, graph);
+  options.manipulation.addEdge = getAddEdgeForMakeClustersFunc(network, graph);
+  updateNetworkOptions(network, options);
+  network.addEdgeMode();
+};
+
+var setUpOptionsForConnectClusters = function setUpOptionsForConnectClusters(network, graph, options) {
+  options.manipulation.addNode = false;
+  options.manipulation.deleteNode = getDeleteNodeFunc(network, graph);
+  options.manipulation.editEdge = false;
+  options.manipulation.deleteEdge = getDeleteEdgeFunc(network, graph);
+  options.manipulation.addEdge = getAddEdgeForConnectClustersFunc(network, graph);
   updateNetworkOptions(network, options);
   network.addEdgeMode();
 };
@@ -71848,6 +71828,10 @@ var deleteEdge = function deleteEdge(id) {
   edges.remove(id);
 };
 
+var addNode = function addNode(newNode) {
+  nodes.add(newNode);
+};
+
 var getNumberOfHotspots = function getNumberOfHotspots() {
   var nodesArray = nodes.get();
   return nodesArray.reduce(function (sum, node) {
@@ -71915,6 +71899,7 @@ module.exports = {
   getData: getData,
   deleteNode: deleteNode,
   deleteEdge: deleteEdge,
+  addNode: addNode,
   reset: reset,
   removeLonelyNodes: removeLonelyNodes,
   getSize: getSize,
@@ -71947,10 +71932,13 @@ var prevButton = null;
 var resetButton = null;
 var instruct = null;
 var stepTitle = null;
+var deleteButton = null;
 
 var stageInstructions = null;
 var needMoreNodesWarning = null;
 var nodesNeedMoreSpaceWarning = null;
+
+var selected = null;
 
 var network = null;
 var container = void 0;
@@ -71989,18 +71977,71 @@ var populateStageInstructions = function populateStageInstructions() {
 
 populateStageInstructions();
 
-function setUpDragFix() {
+var showDeleteButton = function showDeleteButton() {
+  // const deleteButton = document.querySelector('.btn--delete');
+  deleteButton.style.display = 'block';
+};
+
+var hideDeleteButton = function hideDeleteButton() {
+  // const deleteButton = document.querySelector('.btn--delete');
+  deleteButton.style.display = 'none';
+};
+
+var setUpDragFix = function setUpDragFix() {
   network.on("dragEnd", function (params) {
     if (params.nodes.length > 0) {
       console.log(params.nodes);
       var nodeId = params.nodes[0];
+      selected = nodeId;
+      showDeleteButton();
+
       var node = graph.getNode(nodeId);
       node.x = params.pointer.canvas.x;
       node.y = params.pointer.canvas.y;
       graph.updateNode(node);
     }
   });
-}
+};
+
+var setUpEventHandlers = function setUpEventHandlers() {
+  network.on('click', function (params) {
+    console.log(params);
+    if (params.nodes.length > 0) {
+      console.log(network);
+      console.log(graph.getNodes());
+      console.log(params.nodes[0]);
+      network.selectNodes([params.nodes[0]]);
+      selected = params.nodes[0];
+      showDeleteButton();
+      console.log(network.getSelection());
+    } else {
+      // If a node is already selected, on a click is made on empty space, just deselect the node
+      if (selected !== null) {
+        network.unselectAll();
+        selected = null;
+        hideDeleteButton();
+      } else if (stage === 'add-hotspots') {
+        graph.addNode({
+          label: '',
+          original: true,
+          group: 'hotspot',
+          connectedToWithinCluster: [],
+          x: params.pointer.canvas.x,
+          y: params.pointer.canvas.y
+        });
+      } else if (stage === 'add-serviced-nodes') {
+        graph.addNode({
+          label: '',
+          original: false,
+          group: 'service',
+          connectedToWithinCluster: [],
+          x: params.pointer.canvas.x,
+          y: params.pointer.canvas.y
+        });
+      }
+    }
+  });
+};
 
 // function setUpHandlers() {
 //   network.on("oncontext", (params) => {
@@ -72029,6 +72070,21 @@ var resetPuzzleBuilder = function resetPuzzleBuilder() {
   stepTitle.innerHTML = 'Step 1';
   prevButton.style.visibility = 'hidden';
   NetworkOptions.setUpOptionsForAddHotspots(network, graph, options);
+};
+
+var deleteSelected = function deleteSelected() {
+  var selection = network.getSelection();
+
+  // The delete button should only be showing when something is selected.
+  // Therefore we just need to know if it is a node or edge that is selected
+  if (selection.nodes.length > 0) {
+    graph.deleteNode(selection.nodes[0]);
+  } else {
+    graph.deleteEdge(selection.edges[0]);
+  }
+
+  selected = null;
+  hideDeleteButton();
 };
 
 var nodesHaveAdequateSpace = function nodesHaveAdequateSpace() {
@@ -72200,13 +72256,10 @@ var draw = function draw() {
   network = new vis.Network(container, graph.getData(), options);
 
   setUpDragFix();
+  setUpEventHandlers();
 };
 
 var init = function init() {
-  document.querySelector('button[name="next"]').addEventListener('click', goToNextStage);
-  document.querySelector('button[name="prev"]').addEventListener('click', goToPrevStage);
-  document.querySelector('button[name="reset"]').addEventListener("click", resetPuzzleBuilder);
-
   // challengeDiv = document.querySelector('.info-container.challenge');
   instructDiv = document.querySelector('.info-container.instructions');
   instruct = document.querySelector('.info-container__details.instructions');
@@ -72215,6 +72268,12 @@ var init = function init() {
   buttonDiv = document.querySelector('.btn-container');
   prevButton = document.querySelector('button[name="prev"]');
   resetButton = document.querySelector('button[name="reset"]');
+  deleteButton = document.querySelector('button[name="delete"]');
+
+  document.querySelector('button[name="next"]').addEventListener('click', goToNextStage);
+  prevButton.addEventListener('click', goToPrevStage);
+  resetButton.addEventListener('click', resetPuzzleBuilder);
+  deleteButton.addEventListener('click', deleteSelected);
 
   prevButton.style.visibility = 'hidden';
 
