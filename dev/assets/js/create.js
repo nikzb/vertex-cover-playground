@@ -143,57 +143,40 @@ const setUpDragFix = function setUpDragFix() {
 const setUpEventHandlers = function setUpEventHandlers() {
   network.on('click', (params) => {
     console.log(params);
-    if (params.nodes.length > 0) {
-      console.log(network);
-      console.log(graph.getNodes());
-      console.log(params.nodes[0]);
+    if (params.nodes.length > 0) { // If a node is selected
       network.selectNodes([params.nodes[0]]);
       selected = params.nodes[0];
       showDeleteButton();
-      console.log(network.getSelection());
-    } else {
-      // If a node is already selected, on a click is made on empty space, just deselect the node
-      if (selected !== null) {
-        network.unselectAll();
-        selected = null;
-        hideDeleteButton();
-      } else if (stage === 'add-hotspots') {
-        graph.addNode({
-          label: '',
-          original: true,
-          group: 'hotspot',
-          connectedToWithinCluster: [],
-          x: params.pointer.canvas.x,
-          y: params.pointer.canvas.y
-        });
-      } else if (stage === 'add-serviced-nodes') {
-        graph.addNode({
-          label: '',
-          original: false,
-          group: 'service',
-          connectedToWithinCluster: [],
-          x: params.pointer.canvas.x,
-          y: params.pointer.canvas.y
-        });
-      }
+    } else if (params.edges.length > 0) { // Else if an edge is selected
+      console.log(`Edge clicked ${params.edges[0]}`);
+      network.selectEdges([params.edges[0]]);
+      selected = params.edges[0];
+      showDeleteButton();
+    } else if (selected !== null) { // Else if a node was already selected, on a click is made on empty space, just deselect the node
+      network.unselectAll();
+      selected = null;
+      hideDeleteButton();
+    } else if (stage === 'add-hotspots') {
+      graph.addNode({
+        label: '',
+        original: true,
+        group: 'hotspot',
+        connectedToWithinCluster: [],
+        x: params.pointer.canvas.x,
+        y: params.pointer.canvas.y
+      });
+    } else if (stage === 'add-serviced-nodes') {
+      graph.addNode({
+        label: '',
+        original: false,
+        group: 'service',
+        connectedToWithinCluster: [],
+        x: params.pointer.canvas.x,
+        y: params.pointer.canvas.y
+      });
     }
   });
 };
-
-// function setUpHandlers() {
-//   network.on("oncontext", (params) => {
-//     console.log(params);
-//   });
-//   // network.on("doubleClick", (params) => {
-//   //   console.log(params);
-//   // });
-//   // network.on("select", (params) => {
-//   //   console.log('select Event:', params);
-//   // });
-//   // network.on("selectNode", (params) => {
-//   //   console.log('selectNode Event:', params);
-//   // });
-// }
 
 const resetPuzzleBuilder = function resetPuzzleBuilder() {
   network.destroy();
@@ -211,6 +194,10 @@ const resetPuzzleBuilder = function resetPuzzleBuilder() {
 
 const deleteSelected = function deleteSelected() {
   const selection = network.getSelection();
+
+  if (selection.nodes.length === 0 && selection.edges.length === 0) {
+    throw new Error('Nothing selected to delete');
+  }
 
   // The delete button should already be showing when something is selected.
   // Therefore we just need to know if it is a node or edge that is selected

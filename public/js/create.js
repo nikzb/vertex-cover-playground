@@ -54430,62 +54430,6 @@ var getAddNodeFunc = function getAddNodeFunc(group, network) {
   };
 };
 
-var getDeleteNodeFunc = function getDeleteNodeFunc(network, graph) {
-  return function (nodeData, callback) {
-    var IDsOfNodesToDelete = nodeData.nodes;
-    console.log("IDs of nodes to delete");
-    console.log(IDsOfNodesToDelete);
-
-    IDsOfNodesToDelete.forEach(function (nodeId) {
-      var node = graph.getNode(nodeId);
-
-      console.log("Deleting this node:");
-      console.log(node);
-
-      if (node.group === 'hotspot') {
-        // Don't need this since next part will delete all the necessary edges
-        // Delete all the edges between this hotspot and the service nodes it connects to
-        // deleteEdgesTouchingNode(graph, nodeId);
-
-        // Delete all the edges touching the serviced nodes this hotspot is connected to
-        graph.getNode(nodeId).connectedToWithinCluster.forEach(function (serviceNodeId) {
-          deleteEdgesTouchingNode(graph, serviceNodeId);
-        });
-
-        // Delete all the service nodes connected to the hotspot we are deleting
-        node.connectedToWithinCluster.forEach(function (serviceNodeId) {
-          console.log('Deleting service node (because it is attached to hotspot we are deleting): ' + serviceNodeId);
-          graph.deleteNode(serviceNodeId);
-        });
-
-        // Delete the hotspot
-        graph.deleteNode(nodeId);
-      } else {
-        // must be a service node
-        // Must remove nodeId from the hotspots connectedToWithinCluster list
-        var hotspotId = node.connectedToWithinCluster[0];
-        var hotspot = graph.getNode(hotspotId);
-        // const index = _.findIndex(hotspot.connectedToWithinCluster, o => o.id === nodeId);
-        var index = hotspot.connectedToWithinCluster.indexOf(nodeId);
-        hotspot.connectedToWithinCluster.splice(index, 1);
-        console.log('Updating hotspot');
-        console.log(hotspot);
-        console.log('So it is no longer connected to ');
-        console.log(nodeId);
-        graph.updateNode(hotspot);
-
-        // Delete all the edges touching the serviced node
-        deleteEdgesTouchingNode(graph, nodeId);
-
-        // Delete the service node
-        graph.deleteNode(nodeId);
-      }
-    });
-
-    callback(nodeData);
-  };
-};
-
 var getDeleteEdgeFunc = function getDeleteEdgeFunc(network, graph) {
   return function (nodeData, callback) {
     nodeData.edges.forEach(function (edgeId) {
@@ -54623,9 +54567,9 @@ var setUpOptionsForAddServicedNodes = function setUpOptionsForAddServicedNodes(n
 
 var setUpOptionsForMakeClusters = function setUpOptionsForMakeClusters(network, graph, options) {
   options.manipulation.addNode = false;
-  options.manipulation.deleteNode = getDeleteNodeFunc(network, graph);
+  options.manipulation.deleteNode = false;
   options.manipulation.editEdge = false;
-  options.manipulation.deleteEdge = getDeleteEdgeFunc(network, graph);
+  options.manipulation.deleteEdge = false;
   options.manipulation.addEdge = getAddEdgeForMakeClustersFunc(network, graph);
   updateNetworkOptions(network, options);
   network.addEdgeMode();
@@ -54633,9 +54577,9 @@ var setUpOptionsForMakeClusters = function setUpOptionsForMakeClusters(network, 
 
 var setUpOptionsForConnectClusters = function setUpOptionsForConnectClusters(network, graph, options) {
   options.manipulation.addNode = false;
-  options.manipulation.deleteNode = getDeleteNodeFunc(network, graph);
+  options.manipulation.deleteNode = false;
   options.manipulation.editEdge = false;
-  options.manipulation.deleteEdge = getDeleteEdgeFunc(network, graph);
+  options.manipulation.deleteEdge = false;
   options.manipulation.addEdge = getAddEdgeForConnectClustersFunc(network, graph);
   updateNetworkOptions(network, options);
   network.addEdgeMode();
@@ -71932,7 +71876,43 @@ var processDeleteNode = function processDeleteNode(id) {
   }
 };
 
-var processDeleteEdge = function processDeleteEdge(id) {};
+var processDeleteEdge = function processDeleteEdge(id) {
+  var edgeToDelete = getEdge(id);
+
+  var fromNode = getNode(edgeToDelete.from);
+  var toNode = getNode(edgeToDelete.to);
+
+  // Check if is a cluster edge
+  if (fromNode.group === 'hotspot' || toNode.group === 'hotspot') {
+    // Deleting a cluster edge must also delete the serviced node
+    var serviceNodeId = void 0;
+    var hotspotId = void 0;
+
+    if (fromNode.group === 'hotspot') {
+      serviceNodeId = edgeToDelete.to;
+      hotspotId = edgeToDelete.from;
+    } else {
+      serviceNodeId = edgeToDelete.from;
+      hotspotId = edgeToDelete.to;
+    }
+
+    // Need to remove the id of the serviced node from the hotspot's connectedToWithinCluster list
+    var hotspot = getNode(hotspotId);
+    var index = hotspot.connectedToWithinCluster.indexOf(serviceNodeId);
+    hotspot.connectedToWithinCluster.splice(index, 1);
+    updateNode(hotspot);
+
+    // Need to delete all the edges that touch the service node that is about to get deleted
+    deleteEdgesTouchingNode(serviceNodeId);
+
+    // Delete the service node this edge touches
+    deleteNode(serviceNodeId);
+  } else {
+    // It is a joining edge (connecting clusters)
+    // Only have to delete the selected edge
+    deleteEdge(id);
+  }
+};
 
 module.exports = {
   getNode: getNode,
@@ -72053,56 +72033,42 @@ var setUpEventHandlers = function setUpEventHandlers() {
   network.on('click', function (params) {
     console.log(params);
     if (params.nodes.length > 0) {
-      console.log(network);
-      console.log(graph.getNodes());
-      console.log(params.nodes[0]);
+      // If a node is selected
       network.selectNodes([params.nodes[0]]);
       selected = params.nodes[0];
       showDeleteButton();
-      console.log(network.getSelection());
-    } else {
-      // If a node is already selected, on a click is made on empty space, just deselect the node
-      if (selected !== null) {
-        network.unselectAll();
-        selected = null;
-        hideDeleteButton();
-      } else if (stage === 'add-hotspots') {
-        graph.addNode({
-          label: '',
-          original: true,
-          group: 'hotspot',
-          connectedToWithinCluster: [],
-          x: params.pointer.canvas.x,
-          y: params.pointer.canvas.y
-        });
-      } else if (stage === 'add-serviced-nodes') {
-        graph.addNode({
-          label: '',
-          original: false,
-          group: 'service',
-          connectedToWithinCluster: [],
-          x: params.pointer.canvas.x,
-          y: params.pointer.canvas.y
-        });
-      }
+    } else if (params.edges.length > 0) {
+      // Else if an edge is selected
+      console.log('Edge clicked ' + params.edges[0]);
+      network.selectEdges([params.edges[0]]);
+      selected = params.edges[0];
+      showDeleteButton();
+    } else if (selected !== null) {
+      // Else if a node was already selected, on a click is made on empty space, just deselect the node
+      network.unselectAll();
+      selected = null;
+      hideDeleteButton();
+    } else if (stage === 'add-hotspots') {
+      graph.addNode({
+        label: '',
+        original: true,
+        group: 'hotspot',
+        connectedToWithinCluster: [],
+        x: params.pointer.canvas.x,
+        y: params.pointer.canvas.y
+      });
+    } else if (stage === 'add-serviced-nodes') {
+      graph.addNode({
+        label: '',
+        original: false,
+        group: 'service',
+        connectedToWithinCluster: [],
+        x: params.pointer.canvas.x,
+        y: params.pointer.canvas.y
+      });
     }
   });
 };
-
-// function setUpHandlers() {
-//   network.on("oncontext", (params) => {
-//     console.log(params);
-//   });
-//   // network.on("doubleClick", (params) => {
-//   //   console.log(params);
-//   // });
-//   // network.on("select", (params) => {
-//   //   console.log('select Event:', params);
-//   // });
-//   // network.on("selectNode", (params) => {
-//   //   console.log('selectNode Event:', params);
-//   // });
-// }
 
 var resetPuzzleBuilder = function resetPuzzleBuilder() {
   network.destroy();
@@ -72120,6 +72086,10 @@ var resetPuzzleBuilder = function resetPuzzleBuilder() {
 
 var deleteSelected = function deleteSelected() {
   var selection = network.getSelection();
+
+  if (selection.nodes.length === 0 && selection.edges.length === 0) {
+    throw new Error('Nothing selected to delete');
+  }
 
   // The delete button should already be showing when something is selected.
   // Therefore we just need to know if it is a node or edge that is selected

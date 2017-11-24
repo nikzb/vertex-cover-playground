@@ -140,7 +140,40 @@ const processDeleteNode = function processDeleteNode(id) {
 };
 
 const processDeleteEdge = function processDeleteEdge(id) {
+  const edgeToDelete = getEdge(id);
 
+  const fromNode = getNode(edgeToDelete.from);
+  const toNode = getNode(edgeToDelete.to);
+
+  // Check if is a cluster edge
+  if (fromNode.group === 'hotspot' || toNode.group === 'hotspot') {
+    // Deleting a cluster edge must also delete the serviced node
+    let serviceNodeId;
+    let hotspotId;
+
+    if (fromNode.group === 'hotspot') {
+      serviceNodeId = edgeToDelete.to;
+      hotspotId = edgeToDelete.from;
+    } else {
+      serviceNodeId = edgeToDelete.from;
+      hotspotId = edgeToDelete.to;
+    }
+
+    // Need to remove the id of the serviced node from the hotspot's connectedToWithinCluster list
+    const hotspot = getNode(hotspotId);
+    const index = hotspot.connectedToWithinCluster.indexOf(serviceNodeId);
+    hotspot.connectedToWithinCluster.splice(index, 1);
+    updateNode(hotspot);
+
+    // Need to delete all the edges that touch the service node that is about to get deleted
+    deleteEdgesTouchingNode(serviceNodeId);
+
+    // Delete the service node this edge touches
+    deleteNode(serviceNodeId);
+  } else { // It is a joining edge (connecting clusters)
+    // Only have to delete the selected edge
+    deleteEdge(id);
+  }
 };
 
 module.exports = {
