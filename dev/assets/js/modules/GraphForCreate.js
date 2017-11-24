@@ -28,6 +28,7 @@ const getData = function getData() {
   return data;
 };
 
+// Just deletes a particular node - does not look at connections at all
 const deleteNode = function deleteNode(id) {
   nodes.remove(id);
 };
@@ -98,6 +99,50 @@ const getSize = function getSize() {
   return size;
 };
 
+const deleteEdgesTouchingNode = function deleteEdgesTouchingNode(nodeId) {
+  getEdges().forEach((edgeToCheck) => {
+    if (edgeToCheck.from === nodeId || edgeToCheck.to === nodeId) {
+      deleteEdge(edgeToCheck.id);
+    }
+  });
+};
+
+const processDeleteNode = function processDeleteNode(id) {
+  const nodeToDelete = getNode(id);
+
+  if (nodeToDelete.group === 'hotspot') {
+    // Delete all the edges touching the serviced nodes this hotspot is connected to
+    nodeToDelete.connectedToWithinCluster.forEach((serviceNodeId) => {
+      deleteEdgesTouchingNode(serviceNodeId);
+    });
+
+    // Delete all the service nodes connected to the hotspot we are deleting
+    nodeToDelete.connectedToWithinCluster.forEach((serviceNodeId) => {
+      deleteNode(serviceNodeId);
+    });
+
+    // Delete the hotspot
+    deleteNode(id);
+  } else { // must be a service node
+    // Must remove nodeId from the hotspots connectedToWithinCluster list
+    const hotspotId = nodeToDelete.connectedToWithinCluster[0];
+    const hotspot = getNode(hotspotId);
+    const index = hotspot.connectedToWithinCluster.indexOf(id);
+    hotspot.connectedToWithinCluster.splice(index, 1);
+    updateNode(hotspot);
+
+    // Delete all the edges touching the serviced node
+    deleteEdgesTouchingNode(id);
+
+    // Delete the service node
+    deleteNode(id);
+  }
+};
+
+const processDeleteEdge = function processDeleteEdge(id) {
+
+};
+
 module.exports = {
   getNode,
   getEdge,
@@ -112,5 +157,7 @@ module.exports = {
   removeLonelyNodes,
   getSize,
   getNumberOfHotspots,
-  getNumberOfServicedNodes
+  getNumberOfServicedNodes,
+  processDeleteNode,
+  processDeleteEdge
 };

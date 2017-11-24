@@ -212,12 +212,12 @@ const resetPuzzleBuilder = function resetPuzzleBuilder() {
 const deleteSelected = function deleteSelected() {
   const selection = network.getSelection();
 
-  // The delete button should only be showing when something is selected.
+  // The delete button should already be showing when something is selected.
   // Therefore we just need to know if it is a node or edge that is selected
   if (selection.nodes.length > 0) {
-    graph.deleteNode(selection.nodes[0]);
+    graph.processDeleteNode(selection.nodes[0]);
   } else {
-    graph.deleteEdge(selection.edges[0]);
+    graph.processDeleteEdge(selection.edges[0]);
   }
 
   selected = null;

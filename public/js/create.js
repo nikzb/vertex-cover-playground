@@ -71820,6 +71820,7 @@ var getData = function getData() {
   return data;
 };
 
+// Just deletes a particular node - does not look at connections at all
 var deleteNode = function deleteNode(id) {
   nodes.remove(id);
 };
@@ -71890,6 +71891,49 @@ var getSize = function getSize() {
   return size;
 };
 
+var deleteEdgesTouchingNode = function deleteEdgesTouchingNode(nodeId) {
+  getEdges().forEach(function (edgeToCheck) {
+    if (edgeToCheck.from === nodeId || edgeToCheck.to === nodeId) {
+      deleteEdge(edgeToCheck.id);
+    }
+  });
+};
+
+var processDeleteNode = function processDeleteNode(id) {
+  var nodeToDelete = getNode(id);
+
+  if (nodeToDelete.group === 'hotspot') {
+    // Delete all the edges touching the serviced nodes this hotspot is connected to
+    nodeToDelete.connectedToWithinCluster.forEach(function (serviceNodeId) {
+      deleteEdgesTouchingNode(serviceNodeId);
+    });
+
+    // Delete all the service nodes connected to the hotspot we are deleting
+    nodeToDelete.connectedToWithinCluster.forEach(function (serviceNodeId) {
+      deleteNode(serviceNodeId);
+    });
+
+    // Delete the hotspot
+    deleteNode(id);
+  } else {
+    // must be a service node
+    // Must remove nodeId from the hotspots connectedToWithinCluster list
+    var hotspotId = nodeToDelete.connectedToWithinCluster[0];
+    var hotspot = getNode(hotspotId);
+    var index = hotspot.connectedToWithinCluster.indexOf(id);
+    hotspot.connectedToWithinCluster.splice(index, 1);
+    updateNode(hotspot);
+
+    // Delete all the edges touching the serviced node
+    deleteEdgesTouchingNode(id);
+
+    // Delete the service node
+    deleteNode(id);
+  }
+};
+
+var processDeleteEdge = function processDeleteEdge(id) {};
+
 module.exports = {
   getNode: getNode,
   getEdge: getEdge,
@@ -71904,7 +71948,9 @@ module.exports = {
   removeLonelyNodes: removeLonelyNodes,
   getSize: getSize,
   getNumberOfHotspots: getNumberOfHotspots,
-  getNumberOfServicedNodes: getNumberOfServicedNodes
+  getNumberOfServicedNodes: getNumberOfServicedNodes,
+  processDeleteNode: processDeleteNode,
+  processDeleteEdge: processDeleteEdge
 };
 
 /***/ }),
@@ -72075,12 +72121,12 @@ var resetPuzzleBuilder = function resetPuzzleBuilder() {
 var deleteSelected = function deleteSelected() {
   var selection = network.getSelection();
 
-  // The delete button should only be showing when something is selected.
+  // The delete button should already be showing when something is selected.
   // Therefore we just need to know if it is a node or edge that is selected
   if (selection.nodes.length > 0) {
-    graph.deleteNode(selection.nodes[0]);
+    graph.processDeleteNode(selection.nodes[0]);
   } else {
-    graph.deleteEdge(selection.edges[0]);
+    graph.processDeleteEdge(selection.edges[0]);
   }
 
   selected = null;
