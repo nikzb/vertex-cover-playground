@@ -15,6 +15,7 @@
 //   {from: 2, to: 5},
 //   {from: 3, to: 6}
 // ]);
+
 const vis = require('vis');
 
 const Graph = require('./modules/Graph');

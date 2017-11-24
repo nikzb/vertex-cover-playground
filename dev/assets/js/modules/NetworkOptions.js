@@ -118,61 +118,6 @@ const getAddNodeFunc = function getAddNodeFunc(group, network) {
   };
 };
 
-const getDeleteNodeFunc = function getDeleteNodeFunc(network, graph) {
-  return (nodeData, callback) => {
-    const IDsOfNodesToDelete = nodeData.nodes;
-    console.log("IDs of nodes to delete");
-    console.log(IDsOfNodesToDelete);
-
-    IDsOfNodesToDelete.forEach((nodeId) => {
-      const node = graph.getNode(nodeId);
-
-      console.log("Deleting this node:");
-      console.log(node);
-
-      if (node.group === 'hotspot') {
-        // Don't need this since next part will delete all the necessary edges
-        // Delete all the edges between this hotspot and the service nodes it connects to
-        // deleteEdgesTouchingNode(graph, nodeId);
-
-        // Delete all the edges touching the serviced nodes this hotspot is connected to
-        graph.getNode(nodeId).connectedToWithinCluster.forEach((serviceNodeId) => {
-          deleteEdgesTouchingNode(graph, serviceNodeId);
-        });
-
-        // Delete all the service nodes connected to the hotspot we are deleting
-        node.connectedToWithinCluster.forEach((serviceNodeId) => {
-          console.log(`Deleting service node (because it is attached to hotspot we are deleting): ${serviceNodeId}`);
-          graph.deleteNode(serviceNodeId);
-        });
-
-        // Delete the hotspot
-        graph.deleteNode(nodeId);
-      } else { // must be a service node
-        // Must remove nodeId from the hotspots connectedToWithinCluster list
-        const hotspotId = node.connectedToWithinCluster[0];
-        const hotspot = graph.getNode(hotspotId);
-        // const index = _.findIndex(hotspot.connectedToWithinCluster, o => o.id === nodeId);
-        const index = hotspot.connectedToWithinCluster.indexOf(nodeId);
-        hotspot.connectedToWithinCluster.splice(index, 1);
-        console.log(`Updating hotspot`);
-        console.log(hotspot);
-        console.log(`So it is no longer connected to `);
-        console.log(nodeId);
-        graph.updateNode(hotspot);
-
-        // Delete all the edges touching the serviced node
-        deleteEdgesTouchingNode(graph, nodeId);
-
-        // Delete the service node
-        graph.deleteNode(nodeId);
-      }
-    });
-
-    callback(nodeData);
-  };
-};
-
 const getDeleteEdgeFunc = function getDeleteEdgeFunc(network, graph) {
   return (nodeData, callback) => {
     nodeData.edges.forEach((edgeId) => {
@@ -288,34 +233,34 @@ const updateNetworkOptions = function updateNetworkOptions(network, options) {
 };
 
 const setUpOptionsForAddHotspots = function setUpOptionsForAddHotspots(network, graph, options) {
-  options.manipulation.addNode = getAddNodeFunc('hotspot', network);
-  options.manipulation.editNode = (nodeData, callback) => {
-    callback(nodeData);
-  };
-  options.manipulation.addEdge = false;
-  options.manipulation.deleteNode = getDeleteNodeFunc(network, graph);
-  options.manipulation.deleteEdge = getDeleteEdgeFunc(network, graph);
-  options.manipulation.editEdge = false;
-  options.manipulation.enabled = true;
-  updateNetworkOptions(network, options);
-  network.addNodeMode();
+  // options.manipulation.addNode = getAddNodeFunc('hotspot', network);
+  // options.manipulation.editNode = (nodeData, callback) => {
+  //   callback(nodeData);
+  // };
+  // options.manipulation.addEdge = false;
+  // options.manipulation.deleteNode = getDeleteNodeFunc(network, graph);
+  // options.manipulation.deleteEdge = getDeleteEdgeFunc(network, graph);
+  // options.manipulation.editEdge = false;
+  // options.manipulation.enabled = true;
+  // updateNetworkOptions(network, options);
+  // network.addNodeMode();
 };
 
 const setUpOptionsForAddServicedNodes = function setUpOptionsForAddServicedNodes(network, graph, options) {
-  options.manipulation.addNode = getAddNodeFunc('service', network);
-  options.manipulation.addEdge = false;
-  options.manipulation.deleteNode = getDeleteNodeFunc(network, graph);
-  options.manipulation.deleteEdge = getDeleteEdgeFunc(network, graph);
-  options.manipulation.editEdge = false;
-  updateNetworkOptions(network, options);
-  network.addNodeMode();
+  // options.manipulation.addNode = getAddNodeFunc('service', network);
+  // options.manipulation.addEdge = false;
+  // options.manipulation.deleteNode = getDeleteNodeFunc(network, graph);
+  // options.manipulation.deleteEdge = getDeleteEdgeFunc(network, graph);
+  // options.manipulation.editEdge = false;
+  // updateNetworkOptions(network, options);
+  // network.addNodeMode();
 };
 
 const setUpOptionsForMakeClusters = function setUpOptionsForMakeClusters(network, graph, options) {
   options.manipulation.addNode = false;
-  options.manipulation.deleteNode = getDeleteNodeFunc(network, graph);
+  options.manipulation.deleteNode = false;
   options.manipulation.editEdge = false;
-  options.manipulation.deleteEdge = getDeleteEdgeFunc(network, graph);
+  options.manipulation.deleteEdge = false;
   options.manipulation.addEdge = getAddEdgeForMakeClustersFunc(network, graph);
   updateNetworkOptions(network, options);
   network.addEdgeMode();
@@ -323,9 +268,9 @@ const setUpOptionsForMakeClusters = function setUpOptionsForMakeClusters(network
 
 const setUpOptionsForConnectClusters = function setUpOptionsForConnectClusters(network, graph, options) {
   options.manipulation.addNode = false;
-  options.manipulation.deleteNode = getDeleteNodeFunc(network, graph);
+  options.manipulation.deleteNode = false;
   options.manipulation.editEdge = false;
-  options.manipulation.deleteEdge = getDeleteEdgeFunc(network, graph);
+  options.manipulation.deleteEdge = false;
   options.manipulation.addEdge = getAddEdgeForConnectClustersFunc(network, graph);
   updateNetworkOptions(network, options);
   network.addEdgeMode();

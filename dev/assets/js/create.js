@@ -8,6 +8,7 @@ const setUpTitleLink = require('./modules/title');
 
 setUpTitleLink();
 
+
 // Variables for manipulating the DOM
 let instructDiv = null;
 let buttonDiv = null;
@@ -15,10 +16,13 @@ let prevButton = null;
 let resetButton = null;
 let instruct = null;
 let stepTitle = null;
+let deleteButton = null;
 
 let stageInstructions = null;
 let needMoreNodesWarning = null;
 let nodesNeedMoreSpaceWarning = null;
+
+let selected = null;
 
 let network = null;
 let container;
@@ -111,33 +115,69 @@ const populateStageInstructions = function populateStageInstructions() {
 
 populateStageInstructions();
 
-function setUpDragFix() {
+const showDeleteButton = function showDeleteButton() {
+  // const deleteButton = document.querySelector('.btn--delete');
+  deleteButton.style.display = 'block';
+};
+
+const hideDeleteButton = function hideDeleteButton() {
+  // const deleteButton = document.querySelector('.btn--delete');
+  deleteButton.style.display = 'none';
+};
+
+const setUpDragFix = function setUpDragFix() {
   network.on("dragEnd", (params) => {
     if (params.nodes.length > 0) {
       console.log(params.nodes);
       const nodeId = params.nodes[0];
+      selected = nodeId;
+      showDeleteButton();
+
       const node = graph.getNode(nodeId);
       node.x = params.pointer.canvas.x;
       node.y = params.pointer.canvas.y;
       graph.updateNode(node);
     }
   });
-}
+};
 
-// function setUpHandlers() {
-//   network.on("oncontext", (params) => {
-//     console.log(params);
-//   });
-//   // network.on("doubleClick", (params) => {
-//   //   console.log(params);
-//   // });
-//   // network.on("select", (params) => {
-//   //   console.log('select Event:', params);
-//   // });
-//   // network.on("selectNode", (params) => {
-//   //   console.log('selectNode Event:', params);
-//   // });
-// }
+const setUpEventHandlers = function setUpEventHandlers() {
+  network.on('click', (params) => {
+    console.log(params);
+    if (params.nodes.length > 0) { // If a node is selected
+      network.selectNodes([params.nodes[0]]);
+      selected = params.nodes[0];
+      showDeleteButton();
+    } else if (params.edges.length > 0) { // Else if an edge is selected
+      console.log(`Edge clicked ${params.edges[0]}`);
+      network.selectEdges([params.edges[0]]);
+      selected = params.edges[0];
+      showDeleteButton();
+    } else if (selected !== null) { // Else if a node was already selected, on a click is made on empty space, just deselect the node
+      network.unselectAll();
+      selected = null;
+      hideDeleteButton();
+    } else if (stage === 'add-hotspots') {
+      graph.addNode({
+        label: '',
+        original: true,
+        group: 'hotspot',
+        connectedToWithinCluster: [],
+        x: params.pointer.canvas.x,
+        y: params.pointer.canvas.y
+      });
+    } else if (stage === 'add-serviced-nodes') {
+      graph.addNode({
+        label: '',
+        original: false,
+        group: 'service',
+        connectedToWithinCluster: [],
+        x: params.pointer.canvas.x,
+        y: params.pointer.canvas.y
+      });
+    }
+  });
+};
 
 const resetPuzzleBuilder = function resetPuzzleBuilder() {
   network.destroy();
@@ -151,6 +191,25 @@ const resetPuzzleBuilder = function resetPuzzleBuilder() {
   stepTitle.innerHTML = 'Step 1';
   prevButton.style.visibility = 'hidden';
   NetworkOptions.setUpOptionsForAddHotspots(network, graph, options);
+};
+
+const deleteSelected = function deleteSelected() {
+  const selection = network.getSelection();
+
+  if (selection.nodes.length === 0 && selection.edges.length === 0) {
+    throw new Error('Nothing selected to delete');
+  }
+
+  // The delete button should already be showing when something is selected.
+  // Therefore we just need to know if it is a node or edge that is selected
+  if (selection.nodes.length > 0) {
+    graph.processDeleteNode(selection.nodes[0]);
+  } else {
+    graph.processDeleteEdge(selection.edges[0]);
+  }
+
+  selected = null;
+  hideDeleteButton();
 };
 
 const nodesHaveAdequateSpace = function nodesHaveAdequateSpace() {
@@ -327,13 +386,10 @@ const draw = function draw() {
   network = new vis.Network(container, graph.getData(), options);
 
   setUpDragFix();
+  setUpEventHandlers();
 };
 
 const init = function init() {
-  document.querySelector('button[name="next"]').addEventListener('click', goToNextStage);
-  document.querySelector('button[name="prev"]').addEventListener('click', goToPrevStage);
-  document.querySelector('button[name="reset"]').addEventListener("click", resetPuzzleBuilder);
-
   // challengeDiv = document.querySelector('.info-container.challenge');
   instructDiv = document.querySelector('.info-container.instructions');
   instruct = document.querySelector('.info-container__details.instructions');
@@ -342,8 +398,15 @@ const init = function init() {
   buttonDiv = document.querySelector('.btn-container');
   prevButton = document.querySelector('button[name="prev"]');
   resetButton = document.querySelector('button[name="reset"]');
+  deleteButton = document.querySelector('button[name="delete"]');
+
+  document.querySelector('button[name="next"]').addEventListener('click', goToNextStage);
+  prevButton.addEventListener('click', goToPrevStage);
+  resetButton.addEventListener('click', resetPuzzleBuilder);
+  deleteButton.addEventListener('click', deleteSelected);
 
   prevButton.style.visibility = 'hidden';
+
 
   draw();
 };
