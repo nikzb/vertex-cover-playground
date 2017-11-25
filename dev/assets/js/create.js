@@ -126,18 +126,16 @@ const hideDeleteButton = function hideDeleteButton() {
 };
 
 const updateHotspotCount = function updateHotspotCount() {
-  document.querySelector('.graph-area__hotspot-count').textContent = graph.countHotspots();
+  document.querySelector('.graph-area__hotspot-count').textContent = graph.getNumberOfHotspots();
 };
 
 const setUpEventHandlers = function setUpEventHandlers() {
   network.on('click', (params) => {
-    console.log(params);
     if (params.nodes.length > 0) { // If a node is selected
       network.selectNodes([params.nodes[0]]);
       selected = params.nodes[0];
       showDeleteButton();
     } else if (params.edges.length > 0) { // Else if an edge is selected
-      console.log(`Edge clicked ${params.edges[0]}`);
       network.selectEdges([params.edges[0]]);
       selected = params.edges[0];
       showDeleteButton();
@@ -169,7 +167,6 @@ const setUpEventHandlers = function setUpEventHandlers() {
 
   network.on("dragEnd", (params) => {
     if (params.nodes.length > 0) {
-      console.log(params.nodes);
       const nodeId = params.nodes[0];
       selected = nodeId;
       showDeleteButton();
@@ -352,7 +349,6 @@ const goToNextStage = function goToNextStage() {
     if (warningMessage.length > 0) {
       instruct.innerHTML = stageInstructions[5] + warningMessage;
     } else {
-      console.log(graph.getNodes());
       savePuzzleAndLoad();
     }
   }

@@ -178,18 +178,6 @@ const processDeleteEdge = function processDeleteEdge(id) {
   }
 };
 
-const countHotspots = function countHotspots() {
-  let hotspots = 0;
-
-  nodes.forEach((node) => {
-    if (node.group === 'hotspot') {
-      hotspots += 1;
-    }
-  });
-
-  return hotspots;
-};
-
 module.exports = {
   getNode,
   getEdge,
@@ -206,6 +194,5 @@ module.exports = {
   getNumberOfHotspots,
   getNumberOfServicedNodes,
   processDeleteNode,
-  processDeleteEdge,
-  countHotspots
+  processDeleteEdge
 };
