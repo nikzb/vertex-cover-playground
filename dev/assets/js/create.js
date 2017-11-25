@@ -125,20 +125,8 @@ const hideDeleteButton = function hideDeleteButton() {
   deleteButton.style.display = 'none';
 };
 
-const setUpDragFix = function setUpDragFix() {
-  network.on("dragEnd", (params) => {
-    if (params.nodes.length > 0) {
-      console.log(params.nodes);
-      const nodeId = params.nodes[0];
-      selected = nodeId;
-      showDeleteButton();
-
-      const node = graph.getNode(nodeId);
-      node.x = params.pointer.canvas.x;
-      node.y = params.pointer.canvas.y;
-      graph.updateNode(node);
-    }
-  });
+const updateHotspotCount = function updateHotspotCount() {
+  document.querySelector('.graph-area__hotspot-count').textContent = graph.countHotspots();
 };
 
 const setUpEventHandlers = function setUpEventHandlers() {
@@ -176,6 +164,21 @@ const setUpEventHandlers = function setUpEventHandlers() {
         y: params.pointer.canvas.y
       });
     }
+    updateHotspotCount();
+  });
+
+  network.on("dragEnd", (params) => {
+    if (params.nodes.length > 0) {
+      console.log(params.nodes);
+      const nodeId = params.nodes[0];
+      selected = nodeId;
+      showDeleteButton();
+
+      const node = graph.getNode(nodeId);
+      node.x = params.pointer.canvas.x;
+      node.y = params.pointer.canvas.y;
+      graph.updateNode(node);
+    }
   });
 };
 
@@ -183,8 +186,9 @@ const resetPuzzleBuilder = function resetPuzzleBuilder() {
   network.destroy();
 
   graph.reset();
+  updateHotspotCount();
   network = new vis.Network(container, graph.getData(), options);
-  setUpDragFix();
+  setUpEventHandlers();
 
   stage = 'add-hotspots';
   instruct.innerHTML = stageInstructions[1];
@@ -210,6 +214,7 @@ const deleteSelected = function deleteSelected() {
 
   selected = null;
   hideDeleteButton();
+  updateHotspotCount();
 };
 
 const nodesHaveAdequateSpace = function nodesHaveAdequateSpace() {
@@ -320,12 +325,14 @@ const goToNextStage = function goToNextStage() {
   } else if (stage === 'make-clusters') {
     stage = 'connect-clusters';
     graph.removeLonelyNodes();
+    updateHotspotCount();
     NetworkOptions.setUpOptionsForConnectClusters(network, graph, options);
     instruct.innerHTML = stageInstructions[4];
     stepTitle.innerHTML = 'Step 4';
   } else if (stage === 'connect-clusters') {
     stage = 'finished';
     graph.removeLonelyNodes();
+    updateHotspotCount();
     NetworkOptions.setUpOptionsForFinished(network, options);
     instruct.innerHTML = stageInstructions[5];
     stepTitle.innerHTML = 'Step 5';
@@ -384,8 +391,6 @@ const draw = function draw() {
   graph.reset();
 
   network = new vis.Network(container, graph.getData(), options);
-
-  setUpDragFix();
   setUpEventHandlers();
 };
 

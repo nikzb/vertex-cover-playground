@@ -834,6 +834,10 @@ li {
   position: relative;/* Is this necessary? */
 }
 
+.graph-area__count-wrap-count, .graph-area__hotspot-count {
+  color: #666;
+}
+
 .graph-area__count-wrap-label {
   margin-right: 30px;
 }

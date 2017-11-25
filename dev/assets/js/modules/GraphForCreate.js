@@ -125,14 +125,16 @@ const processDeleteNode = function processDeleteNode(id) {
     deleteNode(id);
   } else { // must be a service node
     // Must remove nodeId from the hotspots connectedToWithinCluster list
-    const hotspotId = nodeToDelete.connectedToWithinCluster[0];
-    const hotspot = getNode(hotspotId);
-    const index = hotspot.connectedToWithinCluster.indexOf(id);
-    hotspot.connectedToWithinCluster.splice(index, 1);
-    updateNode(hotspot);
+    if (nodeToDelete.connectedToWithinCluster.length > 0) {
+      const hotspotId = nodeToDelete.connectedToWithinCluster[0];
+      const hotspot = getNode(hotspotId);
+      const index = hotspot.connectedToWithinCluster.indexOf(id);
+      hotspot.connectedToWithinCluster.splice(index, 1);
+      updateNode(hotspot);
 
-    // Delete all the edges touching the serviced node
-    deleteEdgesTouchingNode(id);
+      // Delete all the edges touching the serviced node
+      deleteEdgesTouchingNode(id);
+    }
 
     // Delete the service node
     deleteNode(id);
@@ -176,6 +178,18 @@ const processDeleteEdge = function processDeleteEdge(id) {
   }
 };
 
+const countHotspots = function countHotspots() {
+  let hotspots = 0;
+
+  nodes.forEach((node) => {
+    if (node.group === 'hotspot') {
+      hotspots += 1;
+    }
+  });
+
+  return hotspots;
+};
+
 module.exports = {
   getNode,
   getEdge,
@@ -192,5 +206,6 @@ module.exports = {
   getNumberOfHotspots,
   getNumberOfServicedNodes,
   processDeleteNode,
-  processDeleteEdge
+  processDeleteEdge,
+  countHotspots
 };

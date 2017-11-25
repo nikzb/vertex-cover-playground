@@ -71779,14 +71779,16 @@ var processDeleteNode = function processDeleteNode(id) {
   } else {
     // must be a service node
     // Must remove nodeId from the hotspots connectedToWithinCluster list
-    var hotspotId = nodeToDelete.connectedToWithinCluster[0];
-    var hotspot = getNode(hotspotId);
-    var index = hotspot.connectedToWithinCluster.indexOf(id);
-    hotspot.connectedToWithinCluster.splice(index, 1);
-    updateNode(hotspot);
+    if (nodeToDelete.connectedToWithinCluster.length > 0) {
+      var hotspotId = nodeToDelete.connectedToWithinCluster[0];
+      var hotspot = getNode(hotspotId);
+      var index = hotspot.connectedToWithinCluster.indexOf(id);
+      hotspot.connectedToWithinCluster.splice(index, 1);
+      updateNode(hotspot);
 
-    // Delete all the edges touching the serviced node
-    deleteEdgesTouchingNode(id);
+      // Delete all the edges touching the serviced node
+      deleteEdgesTouchingNode(id);
+    }
 
     // Delete the service node
     deleteNode(id);
@@ -71831,6 +71833,18 @@ var processDeleteEdge = function processDeleteEdge(id) {
   }
 };
 
+var countHotspots = function countHotspots() {
+  var hotspots = 0;
+
+  nodes.forEach(function (node) {
+    if (node.group === 'hotspot') {
+      hotspots += 1;
+    }
+  });
+
+  return hotspots;
+};
+
 module.exports = {
   getNode: getNode,
   getEdge: getEdge,
@@ -71847,7 +71861,8 @@ module.exports = {
   getNumberOfHotspots: getNumberOfHotspots,
   getNumberOfServicedNodes: getNumberOfServicedNodes,
   processDeleteNode: processDeleteNode,
-  processDeleteEdge: processDeleteEdge
+  processDeleteEdge: processDeleteEdge,
+  countHotspots: countHotspots
 };
 
 /***/ }),
@@ -71930,20 +71945,8 @@ var hideDeleteButton = function hideDeleteButton() {
   deleteButton.style.display = 'none';
 };
 
-var setUpDragFix = function setUpDragFix() {
-  network.on("dragEnd", function (params) {
-    if (params.nodes.length > 0) {
-      console.log(params.nodes);
-      var nodeId = params.nodes[0];
-      selected = nodeId;
-      showDeleteButton();
-
-      var node = graph.getNode(nodeId);
-      node.x = params.pointer.canvas.x;
-      node.y = params.pointer.canvas.y;
-      graph.updateNode(node);
-    }
-  });
+var updateHotspotCount = function updateHotspotCount() {
+  document.querySelector('.graph-area__hotspot-count').textContent = graph.countHotspots();
 };
 
 var setUpEventHandlers = function setUpEventHandlers() {
@@ -71984,6 +71987,21 @@ var setUpEventHandlers = function setUpEventHandlers() {
         y: params.pointer.canvas.y
       });
     }
+    updateHotspotCount();
+  });
+
+  network.on("dragEnd", function (params) {
+    if (params.nodes.length > 0) {
+      console.log(params.nodes);
+      var nodeId = params.nodes[0];
+      selected = nodeId;
+      showDeleteButton();
+
+      var node = graph.getNode(nodeId);
+      node.x = params.pointer.canvas.x;
+      node.y = params.pointer.canvas.y;
+      graph.updateNode(node);
+    }
   });
 };
 
@@ -71991,8 +72009,9 @@ var resetPuzzleBuilder = function resetPuzzleBuilder() {
   network.destroy();
 
   graph.reset();
+  updateHotspotCount();
   network = new vis.Network(container, graph.getData(), options);
-  setUpDragFix();
+  setUpEventHandlers();
 
   stage = 'add-hotspots';
   instruct.innerHTML = stageInstructions[1];
@@ -72018,6 +72037,7 @@ var deleteSelected = function deleteSelected() {
 
   selected = null;
   hideDeleteButton();
+  updateHotspotCount();
 };
 
 var nodesHaveAdequateSpace = function nodesHaveAdequateSpace() {
@@ -72123,12 +72143,14 @@ var goToNextStage = function goToNextStage() {
   } else if (stage === 'make-clusters') {
     stage = 'connect-clusters';
     graph.removeLonelyNodes();
+    updateHotspotCount();
     NetworkOptions.setUpOptionsForConnectClusters(network, graph, options);
     instruct.innerHTML = stageInstructions[4];
     stepTitle.innerHTML = 'Step 4';
   } else if (stage === 'connect-clusters') {
     stage = 'finished';
     graph.removeLonelyNodes();
+    updateHotspotCount();
     NetworkOptions.setUpOptionsForFinished(network, options);
     instruct.innerHTML = stageInstructions[5];
     stepTitle.innerHTML = 'Step 5';
@@ -72187,8 +72209,6 @@ var draw = function draw() {
   graph.reset();
 
   network = new vis.Network(container, graph.getData(), options);
-
-  setUpDragFix();
   setUpEventHandlers();
 };
 
