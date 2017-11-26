@@ -7,7 +7,20 @@ let messageInput = null;
 let loadButton = null;
 let input = null;
 let codeAndLinksElem = null;
+let graphSizeSelection = null;
+let nextGraph = null;
 let code = null;
+
+const updateMessage = function updateMessage(main, secondary) {
+  messageElem.textContent = main;
+  if (secondary !== null) {
+    secondaryMessageElem.style.display = 'block';
+    secondaryMessageElem.textContent = secondary;
+  } else {
+    secondaryMessageElem.style.display = 'none';
+    secondaryMessageElem.textContent = '';
+  }
+};
 
 const removeActive = function removeActive(element) {
   if (element.classList.contains('active')) {
@@ -45,7 +58,7 @@ const hideCodeSelectionInfo = function hideCodeSelectionInfo() {
 
 const showCodeSelection = function showCodeSelection() {
   messageInput.style.display = 'flex';
-  messageElem.textContent = 'Load a Puzzle';
+  updateMessage('Load a Puzzle', null);
   input.style.display = 'block';
 
   addActive(messageDiv);
@@ -57,7 +70,8 @@ const setUpClickHandlerForHide = function setUpClickHandlerForHide() {
   messageDiv.addEventListener("click", (event) => {
     if (event.target.className !== 'message-box__input' &&
         event.target.className.indexOf('message-box__input-button') === -1 &&
-        event.target.className !== 'message-box__link-in-text-area') {
+        event.target.className !== 'message-box__link-in-text-area' &&
+        event.target.className.indexOf('message-box__options') === -1) {
       removeActive(messageDiv);
       document.querySelector('.message-box__input').value = '';
       messageInput.style.display = 'none';
@@ -122,37 +136,40 @@ const hideCodeAndLink = function hideCodeAndLink() {
   codeAndLinksElem.style.display = 'none';
 };
 
-const updateMessage = function updateMessage(main, secondary) {
-  messageElem.textContent = main;
-  if (secondary !== null) {
-    secondaryMessageElem.style.display = 'block';
-    secondaryMessageElem.textContent = secondary;
-  } else {
-    secondaryMessageElem.style.display = 'none';
-    secondaryMessageElem.textContent = '';
-  }
+const showGraphSizeSelection = function showGraphSizeSelection() {
+  graphSizeSelection.style.display = 'block';
+};
+
+const hideGraphSizeSelection = function hideGraphSizeSelection() {
+  graphSizeSelection.style.display = 'none';
+};
+
+const hideAll = function hideAll() {
+  hideCodeSelectionInfo();
+  hideLinks();
+  hideCodeAndLink();
+  hideGraphSizeSelection();
 };
 
 const show = function show(status, numHotspots) {
   if (status === 'success') {
-    hideCodeSelectionInfo();
+    hideAll();
     updateMessage('You found an optimal solution!', `You used only ${numHotspots} hotspots!`);
     showLinks();
-    hideCodeAndLink();
   } else if (status === 'retry') {
-    hideCodeSelectionInfo();
+    hideAll();
     updateMessage(`You used ${numHotspots} hotspots.`, 'Try again using less hotspots.');
-    hideLinks();
-    hideCodeAndLink();
   } else if (status === 'load') {
-    hideLinks();
+    hideAll();
     showCodeSelection();
-    hideCodeAndLink();
   } else if (status === 'share') {
-    hideLinks();
-    hideCodeSelectionInfo();
+    hideAll();
     updateMessage('Graph Code:', null);
     showCodeAndLink();
+  } else if (status === 'selectGraphSize') {
+    hideAll();
+    updateMessage('Try Another Graph', 'Choose a Graph Size');
+    showGraphSizeSelection();
   }
   addActive(messageDiv);
 };
@@ -165,11 +182,13 @@ const setUp = function setUp(domain, codeToUse) {
   messageInput = document.querySelector('.message-box__input-container');
   loadButton = document.querySelector('.message-box__input-button');
   input = document.querySelector('.message-box__input');
+  graphSizeSelection = document.querySelector('.message-box__puzzle-size-selection');
+  nextGraph = document.querySelector('.message-box__options.next-graph');
   code = codeToUse;
 
   addCodeAndLinkToDocument(domain);
-
   messageInput.style.display = 'none';
+  hideAll();
 
   setUpClickHandlerForHide();
   setUpClickHandlerForLoadButton(domain);

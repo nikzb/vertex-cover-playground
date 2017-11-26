@@ -92,7 +92,7 @@ const addCodeToListOfAttemptedPuzzles = function addCodeToListOfAttemptedPuzzles
   localStorage.setItem('hotspotPuzzlesAttempted', JSON.stringify(puzzleList));
 };
 
-const setUpClickHandlerForResetButton = function setUpClickHandlerForResetButton(messageDiv) {
+const setUpClickHandlerForResetButton = function setUpClickHandlerForResetButton() {
   document.querySelector('button[name="reset"]').addEventListener("click", () => {
     Graph.resetAllNodes();
     updateHotspotCount();
@@ -126,19 +126,18 @@ const setUpCodeButton = function setUpCodeButton() {
 };
 
 const setUpUIClickHandlers = function setUpUIClickHandlers() {
-  const messageDiv = document.querySelector('.message-box');
   setUpTitleLink();
-  setUpNextPuzzleLinks();
+  setUpNextPuzzleLinks(messageBox);
   setUpCreateLinks();
   setUpShareButton();
   setUpCodeButton();
-  setUpClickHandlerForResetButton(messageDiv);
+  setUpClickHandlerForResetButton();
 };
 
 const setUpAll = function setUpAll({ nodes, edges, code }) {
   setUpNetwork(nodes, edges);
-  setUpUIClickHandlers();
   messageBox.setUp(domain, code);
+  setUpUIClickHandlers();
 };
 
 const handleResponseToPuzzleRequest = function handleResponseToPuzzleRequest(response, code, isNew) {

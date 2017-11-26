@@ -29,6 +29,7 @@
     font-size: 2em;
     text-align: center;
     margin: 0.2em;
+    background: transparent;
 
     @mixin wide {
       margin: 0.5em;
@@ -39,6 +40,7 @@
     font-size: 1.5em;
     text-align: center;
     margin: 0.4em;
+    background: transparent;
 
     @mixin wide {
       margin-top: 0.5em;
@@ -50,9 +52,16 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    background: transparent;
   }
 
   &__options {
+    background: transparent;
+    text-align: center;
+  }
+
+  &__puzzle-size-selection {
+    background: transparent;
     text-align: center;
   }
 
@@ -74,6 +83,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    background: transparent;
   }
 
   &__input-label {
@@ -117,11 +127,13 @@
     margin: 0;
     color: #666;
     top: -0.2em;
+    background: transparent;
   }
 
   &__link-message {
     font-weight: 300;
     font-size: 1.4em;
     margin-bottom: 0.3em;
+    background: transparent;
   }
 }
