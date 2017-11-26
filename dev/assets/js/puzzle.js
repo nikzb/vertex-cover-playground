@@ -127,7 +127,7 @@ const setUpCodeButton = function setUpCodeButton() {
 
 const setUpUIClickHandlers = function setUpUIClickHandlers() {
   setUpTitleLink();
-  setUpNextPuzzleLinks(messageBox);
+  setUpNextPuzzleLinks(messageBox, domain);
   setUpCreateLinks();
   setUpShareButton();
   setUpCodeButton();

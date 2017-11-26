@@ -260,6 +260,8 @@ const savePuzzleAndLoad = function savePuzzleAndLoad() {
       response.text().then((code) => {
         // Figure out the correct size for the puzzle
         const size = graph.getSize();
+        console.log("in save puzzle and load");
+        console.log(size);
 
         const addPuzzleRequestHeaders = new Headers({
           'Content-Type': 'application/json'
@@ -286,7 +288,7 @@ const savePuzzleAndLoad = function savePuzzleAndLoad() {
               throw new Error("Error with response to adding puzzle");
             }
             // Successfully added puzzle, so load page with puzzle
-            window.location=`http://${domain}/hotspot/${code}?new=true`;
+            window.location=`//${domain}/hotspot/${code}?new=true`;
           })
           .catch((error) => {
             throw new Error(error);

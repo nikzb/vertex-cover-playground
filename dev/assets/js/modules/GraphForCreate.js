@@ -86,14 +86,16 @@ const removeLonelyNodes = function removeLonelyNodes() {
 };
 
 const getSize = function getSize() {
-  const nodesToCopy = getNodes();
+  const numHotspots = getNumberOfHotspots();
   let size;
-  if (nodesToCopy.length <= 15) {
-    size = "small";
-  } else if (nodesToCopy.length <= 25) {
-    size = "medium";
+  if (numHotspots <= 4) {
+    size = 'small';
+  } else if (numHotspots <= 7) {
+    size = 'medium';
+  } else if (numHotspots <= 10) {
+    size = 'large';
   } else {
-    size = "large";
+    size = 'x-large';
   }
 
   return size;

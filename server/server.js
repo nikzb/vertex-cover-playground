@@ -3,14 +3,13 @@ require('./config/config');
 const _ = require('lodash');
 const fp = require('path');
 
-const http = require('http');
-const https = require('https');
 const express = require('express');
 const hbs = require('hbs');
 const bodyParser = require('body-parser');
 const { ObjectID } = require('mongodb');
 
 const { mongoose } = require('./db/mongoose');
+
 const { HotspotPuzzle } = require('./models/hotspotPuzzle');
 const { generateCode } = require('./helpers/codeGenerator');
 
@@ -49,7 +48,7 @@ app.get('/', (req, res) => {
   // res.render('puzzle.hbs', { code: 'E2KB' });
 
   // This code chooses a random puzzle to use
-  HotspotPuzzle.find({}, 'code').then((codeList) => {
+  HotspotPuzzle.find({ size: 'small' }, 'code').then((codeList) => {
     const randomIndex = _.random(0, codeList.length - 1);
     const code = codeList[randomIndex].code;
     return res.render('puzzle.hbs', { code, isNew: false });
@@ -59,6 +58,7 @@ app.get('/', (req, res) => {
 // Render a puzzle page with the puzzle that has the requested code
 app.get('/hotspot/:code', (req, res) => {
   const code = req.params.code;
+  console.log('getting puzzle with code ' + code);
 
   const isNew = req.query.new || false;
 
@@ -127,8 +127,9 @@ app.post('/get-random-hotspot/', (req, res) => {
 });
 
 // Fetches a randomly selected puzzle code given a puzzle size and a list of codes to avoid
-app.post('/get-hotspot-given-size/', (req, res) => {
+app.post('/get-hotspot-given-size/:size', (req, res) => {
   const size = req.params.size;
+  console.log('request for size' + size);
   console.log(`Looking for puzzles with size ${size}`);
   console.log(req.body);
   const codesToAvoid = req.body;
@@ -153,6 +154,10 @@ app.post('/hotspot', (req, res) => {
     code: req.body.code,
     size: req.body.size
   });
+
+  console.log('saving puzzle');
+  console.log(puzzle);
+  console.log(req.body.size);
 
   puzzle.save().then((savedPuzzle) => {
     res.send({ savedPuzzle });
