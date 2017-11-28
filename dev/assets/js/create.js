@@ -8,7 +8,6 @@ const setUpTitleLink = require('./modules/title');
 
 setUpTitleLink();
 
-
 // Variables for manipulating the DOM
 let instructDiv = null;
 let buttonDiv = null;
