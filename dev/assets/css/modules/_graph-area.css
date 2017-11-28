@@ -71,6 +71,10 @@
     margin: 14px 20px;
     font-weight: normal;
   }
+
+  &__options.create-own {
+    text-align: right;
+  }
 }
 
 .share-icon {
