@@ -19,6 +19,7 @@
     "lodash": "^4.17.4",
     "mongodb": "^2.2.22",
     "mongoose": "^4.7.8",
+    "nodelist-foreach-polyfill": "^1.2.0",
     "normalize.css": "^5.0.0",
     "request": "^2.79.0",
     "vis": "^4.19.1",

@@ -1,23 +1,7 @@
-// create an array with nodes - this was the original small graph
-// var nodes = new vis.DataSet([
-//   {id: 1, label: 'Node 1', group: 'noService', original: false},
-//   {id: 2, label: 'Node 2', group: 'noService', original: true},
-//   {id: 3, label: 'Node 3', group: 'noService', original: true},
-//   {id: 4, label: 'Node 4', group: 'noService', original: false},
-//   {id: 5, label: 'Node 5', group: 'noService', original: false},
-//   {id: 6, label: 'Node 6', group: 'noService', original: false}
-// ]);
-// create an array with edges - original small graph
-// var edges = new vis.DataSet([
-//   {from: 1, to: 3},
-//   {from: 1, to: 2},
-//   {from: 2, to: 4},
-//   {from: 2, to: 5},
-//   {from: 3, to: 6}
-// ]);
-
+require('nodelist-foreach-polyfill');
 const vis = require('vis');
 
+const browserIsIE = require('./modules/DetectIE');
 const Graph = require('./modules/Graph');
 const NetworkOptions = require('./modules/NetworkOptions');
 
@@ -164,6 +148,12 @@ const handleResponseToPuzzleRequest = function handleResponseToPuzzleRequest(res
 };
 
 const usePuzzle = function usePuzzle(code, isNew) {
+  if (browserIsIE()) {
+    document.querySelector('.main-container__no-ie').style.display = 'block';
+    document.querySelector('.middle-container').style.display = 'none';
+    return;
+  }
+
   if (code === 'CODE') {
     const arrays = Graph.useDefaultPuzzle();
     setUpAll({

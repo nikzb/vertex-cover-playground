@@ -1,7 +1,4 @@
 const loadGraph = function loadGraph(domain, size) {
-  console.log('in load graph');
-  console.log(domain);
-  console.log(size);
   // const domain = window.location.host;
   // Need to get a puzzle that hasn't been attempted yet based on what is in localStorage
   const puzzleListString = localStorage.getItem('hotspotPuzzlesAttempted');
@@ -16,13 +13,11 @@ const loadGraph = function loadGraph(domain, size) {
     body: puzzleListString
   };
 
-  console.log(domain);
   const myRequest = new Request(`//${domain}/get-hotspot-given-size/${size}`, myInit);
   fetch(myRequest)
     .then(
       (response) => {
         response.text().then((code) => {
-          console.log(code);
           if (code) {
             // This would work except then I would need to also update the graph code that shows up
             // usePuzzle(code);

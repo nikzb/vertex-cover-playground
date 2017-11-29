@@ -1,4 +1,3 @@
-
 let messageDiv = null;
 let messageElem = null;
 let secondaryMessageElem = null;

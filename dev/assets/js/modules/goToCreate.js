@@ -1,4 +1,3 @@
-
 const setUpClickHandlersForCreateOwnLinks = function setUpClickHandlersForCreateOwnLinks() {
   const domain = window.location.host;
   const createOwnLinks = document.querySelectorAll('.create-own');

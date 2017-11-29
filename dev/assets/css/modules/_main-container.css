@@ -19,4 +19,9 @@
     max-width: 800px;
     flex: 1;
   }
+
+  &__no-ie {
+    display: none;
+    margin: 0 2em;
+  }
 }

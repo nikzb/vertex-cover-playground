@@ -69,33 +69,6 @@ var EntryPoint =
 /************************************************************************/
 /******/ ([
 /* 0 */
-/***/ (function(module, exports) {
-
-var g;
-
-// This works in non-strict mode
-g = (function() {
-	return this;
-})();
-
-try {
-	// This works if eval is allowed (see CSP)
-	g = g || Function("return this")() || (1,eval)("this");
-} catch(e) {
-	// This works if the window reference is available
-	if(typeof window === "object")
-		g = window;
-}
-
-// g can still be undefined, but nothing to do about it...
-// We return undefined, instead of nothing here, so it's
-// easier to handle this case. if(!global) { ...}
-
-module.exports = g;
-
-
-/***/ }),
-/* 1 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(process, Promise, global) {var require;/*** IMPORTS FROM imports-loader ***/
@@ -1264,7 +1237,34 @@ return Promise;
 /*** EXPORTS FROM exports-loader ***/
 module.exports = global.Promise;
 }.call(global));
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5), __webpack_require__(1), __webpack_require__(0)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5), __webpack_require__(0), __webpack_require__(1)))
+
+/***/ }),
+/* 1 */
+/***/ (function(module, exports) {
+
+var g;
+
+// This works in non-strict mode
+g = (function() {
+	return this;
+})();
+
+try {
+	// This works if eval is allowed (see CSP)
+	g = g || Function("return this")() || (1,eval)("this");
+} catch(e) {
+	// This works if the window reference is available
+	if(typeof window === "object")
+		g = window;
+}
+
+// g can still be undefined, but nothing to do about it...
+// We return undefined, instead of nothing here, so it's
+// easier to handle this case. if(!global) { ...}
+
+module.exports = g;
+
 
 /***/ }),
 /* 2 */
@@ -1739,7 +1739,7 @@ module.exports = global.Promise;
 /*** EXPORTS FROM exports-loader ***/
 module.exports = global.fetch;
 }.call(global));
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1), __webpack_require__(0)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0), __webpack_require__(1)))
 
 /***/ }),
 /* 3 */
@@ -1961,7 +1961,8 @@ process.umask = function() { return 0; };
 
 /***/ }),
 /* 7 */,
-/* 8 */
+/* 8 */,
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1981,16 +1982,13 @@ var setUpClickHandlersForCreateOwnLinks = function setUpClickHandlersForCreateOw
 module.exports = setUpClickHandlersForCreateOwnLinks;
 
 /***/ }),
-/* 9 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 /* WEBPACK VAR INJECTION */(function(fetch) {
 
 var loadGraph = function loadGraph(domain, size) {
-  console.log('in load graph');
-  console.log(domain);
-  console.log(size);
   // const domain = window.location.host;
   // Need to get a puzzle that hasn't been attempted yet based on what is in localStorage
   var puzzleListString = localStorage.getItem('hotspotPuzzlesAttempted');
@@ -2005,11 +2003,9 @@ var loadGraph = function loadGraph(domain, size) {
     body: puzzleListString
   };
 
-  console.log(domain);
   var myRequest = new Request('//' + domain + '/get-hotspot-given-size/' + size, myInit);
   fetch(myRequest).then(function (response) {
     response.text().then(function (code) {
-      console.log(code);
       if (code) {
         // This would work except then I would need to also update the graph code that shows up
         // usePuzzle(code);
@@ -2060,7 +2056,6 @@ module.exports = setUpClickHandlersForNextGraphLinks;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2)))
 
 /***/ }),
-/* 10 */,
 /* 11 */,
 /* 12 */,
 /* 13 */,
@@ -2074,8 +2069,8 @@ module.exports = setUpClickHandlersForNextGraphLinks;
 
 // Get title set up to link to main page
 var setUpTitleLink = __webpack_require__(3);
-var setUpNextPuzzleLinks = __webpack_require__(9);
-var setUpCreateLinks = __webpack_require__(8);
+var setUpNextPuzzleLinks = __webpack_require__(10);
+var setUpCreateLinks = __webpack_require__(9);
 
 setUpTitleLink();
 setUpNextPuzzleLinks();

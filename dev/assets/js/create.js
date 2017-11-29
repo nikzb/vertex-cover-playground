@@ -1,5 +1,7 @@
+require('nodelist-foreach-polyfill');
 const vis = require('vis');
 
+const browserIsIE = require('./modules/DetectIE');
 const graph = require('./modules/GraphForCreate');
 const NetworkOptions = require('./modules/NetworkOptions');
 
@@ -392,6 +394,12 @@ const draw = function draw() {
 };
 
 const init = function init() {
+  if (browserIsIE()) {
+    document.querySelector('.main-container__no-ie').style.display = 'block';
+    document.querySelector('.middle-container').style.display = 'none';
+    return;
+  }
+
   // challengeDiv = document.querySelector('.info-container.challenge');
   instructDiv = document.querySelector('.info-container.instructions');
   instruct = document.querySelector('.info-container__details.instructions');

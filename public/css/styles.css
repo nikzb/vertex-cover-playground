@@ -998,6 +998,11 @@ input:valid {
           flex: 1;
 }
 
+.main-container__no-ie {
+  display: none;
+  margin: 0 2em;
+}
+
 .middle-container {
   display: -webkit-box;
   display: -ms-flexbox;
