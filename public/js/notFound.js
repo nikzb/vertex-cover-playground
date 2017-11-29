@@ -2028,8 +2028,6 @@ var loadGraph = function loadGraph(domain, size) {
 var setUpClickHandlersForNextGraphLinks = function setUpClickHandlersForNextGraphLinks(messageBox, domain) {
   var nextGraphLinks = document.querySelectorAll('.next-graph');
 
-  console.log('setting up next graph links');
-
   nextGraphLinks.forEach(function (link) {
     link.addEventListener('click', function () {
       messageBox.show('selectGraphSize', 0);

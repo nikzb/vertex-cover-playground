@@ -54589,8 +54589,6 @@ var loadGraph = function loadGraph(domain, size) {
 var setUpClickHandlersForNextGraphLinks = function setUpClickHandlersForNextGraphLinks(messageBox, domain) {
   var nextGraphLinks = document.querySelectorAll('.next-graph');
 
-  console.log('setting up next graph links');
-
   nextGraphLinks.forEach(function (link) {
     link.addEventListener('click', function () {
       messageBox.show('selectGraphSize', 0);
@@ -72051,10 +72049,12 @@ var hideCodeAndLink = function hideCodeAndLink() {
 
 var showGraphSizeSelection = function showGraphSizeSelection() {
   graphSizeSelection.style.display = 'block';
+  secondaryMessageElem.classList.add('message-box__message-secondary-puzzle-select');
 };
 
 var hideGraphSizeSelection = function hideGraphSizeSelection() {
   graphSizeSelection.style.display = 'none';
+  secondaryMessageElem.classList.remove('message-box__message-secondary-puzzle-select');
 };
 
 var hideAll = function hideAll() {

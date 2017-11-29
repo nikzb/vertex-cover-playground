@@ -1201,6 +1201,7 @@ input:valid {
 }
 
 .message-box__message-secondary {
+  font-weight: 300;
   font-size: 1.5em;
   text-align: center;
   margin: 0.4em;
@@ -1212,6 +1213,14 @@ input:valid {
   .message-box__message-secondary {
     margin-top: 0.5em;
     margin-bottom: 1.6em;
+  }
+}
+
+@media (min-width: 1000px) {
+
+  .message-box__message-secondary-puzzle-select {
+    margin-top: 0.9em;
+    margin-bottom: 0.5em;
   }
 }
 

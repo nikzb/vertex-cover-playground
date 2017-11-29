@@ -44,8 +44,6 @@ const loadGraph = function loadGraph(domain, size) {
 const setUpClickHandlersForNextGraphLinks = function setUpClickHandlersForNextGraphLinks(messageBox, domain) {
   const nextGraphLinks = document.querySelectorAll('.next-graph');
 
-  console.log('setting up next graph links');
-
   nextGraphLinks.forEach((link) => {
     link.addEventListener('click', () => {
       messageBox.show('selectGraphSize', 0);

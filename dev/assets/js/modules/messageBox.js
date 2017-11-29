@@ -138,10 +138,12 @@ const hideCodeAndLink = function hideCodeAndLink() {
 
 const showGraphSizeSelection = function showGraphSizeSelection() {
   graphSizeSelection.style.display = 'block';
+  secondaryMessageElem.classList.add('message-box__message-secondary-puzzle-select');
 };
 
 const hideGraphSizeSelection = function hideGraphSizeSelection() {
   graphSizeSelection.style.display = 'none';
+  secondaryMessageElem.classList.remove('message-box__message-secondary-puzzle-select');
 };
 
 const hideAll = function hideAll() {

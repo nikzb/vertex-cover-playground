@@ -37,6 +37,7 @@
   }
 
   &__message-secondary {
+    font-weight: 300;
     font-size: 1.5em;
     text-align: center;
     margin: 0.4em;
@@ -45,6 +46,13 @@
     @mixin wide {
       margin-top: 0.5em;
       margin-bottom: 1.6em;
+    }
+  }
+
+  &__message-secondary-puzzle-select {
+    @mixin wide {
+      margin-top: 0.9em;
+      margin-bottom: 0.5em;
     }
   }
 
