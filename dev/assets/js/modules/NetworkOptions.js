@@ -25,6 +25,8 @@ const getOptionsForPuzzle = function getOptionsForPuzzle() {
       selectionWidth: 0
     },
     interaction: {
+      dragView: false,
+      zoomView: false
       // hover:true,
     },
     groups: {
