@@ -54604,258 +54604,6 @@ module.exports = setUpClickHandlersForCreateOwnLinks;
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-/* WEBPACK VAR INJECTION */(function(fetch) {
-
-var loadGraph = function loadGraph(domain, size) {
-  // const domain = window.location.host;
-  // Need to get a puzzle that hasn't been attempted yet based on what is in localStorage
-  var puzzleListString = localStorage.getItem('hotspotPuzzlesAttempted');
-
-  var myHeaders = new Headers({
-    'Content-Type': 'application/json'
-  });
-
-  var myInit = {
-    method: 'POST',
-    headers: myHeaders,
-    body: puzzleListString
-  };
-
-  var myRequest = new Request('//' + domain + '/get-hotspot-given-size/' + size, myInit);
-  fetch(myRequest).then(function (response) {
-    response.text().then(function (code) {
-      if (code) {
-        // This would work except then I would need to also update the graph code that shows up
-        // usePuzzle(code);
-        // Reload the page so that the code in the URL and the code shown on the page match the puzzle shown
-        // window.location=`http://${domain}/hotspot/${code}`;
-        window.location = '//' + domain + '/hotspot/' + code;
-      }
-    }).catch(function (error) {
-      throw new Error(error);
-    });
-  }).catch(function (error) {
-    throw new Error(error);
-  });
-};
-
-var setUpClickHandlersForNextGraphLinks = function setUpClickHandlersForNextGraphLinks(messageBox, domain) {
-  var nextGraphLinks = document.querySelectorAll('.next-graph');
-
-  nextGraphLinks.forEach(function (link) {
-    link.addEventListener('click', function () {
-      messageBox.show('selectGraphSize', 0);
-    });
-  });
-
-  var smallPuzzleButton = document.querySelector('.graph-area__options--small');
-  var mediumPuzzleButton = document.querySelector('.graph-area__options--medium');
-  var largePuzzleButton = document.querySelector('.graph-area__options--large');
-  var xLargePuzzleButton = document.querySelector('.graph-area__options--x-large');
-
-  smallPuzzleButton.addEventListener('click', function () {
-    loadGraph(domain, 'small');
-  });
-
-  mediumPuzzleButton.addEventListener('click', function () {
-    loadGraph(domain, 'medium');
-  });
-
-  largePuzzleButton.addEventListener('click', function () {
-    loadGraph(domain, 'large');
-  });
-
-  xLargePuzzleButton.addEventListener('click', function () {
-    loadGraph(domain, 'x-large');
-  });
-};
-
-module.exports = setUpClickHandlersForNextGraphLinks;
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2)))
-
-/***/ }),
-/* 11 */
-/***/ (function(module, exports) {
-
-if (window.NodeList && !NodeList.prototype.forEach) {
-    NodeList.prototype.forEach = function (callback, thisArg) {
-        thisArg = thisArg || window;
-        for (var i = 0; i < this.length; i++) {
-            callback.call(thisArg, this[i], i, this);
-        }
-    };
-}
-
-
-/***/ }),
-/* 12 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var vis = __webpack_require__(4);
-
-var nodes = null;
-var edges = null;
-var data = null;
-var optimalAnswer = null;
-
-var updateOptimalAnswer = function updateOptimalAnswer() {
-  optimalAnswer = nodes.get().reduce(function (total, node) {
-    return node.original ? total + 1 : total;
-  }, 0);
-};
-
-var getOptimalAnswer = function getOptimalAnswer() {
-  return optimalAnswer;
-};
-
-var updateConnectedNodes = function updateConnectedNodes() {
-  // Reset all serviced nodes to unserviced (but leave hotspots alone)
-  nodes.forEach(function (node) {
-    if (node.group === 'service') {
-      node.group = 'noService';
-      nodes.update(node);
-    }
-  });
-
-  // Find all the hotspot nodes and have them service all the connected non-hotspot nodes
-  nodes.forEach(function (node) {
-    if (node.group === 'hotspot') {
-      edges.forEach(function (edge) {
-        var servicedId = 0;
-        if (edge.from === node.id) {
-          servicedId = edge.to;
-        } else if (edge.to === node.id) {
-          servicedId = edge.from;
-        }
-
-        if (servicedId) {
-          var servicedNode = nodes.get(servicedId);
-
-          if (servicedNode.group === 'noService') {
-            servicedNode.group = 'service';
-            nodes.update(servicedNode);
-          }
-        }
-      });
-    }
-  });
-};
-
-var resetAllNodes = function resetAllNodes() {
-  nodes.forEach(function (node) {
-    node.group = 'noService';
-    nodes.update(node);
-  });
-};
-
-var setUpData = function setUpData(nodeArray, edgeArray) {
-  var newEdgeArray = [];
-  edgeArray.forEach(function (edge) {
-    newEdgeArray.push({ id: edge.id, from: edge.from, to: edge.to });
-  });
-
-  edges = new vis.DataSet(newEdgeArray);
-  nodes = new vis.DataSet(nodeArray);
-  resetAllNodes();
-  data = {
-    nodes: nodes,
-    edges: edges
-  };
-};
-
-var getData = function getData() {
-  return data;
-};
-
-var allNodesHaveWifi = function allNodesHaveWifi() {
-  return nodes.get().every(function (node) {
-    return node.group !== 'noService';
-  });
-};
-
-var countHotspots = function countHotspots() {
-  var hotspots = 0;
-
-  nodes.forEach(function (node) {
-    if (node.group === 'hotspot') {
-      hotspots += 1;
-    }
-  });
-
-  return hotspots;
-};
-
-var processNodeClick = function processNodeClick(id) {
-  var node = nodes.get(id);
-  if (node.group !== 'hotspot') {
-    nodes.update({ id: id, group: 'hotspot' });
-  } else if (node.group === 'hotspot') {
-    nodes.update({ id: id, group: 'noService' });
-  }
-  // Update which nodes should be in group 'service'
-  updateConnectedNodes();
-};
-
-var useDefaultPuzzle = function useDefaultPuzzle() {
-  var coordsArray = [[0, 0], [2, 0], [3, 0], [4, 0], [4, 2], [4, 3], [4, 4], [3, 4], [2, 4], [1, 4], [0, 4], [0, 3], [0, 2], [1, 2], [1, 1], [2, 1], [3, 1], [3, 2], [3, 3], [2, 3], [2, 2], [1, 3]];
-
-  coordsArray = coordsArray.map(function (coords) {
-    return [coords[0] * 0.707 - coords[1] * -0.707, coords[0] * -0.707 + coords[1] * 0.707 * 0.75];
-  });
-  var scaleFactor = 100;
-
-  var nodeArray = [];
-  var originals = [6, 12, 15, 17, 20];
-
-  for (var i = 1; i <= coordsArray.length; i += 1) {
-    var isOriginal = false;
-    if (originals.includes(i)) {
-      isOriginal = true;
-    }
-    nodeArray.push({
-      id: i,
-      group: 'noService',
-      // label: i,
-      original: isOriginal,
-      x: coordsArray[i - 1][0] * scaleFactor,
-      y: coordsArray[i - 1][1] * scaleFactor
-    });
-  }
-
-  var edgePairs = [[1, 2], [1, 15], [1, 13], [2, 15], [2, 3], [2, 16], [3, 4], [3, 17], [5, 18], [5, 6], [6, 8], [6, 7], [7, 8], [8, 9], [9, 10], [9, 20], [10, 11], [10, 12], [11, 12], [12, 13], [13, 14], [14, 15], [14, 21], [15, 16], [16, 21], [17, 18], [18, 19], [18, 21], [19, 20], [20, 21], [4, 5], [4, 17], [12, 22], [14, 22]];
-
-  var edgeArray = [];
-
-  edgePairs.forEach(function (edgePair) {
-    return edgeArray.push({ from: edgePair[0], to: edgePair[1] });
-  });
-
-  return { nodeArray: nodeArray, edgeArray: edgeArray };
-  // setUpNetwork(nodeArray, edgeArray);
-};
-
-module.exports = {
-  allNodesHaveWifi: allNodesHaveWifi,
-  countHotspots: countHotspots,
-  getOptimalAnswer: getOptimalAnswer,
-  updateOptimalAnswer: updateOptimalAnswer,
-  resetAllNodes: resetAllNodes,
-  updateConnectedNodes: updateConnectedNodes,
-  processNodeClick: processNodeClick,
-  getData: getData,
-  setUpData: setUpData,
-  useDefaultPuzzle: useDefaultPuzzle
-};
-
-/***/ }),
-/* 13 */,
-/* 14 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
 
 
 var messageDiv = null;
@@ -55063,6 +54811,258 @@ var setUp = function setUp(domain, codeToUse) {
 module.exports = { setUp: setUp, show: show, hide: hide, isActive: isActive };
 
 /***/ }),
+/* 11 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(fetch) {
+
+var loadGraph = function loadGraph(domain, size) {
+  // const domain = window.location.host;
+  // Need to get a puzzle that hasn't been attempted yet based on what is in localStorage
+  var puzzleListString = localStorage.getItem('hotspotPuzzlesAttempted');
+
+  var myHeaders = new Headers({
+    'Content-Type': 'application/json'
+  });
+
+  var myInit = {
+    method: 'POST',
+    headers: myHeaders,
+    body: puzzleListString
+  };
+
+  var myRequest = new Request('//' + domain + '/get-hotspot-given-size/' + size, myInit);
+  fetch(myRequest).then(function (response) {
+    response.text().then(function (code) {
+      if (code) {
+        // This would work except then I would need to also update the graph code that shows up
+        // usePuzzle(code);
+        // Reload the page so that the code in the URL and the code shown on the page match the puzzle shown
+        // window.location=`http://${domain}/hotspot/${code}`;
+        window.location = '//' + domain + '/hotspot/' + code;
+      }
+    }).catch(function (error) {
+      throw new Error(error);
+    });
+  }).catch(function (error) {
+    throw new Error(error);
+  });
+};
+
+var setUpClickHandlersForNextGraphLinks = function setUpClickHandlersForNextGraphLinks(messageBox, domain) {
+  var nextGraphLinks = document.querySelectorAll('.next-graph');
+
+  nextGraphLinks.forEach(function (link) {
+    link.addEventListener('click', function () {
+      messageBox.show('selectGraphSize', 0);
+    });
+  });
+
+  var smallPuzzleButton = document.querySelector('.graph-area__options--small');
+  var mediumPuzzleButton = document.querySelector('.graph-area__options--medium');
+  var largePuzzleButton = document.querySelector('.graph-area__options--large');
+  var xLargePuzzleButton = document.querySelector('.graph-area__options--x-large');
+
+  smallPuzzleButton.addEventListener('click', function () {
+    loadGraph(domain, 'small');
+  });
+
+  mediumPuzzleButton.addEventListener('click', function () {
+    loadGraph(domain, 'medium');
+  });
+
+  largePuzzleButton.addEventListener('click', function () {
+    loadGraph(domain, 'large');
+  });
+
+  xLargePuzzleButton.addEventListener('click', function () {
+    loadGraph(domain, 'x-large');
+  });
+};
+
+module.exports = setUpClickHandlersForNextGraphLinks;
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2)))
+
+/***/ }),
+/* 12 */
+/***/ (function(module, exports) {
+
+if (window.NodeList && !NodeList.prototype.forEach) {
+    NodeList.prototype.forEach = function (callback, thisArg) {
+        thisArg = thisArg || window;
+        for (var i = 0; i < this.length; i++) {
+            callback.call(thisArg, this[i], i, this);
+        }
+    };
+}
+
+
+/***/ }),
+/* 13 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var vis = __webpack_require__(4);
+
+var nodes = null;
+var edges = null;
+var data = null;
+var optimalAnswer = null;
+
+var updateOptimalAnswer = function updateOptimalAnswer() {
+  optimalAnswer = nodes.get().reduce(function (total, node) {
+    return node.original ? total + 1 : total;
+  }, 0);
+};
+
+var getOptimalAnswer = function getOptimalAnswer() {
+  return optimalAnswer;
+};
+
+var updateConnectedNodes = function updateConnectedNodes() {
+  // Reset all serviced nodes to unserviced (but leave hotspots alone)
+  nodes.forEach(function (node) {
+    if (node.group === 'service') {
+      node.group = 'noService';
+      nodes.update(node);
+    }
+  });
+
+  // Find all the hotspot nodes and have them service all the connected non-hotspot nodes
+  nodes.forEach(function (node) {
+    if (node.group === 'hotspot') {
+      edges.forEach(function (edge) {
+        var servicedId = 0;
+        if (edge.from === node.id) {
+          servicedId = edge.to;
+        } else if (edge.to === node.id) {
+          servicedId = edge.from;
+        }
+
+        if (servicedId) {
+          var servicedNode = nodes.get(servicedId);
+
+          if (servicedNode.group === 'noService') {
+            servicedNode.group = 'service';
+            nodes.update(servicedNode);
+          }
+        }
+      });
+    }
+  });
+};
+
+var resetAllNodes = function resetAllNodes() {
+  nodes.forEach(function (node) {
+    node.group = 'noService';
+    nodes.update(node);
+  });
+};
+
+var setUpData = function setUpData(nodeArray, edgeArray) {
+  var newEdgeArray = [];
+  edgeArray.forEach(function (edge) {
+    newEdgeArray.push({ id: edge.id, from: edge.from, to: edge.to });
+  });
+
+  edges = new vis.DataSet(newEdgeArray);
+  nodes = new vis.DataSet(nodeArray);
+  resetAllNodes();
+  data = {
+    nodes: nodes,
+    edges: edges
+  };
+};
+
+var getData = function getData() {
+  return data;
+};
+
+var allNodesHaveWifi = function allNodesHaveWifi() {
+  return nodes.get().every(function (node) {
+    return node.group !== 'noService';
+  });
+};
+
+var countHotspots = function countHotspots() {
+  var hotspots = 0;
+
+  nodes.forEach(function (node) {
+    if (node.group === 'hotspot') {
+      hotspots += 1;
+    }
+  });
+
+  return hotspots;
+};
+
+var processNodeClick = function processNodeClick(id) {
+  var node = nodes.get(id);
+  if (node.group !== 'hotspot') {
+    nodes.update({ id: id, group: 'hotspot' });
+  } else if (node.group === 'hotspot') {
+    nodes.update({ id: id, group: 'noService' });
+  }
+  // Update which nodes should be in group 'service'
+  updateConnectedNodes();
+};
+
+var useDefaultPuzzle = function useDefaultPuzzle() {
+  var coordsArray = [[0, 0], [2, 0], [3, 0], [4, 0], [4, 2], [4, 3], [4, 4], [3, 4], [2, 4], [1, 4], [0, 4], [0, 3], [0, 2], [1, 2], [1, 1], [2, 1], [3, 1], [3, 2], [3, 3], [2, 3], [2, 2], [1, 3]];
+
+  coordsArray = coordsArray.map(function (coords) {
+    return [coords[0] * 0.707 - coords[1] * -0.707, coords[0] * -0.707 + coords[1] * 0.707 * 0.75];
+  });
+  var scaleFactor = 100;
+
+  var nodeArray = [];
+  var originals = [6, 12, 15, 17, 20];
+
+  for (var i = 1; i <= coordsArray.length; i += 1) {
+    var isOriginal = false;
+    if (originals.includes(i)) {
+      isOriginal = true;
+    }
+    nodeArray.push({
+      id: i,
+      group: 'noService',
+      // label: i,
+      original: isOriginal,
+      x: coordsArray[i - 1][0] * scaleFactor,
+      y: coordsArray[i - 1][1] * scaleFactor
+    });
+  }
+
+  var edgePairs = [[1, 2], [1, 15], [1, 13], [2, 15], [2, 3], [2, 16], [3, 4], [3, 17], [5, 18], [5, 6], [6, 8], [6, 7], [7, 8], [8, 9], [9, 10], [9, 20], [10, 11], [10, 12], [11, 12], [12, 13], [13, 14], [14, 15], [14, 21], [15, 16], [16, 21], [17, 18], [18, 19], [18, 21], [19, 20], [20, 21], [4, 5], [4, 17], [12, 22], [14, 22]];
+
+  var edgeArray = [];
+
+  edgePairs.forEach(function (edgePair) {
+    return edgeArray.push({ from: edgePair[0], to: edgePair[1] });
+  });
+
+  return { nodeArray: nodeArray, edgeArray: edgeArray };
+  // setUpNetwork(nodeArray, edgeArray);
+};
+
+module.exports = {
+  allNodesHaveWifi: allNodesHaveWifi,
+  countHotspots: countHotspots,
+  getOptimalAnswer: getOptimalAnswer,
+  updateOptimalAnswer: updateOptimalAnswer,
+  resetAllNodes: resetAllNodes,
+  updateConnectedNodes: updateConnectedNodes,
+  processNodeClick: processNodeClick,
+  getData: getData,
+  setUpData: setUpData,
+  useDefaultPuzzle: useDefaultPuzzle
+};
+
+/***/ }),
+/* 14 */,
 /* 15 */,
 /* 16 */,
 /* 17 */
@@ -55071,18 +55071,18 @@ module.exports = { setUp: setUp, show: show, hide: hide, isActive: isActive };
 "use strict";
 /* WEBPACK VAR INJECTION */(function(fetch) {
 
-__webpack_require__(11);
+__webpack_require__(12);
 var vis = __webpack_require__(4);
 
 var browserIsIE = __webpack_require__(7);
-var Graph = __webpack_require__(12);
+var Graph = __webpack_require__(13);
 var NetworkOptions = __webpack_require__(8);
 
 // Get title set up to link to main page
 var setUpTitleLink = __webpack_require__(3);
-var setUpNextPuzzleLinks = __webpack_require__(10);
+var setUpNextPuzzleLinks = __webpack_require__(11);
 var setUpCreateLinks = __webpack_require__(9);
-var messageBox = __webpack_require__(14);
+var messageBox = __webpack_require__(10);
 
 var container = null;
 var options = null;

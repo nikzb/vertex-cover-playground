@@ -54582,7 +54582,8 @@ module.exports = {
 /***/ }),
 /* 9 */,
 /* 10 */,
-/* 11 */
+/* 11 */,
+/* 12 */
 /***/ (function(module, exports) {
 
 if (window.NodeList && !NodeList.prototype.forEach) {
@@ -54596,8 +54597,8 @@ if (window.NodeList && !NodeList.prototype.forEach) {
 
 
 /***/ }),
-/* 12 */,
-/* 13 */
+/* 13 */,
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -54807,18 +54808,17 @@ module.exports = {
 };
 
 /***/ }),
-/* 14 */,
 /* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 /* WEBPACK VAR INJECTION */(function(fetch) {
 
-__webpack_require__(11);
+__webpack_require__(12);
 var vis = __webpack_require__(4);
 
 var browserIsIE = __webpack_require__(7);
-var graph = __webpack_require__(13);
+var graph = __webpack_require__(14);
 var NetworkOptions = __webpack_require__(8);
 
 // Get title set up to link to main page

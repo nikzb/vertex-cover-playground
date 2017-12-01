@@ -19,10 +19,18 @@
   padding: 1.5em 0;
   top: 32em;
 
+  &--not-found {
+    top: 19em;
+  }
+
   @mixin wide {
     padding: 6.5em 0;
     top: 50em;
     min-width: 80%;
+
+    &--not-found {
+      top: 36em;
+    }
   }
 
   &__message {

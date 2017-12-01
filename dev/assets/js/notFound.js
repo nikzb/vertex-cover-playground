@@ -2,7 +2,12 @@
 const setUpTitleLink = require('./modules/title');
 const setUpNextPuzzleLinks = require('./modules/nextPuzzle');
 const setUpCreateLinks = require('./modules/goToCreate');
+const messageBox = require('./modules/messageBox');
+
+const domain = window.location.host;
+
+messageBox.setUp(domain, '');
 
 setUpTitleLink();
-setUpNextPuzzleLinks();
+setUpNextPuzzleLinks(messageBox, domain);
 setUpCreateLinks();

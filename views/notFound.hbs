@@ -11,12 +11,39 @@
     {{> mainHeader}}
     <div class='middle-container--not-found'>
       <h1>The code puzzle code {{code}} is not valid!</h1>
-      <div class='graph-area__options-wrap--not-found'>
-        <a href='#'><h2 class='graph-area__options next-graph'>Try Another Graph</h2></a>
-        <p>or</p>
-        <a href='#'><h2 class='graph-area__options create-own'>Create Your Own</h2></a>
+      <div class='graph-area'>
+        <div class='graph-area__options-wrap--not-found'>
+          <a href='#'><h2 class='graph-area__options next-graph'>Try Another Graph</h2></a>
+          <p>or</p>
+          <a href='#'><h2 class='graph-area__options create-own'>Create Your Own</h2></a>
+        </div>
+        <div class='message-box message-box--slide-in hide-below message-box--not-found'>
+          <h2 class='message-box__message'></h2>
+          <h3 class='message-box__message-secondary'></h3>
+          <div class='message-box__code-and-links'>
+          </div>
+          <div class='message-box__input-container'>
+            <h3 class='message-box__input-label'>Type in a graph code:</h3>
+              <input class='message-box__input' type='text' name='code-input' required pattern="[A-Za-z0-9]{4}"/>
+              <button class='btn message-box__input-button'>Load</button>
+          </div>
+          <div class='message-box__options'>
+            <a href='#'><h2 class='message-box__options next-graph'>Try Another Graph</h2></a>
+            <h2 class='message-box__options'>or</h2>
+            <a href='#'><h2 class='message-box__options create-own'>Create Your Own</h2></a>
+          </div>
+          <div class='message-box__puzzle-size-selection'>
+            <a href='#'><h2 class='graph-area__options graph-area__options--small'>Small</h2></a>
+            <a href='#'><h2 class='graph-area__options graph-area__options--medium'>Medium</h2></a>
+            <a href='#'><h2 class='graph-area__options graph-area__options--large'>Large</h2></a>
+            <a href='#'><h2 class='graph-area__options graph-area__options--x-large'>Extra-Large</h2></a>
+          </div>
+        </div>
       </div>
+
+
     </div>
+
   </div>
 </body>
 

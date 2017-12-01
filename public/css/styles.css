@@ -1182,12 +1182,20 @@ input:valid {
   top: 32em;
 }
 
+.message-box--not-found {
+  top: 19em;
+}
+
 @media (min-width: 1000px) {
 
   .message-box {
     padding: 6.5em 0;
     top: 50em;
     min-width: 80%;
+  }
+
+  .message-box--not-found {
+    top: 36em;
   }
 }
 

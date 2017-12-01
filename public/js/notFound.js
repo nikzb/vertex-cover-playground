@@ -1986,6 +1986,217 @@ module.exports = setUpClickHandlersForCreateOwnLinks;
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
+
+
+var messageDiv = null;
+var messageElem = null;
+var secondaryMessageElem = null;
+var links = null;
+var messageInput = null;
+var loadButton = null;
+var input = null;
+var codeAndLinksElem = null;
+var graphSizeSelection = null;
+var nextGraph = null;
+var code = null;
+
+var updateMessage = function updateMessage(main, secondary) {
+  messageElem.textContent = main;
+  if (secondary !== null) {
+    secondaryMessageElem.style.display = 'block';
+    secondaryMessageElem.textContent = secondary;
+  } else {
+    secondaryMessageElem.style.display = 'none';
+    secondaryMessageElem.textContent = '';
+  }
+};
+
+var removeActive = function removeActive(element) {
+  if (element.classList.contains('active')) {
+    element.classList.remove('active');
+  }
+};
+
+var addActive = function addActive(element) {
+  if (!element.classList.contains('active')) {
+    element.classList.add('active');
+  }
+};
+
+var isActive = function isActive() {
+  return messageDiv.classList.contains('active');
+};
+
+var hideLinks = function hideLinks() {
+  links.forEach(function (link) {
+    link.style.display = 'none';
+  });
+};
+
+var showLinks = function showLinks() {
+  links.forEach(function (link) {
+    link.style.display = 'block';
+  });
+};
+
+var hideCodeSelectionInfo = function hideCodeSelectionInfo() {
+  messageInput.style.display = 'none';
+  messageElem.textContent = '';
+  input.style.display = 'none';
+};
+
+var showCodeSelection = function showCodeSelection() {
+  messageInput.style.display = 'flex';
+  updateMessage('Load a Puzzle', null);
+  input.style.display = 'block';
+
+  addActive(messageDiv);
+
+  setTimeout(function () {
+    input.focus();
+  }, 600);
+};
+
+var setUpClickHandlerForHide = function setUpClickHandlerForHide() {
+  messageDiv.addEventListener("click", function (event) {
+    if (event.target.className !== 'message-box__input' && event.target.className.indexOf('message-box__input-button') === -1 && event.target.className !== 'message-box__link-in-text-area' && event.target.className.indexOf('message-box__options') === -1) {
+      removeActive(messageDiv);
+      document.querySelector('.message-box__input').value = '';
+      messageInput.style.display = 'none';
+    }
+  });
+};
+
+var attemptToLoad = function attemptToLoad(domain) {
+  var userCode = document.querySelector('.message-box__input').value;
+
+  if (userCode.length === 4 && /[A-Za-z0-9]{4}/.test(userCode)) {
+    document.querySelector('.message-box__input').value = '';
+    window.location = 'http://' + domain + '/hotspot/' + userCode;
+  }
+};
+
+var setUpClickHandlerForLoadButton = function setUpClickHandlerForLoadButton(domain) {
+  loadButton.addEventListener('click', function () {
+    attemptToLoad(domain);
+  });
+};
+
+var hide = function hide() {
+  removeActive(messageDiv);
+};
+
+var addCodeAndLinkToDocument = function addCodeAndLinkToDocument(domain) {
+  var codeElement = document.createElement("h2");
+  var text = document.createTextNode(code);
+  codeElement.classList.add('message-box__code-element');
+  codeElement.appendChild(text);
+
+  codeAndLinksElem = document.querySelector('.message-box__code-and-links');
+  codeAndLinksElem.appendChild(codeElement);
+
+  var linkMessage = document.createElement("h3");
+  var linkMessageText = document.createTextNode("Link to share:");
+  linkMessage.classList.add('message-box__link-message');
+  linkMessage.appendChild(linkMessageText);
+
+  var linkInTextArea = document.createElement("textarea");
+  var textAreaText = document.createTextNode('http://' + domain + '/hotspot/' + code);
+  linkInTextArea.classList.add('message-box__link-in-text-area');
+  linkInTextArea.setAttributeNode(document.createAttribute('readonly'));
+  var overflowAttr = document.createAttribute('overflow');
+  overflowAttr.value = 'hidden';
+  linkInTextArea.setAttributeNode(overflowAttr);
+  linkInTextArea.appendChild(textAreaText);
+  linkInTextArea.addEventListener('click', function () {
+    linkInTextArea.select();
+  });
+
+  codeAndLinksElem.appendChild(linkMessage);
+  codeAndLinksElem.appendChild(linkInTextArea);
+};
+
+var showCodeAndLink = function showCodeAndLink() {
+  codeAndLinksElem.style.display = 'flex';
+};
+
+var hideCodeAndLink = function hideCodeAndLink() {
+  codeAndLinksElem.style.display = 'none';
+};
+
+var showGraphSizeSelection = function showGraphSizeSelection() {
+  graphSizeSelection.style.display = 'block';
+  secondaryMessageElem.classList.add('message-box__message-secondary-puzzle-select');
+};
+
+var hideGraphSizeSelection = function hideGraphSizeSelection() {
+  graphSizeSelection.style.display = 'none';
+  secondaryMessageElem.classList.remove('message-box__message-secondary-puzzle-select');
+};
+
+var hideAll = function hideAll() {
+  hideCodeSelectionInfo();
+  hideLinks();
+  hideCodeAndLink();
+  hideGraphSizeSelection();
+};
+
+var show = function show(status, numHotspots) {
+  if (status === 'success') {
+    hideAll();
+    updateMessage('You found an optimal solution!', 'You used only ' + numHotspots + ' hotspots!');
+    showLinks();
+  } else if (status === 'retry') {
+    hideAll();
+    updateMessage('You used ' + numHotspots + ' hotspots.', 'Try again using less hotspots.');
+  } else if (status === 'load') {
+    hideAll();
+    showCodeSelection();
+  } else if (status === 'share') {
+    hideAll();
+    updateMessage('Graph Code:', null);
+    showCodeAndLink();
+  } else if (status === 'selectGraphSize') {
+    hideAll();
+    updateMessage('Try Another Graph', 'Choose a Graph Size');
+    showGraphSizeSelection();
+  }
+  addActive(messageDiv);
+};
+
+var setUp = function setUp(domain, codeToUse) {
+  messageDiv = document.querySelector('.message-box');
+  messageElem = document.querySelector('.message-box__message');
+  secondaryMessageElem = document.querySelector('.message-box__message-secondary');
+  links = document.querySelectorAll('.message-box__options');
+  messageInput = document.querySelector('.message-box__input-container');
+  loadButton = document.querySelector('.message-box__input-button');
+  input = document.querySelector('.message-box__input');
+  graphSizeSelection = document.querySelector('.message-box__puzzle-size-selection');
+  nextGraph = document.querySelector('.message-box__options.next-graph');
+  code = codeToUse;
+
+  addCodeAndLinkToDocument(domain);
+  messageInput.style.display = 'none';
+  hideAll();
+
+  setUpClickHandlerForHide();
+  setUpClickHandlerForLoadButton(domain);
+
+  document.addEventListener('keydown', function (event) {
+    if (event.key === 'Enter' && messageDiv.classList.contains('active')) {
+      attemptToLoad(domain);
+    }
+  });
+};
+
+module.exports = { setUp: setUp, show: show, hide: hide, isActive: isActive };
+
+/***/ }),
+/* 11 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
 /* WEBPACK VAR INJECTION */(function(fetch) {
 
 var loadGraph = function loadGraph(domain, size) {
@@ -2056,7 +2267,6 @@ module.exports = setUpClickHandlersForNextGraphLinks;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2)))
 
 /***/ }),
-/* 11 */,
 /* 12 */,
 /* 13 */,
 /* 14 */,
@@ -2069,11 +2279,16 @@ module.exports = setUpClickHandlersForNextGraphLinks;
 
 // Get title set up to link to main page
 var setUpTitleLink = __webpack_require__(3);
-var setUpNextPuzzleLinks = __webpack_require__(10);
+var setUpNextPuzzleLinks = __webpack_require__(11);
 var setUpCreateLinks = __webpack_require__(9);
+var messageBox = __webpack_require__(10);
+
+var domain = window.location.host;
+
+messageBox.setUp(domain, '');
 
 setUpTitleLink();
-setUpNextPuzzleLinks();
+setUpNextPuzzleLinks(messageBox, domain);
 setUpCreateLinks();
 
 /***/ })
