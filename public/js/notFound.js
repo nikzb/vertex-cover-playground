@@ -2104,9 +2104,9 @@ var addCodeAndLinkToDocument = function addCodeAndLinkToDocument(domain) {
   var textAreaText = document.createTextNode('http://' + domain + '/hotspot/' + code);
   linkInTextArea.classList.add('message-box__link-in-text-area');
   linkInTextArea.setAttributeNode(document.createAttribute('readonly'));
-  var overflowAttr = document.createAttribute('overflow');
-  overflowAttr.value = 'hidden';
-  linkInTextArea.setAttributeNode(overflowAttr);
+  // const overflowAttr = document.createAttribute('overflow');
+  // overflowAttr.value = 'hidden';
+  // linkInTextArea.setAttributeNode(overflowAttr);
   linkInTextArea.appendChild(textAreaText);
   linkInTextArea.addEventListener('click', function () {
     linkInTextArea.select();

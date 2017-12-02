@@ -153,3 +153,7 @@
     background: transparent;
   }
 }
+
+textarea {
+  overflow: hidden;
+}

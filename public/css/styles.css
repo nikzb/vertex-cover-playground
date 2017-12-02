@@ -1343,6 +1343,10 @@ input:valid {
   background: transparent;
 }
 
+textarea {
+  overflow: hidden;
+}
+
 .copyright-container {
   display: block;
 }
