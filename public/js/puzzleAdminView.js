@@ -54778,7 +54778,24 @@ var approvePuzzle = function approvePuzzle(_ref) {
     console.log('back where fetch request has returned');
 
     // Need to change this to match comment above. For now, should try to find puzzle
-    //window.location=`//${domain}/hotspot/${code}`;
+    // window.location=`//${domain}/hotspot/${code}`;
+  }).catch(function (error) {
+    throw new Error(error);
+  });
+};
+
+var nextPendingPuzzle = function getCodeForNextPendingPuzzle(code) {
+  fetch('//' + domain + '/next-pending/' + code).then(function (response) {
+    if (response.ok) {
+      var contentType = response.headers.get('content-type');
+      console.log(contentType);
+      if (contentType && contentType.indexOf('text') !== -1) {
+        response.text().then(function (nextCode) {
+          console.log(nextCode);
+          window.location = '//' + domain + '/hotspot-master/' + nextCode;
+        });
+      }
+    }
   }).catch(function (error) {
     throw new Error(error);
   });
@@ -54792,7 +54809,6 @@ var setUpClickHandlersForButtons = function setUpClickHandlersForButtons(code, a
 
   if (approved === 'yes') {
     // already approved so disable approve buttons
-    console.log('puzzle is already approved');
     approveButton.disabled = true;
     deleteButton.disabled = true;
   } else {
@@ -54818,7 +54834,7 @@ var setUpClickHandlersForButtons = function setUpClickHandlersForButtons(code, a
 
   nextButton.addEventListener("click", function () {
     // pull up the next puzzle that is pending approval
-
+    nextPendingPuzzle(code);
   });
 };
 

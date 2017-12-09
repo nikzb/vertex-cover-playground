@@ -105,6 +105,78 @@ app.get('/hotspot-data/:code', (req, res) => {
   });
 });
 
+app.get('/approved-fix/', (req, res) => {
+  HotspotPuzzle.find({}).then((puzzleList) => {
+    console.log(puzzleList);
+
+    puzzleList.forEach((puzzle) => {
+      // Fix the sizes - only used an experiment
+      // const numNodes = puzzle.nodes.reduce((acc, node) => {
+      //   if (node.original === true) {
+      //     return acc + 1;
+      //   } else {
+      //     return acc;
+      //   }
+      // }, 0);
+      //
+      // let size = 'x-large';
+      // if (numNodes < 5) {
+      //   size = 'small';
+      // } else if (numNodes < 8) {
+      //   size = 'medium';
+      // } else if (numNodes < 11) {
+      //   size = 'large';
+      // }
+
+      if (puzzle !== undefined && puzzle.approved === undefined) {
+        HotspotPuzzle.findByIdAndUpdate(puzzle.id, { approved: 'pending' }, { new: true })
+        .then((fixedPuzzle) => {
+          console.log(fixedPuzzle);
+          console.log(`found puzzle with id ${fixedPuzzle.id}, and added approved field set to pending`);
+        }, (e) => {
+          res.status(400).send(e);
+        });
+      }
+    });
+  }, (e) => {
+    res.status(400).send(e);
+  });
+});
+
+
+app.get('/next-pending/:code', (req, res) => {
+  const code = req.params.code;
+  console.log(`Code passed in: ${code}`);
+
+  console.log('Getting next pending puzzle');
+
+  HotspotPuzzle.find({ approved: 'pending' }, 'code')
+  .then((puzzleList) => {
+    const codeList = puzzleList.map(puzzleObj => puzzleObj.code);
+    console.log(codeList);
+    if (codeList.length === 0 || (codeList.length === 1 && codeList[0] === code)) {
+      console.log('no pending puzzles');
+      return res.send(null);
+    } else {
+      const codeIndex = codeList.indexOf(code);
+      console.log(codeIndex);
+      let codeIndexForReturn = codeIndex + 1;
+      // Make sure the code is not at the end of the list
+      if (codeIndex === codeList.length - 1) {
+        codeIndexForReturn = 0;
+      }
+      console.log(`sending back ${codeList[codeIndexForReturn]}`);
+      return res.send(codeList[codeIndexForReturn]);
+    }
+  }).catch(e => res.status(400).send(e));
+
+  // HotspotPuzzle.find({ size: 'small' }, 'code').then((codeList) => {
+  //   const randomIndex = _.random(0, codeList.length - 1);
+  //   const code = codeList[randomIndex].code;
+  //   return res.render('puzzle.hbs', { code, isNew: false });
+  // });
+});
+
 // Takes a list of codes to choose from and a list of codes to avoid and returns
 // a randomly chosen code.
 const getRandomCodeNotInListToAvoid = function getRandomCodeNotInListToAvoid(codesToChooseFrom, codesToAvoid) {
@@ -187,10 +259,6 @@ app.post('/hotspot-remove/', (req, res) => {
     console.log(puzzle);
     console.log(`found puzzle with id ${puzzle.id}, and removed it`);
     res.send({ puzzle });
-    // HotspotPuzzle.findByIdAndRemove(puzzle.id).then(() => {
-    //   console.log(`deleted puzzle with code ${code}`);
-    //   res.send(200);
-    // });
   }, (e) => {
     res.status(400).send(e);
   });
@@ -205,14 +273,9 @@ app.post('/hotspot-approve/', (req, res) => {
     console.log(puzzle);
     console.log(`found puzzle with id ${puzzle.id}, and approved it`);
     res.send({ puzzle });
-    // HotspotPuzzle.findByIdAndRemove(puzzle.id).then(() => {
-    //   console.log(`deleted puzzle with code ${code}`);
-    //   res.send(200);
-    // });
   }, (e) => {
     res.status(400).send(e);
   });
-
 });
 
 app.listen(port, () => {

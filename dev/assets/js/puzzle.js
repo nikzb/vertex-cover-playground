@@ -164,14 +164,14 @@ const usePuzzle = function usePuzzle(code, isNew) {
     });
   } else {
     fetch(`//${domain}/hotspot-data/${code}`)
-      .then(
-        (response) => {
-          handleResponseToPuzzleRequest(response, code, isNew);
-        }
-      )
-      .catch((error) => {
-        throw new Error(error);
-      });
+    .then(
+      (response) => {
+        handleResponseToPuzzleRequest(response, code, isNew);
+      }
+    )
+    .catch((error) => {
+      throw new Error(error);
+    });
   }
 };
 
