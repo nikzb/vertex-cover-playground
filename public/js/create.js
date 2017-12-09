@@ -54834,6 +54834,7 @@ var resetButton = null;
 var instruct = null;
 var stepTitle = null;
 var deleteButton = null;
+var nextButton = null;
 
 var stageInstructions = null;
 var needMoreNodesWarning = null;
@@ -55025,8 +55026,6 @@ var savePuzzleAndLoad = function savePuzzleAndLoad() {
     response.text().then(function (code) {
       // Figure out the correct size for the puzzle
       var size = graph.getSize();
-      console.log("in save puzzle and load");
-      console.log(size);
 
       var addPuzzleRequestHeaders = new Headers({
         'Content-Type': 'application/json'
@@ -55114,6 +55113,7 @@ var goToNextStage = function goToNextStage() {
       instruct.innerHTML = stageInstructions[5] + warningMessage;
     } else {
       savePuzzleAndLoad();
+      nextButton.disabled = true;
     }
   }
 };
@@ -55170,8 +55170,9 @@ var init = function init() {
   prevButton = document.querySelector('button[name="prev"]');
   resetButton = document.querySelector('button[name="reset"]');
   deleteButton = document.querySelector('button[name="delete"]');
+  nextButton = document.querySelector('button[name="next"]');
 
-  document.querySelector('button[name="next"]').addEventListener('click', goToNextStage);
+  nextButton.addEventListener('click', goToNextStage);
   prevButton.addEventListener('click', goToPrevStage);
   resetButton.addEventListener('click', resetPuzzleBuilder);
   deleteButton.addEventListener('click', deleteSelected);
