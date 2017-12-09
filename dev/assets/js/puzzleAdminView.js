@@ -170,14 +170,14 @@ const handleResponseToPuzzleRequest = function handleResponseToPuzzleRequest(res
 
 const usePuzzle = function usePuzzle(code) {
   fetch(`//${domain}/hotspot-data/${code}`)
-    .then(
-      (response) => {
-        handleResponseToPuzzleRequest(response, code);
-      }
-    )
-    .catch((error) => {
-      throw new Error(error);
-    });
+  .then(
+    (response) => {
+      handleResponseToPuzzleRequest(response, code);
+    }
+  )
+  .catch((error) => {
+    throw new Error(error);
+  });
 };
 
 // Export this so that puzzleAdminView.hbs can call this function to get the puzzle set up

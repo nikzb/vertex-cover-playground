@@ -72,6 +72,7 @@ app.get('/hotspot/:code', (req, res) => {
 
 // Take a puzzle code and render the admin view for that puzzle
 // Code 'X' can be used to load the next puzzle pending approval
+// If there are no pending puzzles, it will render a random puzzle
 app.get('/hotspot-master/:code', (req, res) => {
   const code = req.params.code;
 
@@ -79,9 +80,12 @@ app.get('/hotspot-master/:code', (req, res) => {
     HotspotPuzzle.findOne({ approved: 'pending' }).then((puzzle) => {
       if (!puzzle) {
         // return res.render('notFound.hbs', { code: 'ERROR' });
-        return res.send('<h2>No pending puzzles</h2>');
+        HotspotPuzzle.findOne({ }).then(randomPuzzle =>
+          res.render('puzzleAdminView.hbs', { code: randomPuzzle.code })
+        );
+      } else {
+        return res.render('puzzleAdminView.hbs', { code: puzzle.code });
       }
-      return res.render('puzzleAdminView.hbs', { code: puzzle.code });
     }).catch((e) => {
       res.status(400).send(e);
     });
@@ -145,8 +149,20 @@ app.get('/approved-fix/', (req, res) => {
   });
 });
 
-
+// Get the next puzzle that is pending approval (next after the one with the given code)
+// If none need approval, just get the next puzzle from all the puzzles
 app.get('/next-pending/:code', (req, res) => {
+  const returnNextIndex = function returnNextIndex(codeList, code) {
+    const codeIndex = codeList.indexOf(code);
+
+    let codeIndexForReturn = codeIndex + 1;
+    // Make sure the code is not at the end of the list
+    if (codeIndex === codeList.length - 1) {
+      codeIndexForReturn = 0;
+    }
+    return res.send(codeList[codeIndexForReturn]);
+  };
+
   const code = req.params.code;
 
   HotspotPuzzle.find({ approved: 'pending' }, 'code')
@@ -154,16 +170,13 @@ app.get('/next-pending/:code', (req, res) => {
     const codeList = puzzleList.map(puzzleObj => puzzleObj.code);
 
     if (codeList.length === 0 || (codeList.length === 1 && codeList[0] === code)) {
-      return res.send(null);
+      HotspotPuzzle.find({}, 'code')
+      .then((allPuzzlesList) => {
+        const allCodesList = allPuzzlesList.map(puzzleObj => puzzleObj.code);
+        returnNextIndex(allCodesList, code);
+      });
     } else {
-      const codeIndex = codeList.indexOf(code);
-
-      let codeIndexForReturn = codeIndex + 1;
-      // Make sure the code is not at the end of the list
-      if (codeIndex === codeList.length - 1) {
-        codeIndexForReturn = 0;
-      }
-      return res.send(codeList[codeIndexForReturn]);
+      returnNextIndex(codeList, code);
     }
   }).catch(e => res.status(400).send(e));
 });
