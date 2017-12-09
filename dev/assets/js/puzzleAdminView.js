@@ -28,6 +28,24 @@ const setUpNetwork = function setUpNetwork(nodeArray, edgeArray) {
   updateHotspotCount();
 };
 
+const nextPendingPuzzle = function nextPendingPuzzle(code) {
+  fetch(`//${domain}/next-pending/${code}`)
+  .then((response) => {
+    if (response.ok) {
+      const contentType = response.headers.get('content-type');
+      console.log(contentType);
+      if (contentType && contentType.indexOf('text') !== -1) {
+        response.text().then((nextCode) => {
+          console.log(nextCode);
+          window.location = `//${domain}/hotspot-master/${nextCode}`;
+        });
+      }
+    }
+  }).catch((error) => {
+    throw new Error(error);
+  });
+};
+
 const deletePuzzle = function deletePuzzle(code) {
   console.log('delete button pressed');
   const deletePuzzleRequestHeaders = new Headers({
@@ -53,6 +71,7 @@ const deletePuzzle = function deletePuzzle(code) {
     }
     // Successfully deleted puzzle, so load the next pending puzzle
     console.log('back where fetch request has returned');
+    nextPendingPuzzle();
 
     // Need to change this to match comment above. For now, should try to find puzzle and fail
     window.location=`//${domain}/hotspot/${code}`;
@@ -88,29 +107,12 @@ const approvePuzzle = function approvePuzzle({ code, approved }) {
     }
     // Successfully approved puzzle, so load the next pending puzzle
     console.log('back where fetch request has returned');
+    nextPendingPuzzle(code);
 
     // Need to change this to match comment above. For now, should try to find puzzle
     // window.location=`//${domain}/hotspot/${code}`;
   })
   .catch((error) => {
-    throw new Error(error);
-  });
-};
-
-const nextPendingPuzzle = function getCodeForNextPendingPuzzle(code) {
-  fetch(`//${domain}/next-pending/${code}`)
-  .then((response) => {
-    if (response.ok) {
-      const contentType = response.headers.get('content-type');
-      console.log(contentType);
-      if (contentType && contentType.indexOf('text') !== -1) {
-        response.text().then((nextCode) => {
-          console.log(nextCode);
-          window.location = `//${domain}/hotspot-master/${nextCode}`;
-        });
-      }
-    }
-  }).catch((error) => {
     throw new Error(error);
   });
 };
