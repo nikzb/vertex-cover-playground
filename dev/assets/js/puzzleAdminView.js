@@ -46,6 +46,8 @@ const deletePuzzle = function deletePuzzle(code) {
 
   fetch(deletePuzzleRequest)
   .then((deletePuzzleResponse) => {
+    console.log('response from delete request');
+    console.log(deletePuzzleResponse);
     if (!deletePuzzleResponse.ok) {
       throw new Error("Error with response to deleting puzzle");
     }
@@ -53,7 +55,7 @@ const deletePuzzle = function deletePuzzle(code) {
     console.log('back where fetch request has returned');
 
     // Need to change this to match comment above. For now, should try to find puzzle and fail
-    //window.location=`//${domain}/hotspot/${code}`;
+    window.location=`//${domain}/hotspot/${code}`;
   })
   .catch((error) => {
     throw new Error(error);

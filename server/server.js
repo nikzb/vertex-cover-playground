@@ -182,13 +182,17 @@ app.post('/hotspot', (req, res) => {
 app.post('/hotspot-remove/', (req, res) => {
   const code = req.body.code;
   console.log(`attempting to delete puzzle with code ${code}`);
-  HotspotPuzzle.findOne({ code }).then((puzzle) => {
+  HotspotPuzzle.findOneAndRemove({ code })
+  .then((puzzle) => {
     console.log(puzzle);
-    console.log(`found puzzle with id ${puzzle.id}, now trying to remove it`);
-    HotspotPuzzle.findByIdAndRemove(puzzle.id).then(() => {
-      console.log(`deleted puzzle with code ${code}`);
-      res.send(200);
-    });
+    console.log(`found puzzle with id ${puzzle.id}, and removed it`);
+    res.send({ puzzle });
+    // HotspotPuzzle.findByIdAndRemove(puzzle.id).then(() => {
+    //   console.log(`deleted puzzle with code ${code}`);
+    //   res.send(200);
+    // });
+  }, (e) => {
+    res.status(400).send(e);
   });
 });
 

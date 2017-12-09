@@ -54733,6 +54733,8 @@ var deletePuzzle = function deletePuzzle(code) {
   var deletePuzzleRequest = new Request('//' + domain + '/hotspot-remove/', deletePuzzleRequestInit);
 
   fetch(deletePuzzleRequest).then(function (deletePuzzleResponse) {
+    console.log('response from delete request');
+    console.log(deletePuzzleResponse);
     if (!deletePuzzleResponse.ok) {
       throw new Error("Error with response to deleting puzzle");
     }
@@ -54740,7 +54742,7 @@ var deletePuzzle = function deletePuzzle(code) {
     console.log('back where fetch request has returned');
 
     // Need to change this to match comment above. For now, should try to find puzzle and fail
-    //window.location=`//${domain}/hotspot/${code}`;
+    window.location = '//' + domain + '/hotspot/' + code;
   }).catch(function (error) {
     throw new Error(error);
   });
