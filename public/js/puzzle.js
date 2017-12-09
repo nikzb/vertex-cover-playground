@@ -210,7 +210,7 @@ function flush() {
 function attemptVertx() {
   try {
     var r = require;
-    var vertx = __webpack_require__(6);
+    var vertx = __webpack_require__(7);
     vertxNext = vertx.runOnLoop || vertx.runOnContext;
     return useVertxTimer();
   } catch (e) {
@@ -1237,7 +1237,7 @@ return Promise;
 /*** EXPORTS FROM exports-loader ***/
 module.exports = global.Promise;
 }.call(global));
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5), __webpack_require__(0), __webpack_require__(1)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(6), __webpack_require__(0), __webpack_require__(1)))
 
 /***/ }),
 /* 1 */
@@ -1743,31 +1743,6 @@ module.exports = global.fetch;
 
 /***/ }),
 /* 3 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var domain = window.location.host;
-
-var setUpClickHandlerForTitle = function setUpClickHandlersForTitle() {
-  var titleDiv = document.querySelector('.main-container__header__title');
-
-  titleDiv.addEventListener("click", function () {
-    window.location = '//' + domain + '/';
-  });
-
-  var logoImage = document.querySelector('.logo-image');
-
-  logoImage.addEventListener("click", function () {
-    window.location = '//' + domain + '/';
-  });
-};
-
-module.exports = setUpClickHandlerForTitle;
-
-/***/ }),
-/* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -54112,257 +54087,7 @@ return /******/ (function(modules) { // webpackBootstrap
 ;
 
 /***/ }),
-/* 5 */
-/***/ (function(module, exports) {
-
-// shim for using process in browser
-var process = module.exports = {};
-
-// cached from whatever global is present so that test runners that stub it
-// don't break things.  But we need to wrap it in a try catch in case it is
-// wrapped in strict mode code which doesn't define any globals.  It's inside a
-// function because try/catches deoptimize in certain engines.
-
-var cachedSetTimeout;
-var cachedClearTimeout;
-
-function defaultSetTimout() {
-    throw new Error('setTimeout has not been defined');
-}
-function defaultClearTimeout () {
-    throw new Error('clearTimeout has not been defined');
-}
-(function () {
-    try {
-        if (typeof setTimeout === 'function') {
-            cachedSetTimeout = setTimeout;
-        } else {
-            cachedSetTimeout = defaultSetTimout;
-        }
-    } catch (e) {
-        cachedSetTimeout = defaultSetTimout;
-    }
-    try {
-        if (typeof clearTimeout === 'function') {
-            cachedClearTimeout = clearTimeout;
-        } else {
-            cachedClearTimeout = defaultClearTimeout;
-        }
-    } catch (e) {
-        cachedClearTimeout = defaultClearTimeout;
-    }
-} ())
-function runTimeout(fun) {
-    if (cachedSetTimeout === setTimeout) {
-        //normal enviroments in sane situations
-        return setTimeout(fun, 0);
-    }
-    // if setTimeout wasn't available but was latter defined
-    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
-        cachedSetTimeout = setTimeout;
-        return setTimeout(fun, 0);
-    }
-    try {
-        // when when somebody has screwed with setTimeout but no I.E. maddness
-        return cachedSetTimeout(fun, 0);
-    } catch(e){
-        try {
-            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
-            return cachedSetTimeout.call(null, fun, 0);
-        } catch(e){
-            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
-            return cachedSetTimeout.call(this, fun, 0);
-        }
-    }
-
-
-}
-function runClearTimeout(marker) {
-    if (cachedClearTimeout === clearTimeout) {
-        //normal enviroments in sane situations
-        return clearTimeout(marker);
-    }
-    // if clearTimeout wasn't available but was latter defined
-    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
-        cachedClearTimeout = clearTimeout;
-        return clearTimeout(marker);
-    }
-    try {
-        // when when somebody has screwed with setTimeout but no I.E. maddness
-        return cachedClearTimeout(marker);
-    } catch (e){
-        try {
-            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
-            return cachedClearTimeout.call(null, marker);
-        } catch (e){
-            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
-            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
-            return cachedClearTimeout.call(this, marker);
-        }
-    }
-
-
-
-}
-var queue = [];
-var draining = false;
-var currentQueue;
-var queueIndex = -1;
-
-function cleanUpNextTick() {
-    if (!draining || !currentQueue) {
-        return;
-    }
-    draining = false;
-    if (currentQueue.length) {
-        queue = currentQueue.concat(queue);
-    } else {
-        queueIndex = -1;
-    }
-    if (queue.length) {
-        drainQueue();
-    }
-}
-
-function drainQueue() {
-    if (draining) {
-        return;
-    }
-    var timeout = runTimeout(cleanUpNextTick);
-    draining = true;
-
-    var len = queue.length;
-    while(len) {
-        currentQueue = queue;
-        queue = [];
-        while (++queueIndex < len) {
-            if (currentQueue) {
-                currentQueue[queueIndex].run();
-            }
-        }
-        queueIndex = -1;
-        len = queue.length;
-    }
-    currentQueue = null;
-    draining = false;
-    runClearTimeout(timeout);
-}
-
-process.nextTick = function (fun) {
-    var args = new Array(arguments.length - 1);
-    if (arguments.length > 1) {
-        for (var i = 1; i < arguments.length; i++) {
-            args[i - 1] = arguments[i];
-        }
-    }
-    queue.push(new Item(fun, args));
-    if (queue.length === 1 && !draining) {
-        runTimeout(drainQueue);
-    }
-};
-
-// v8 likes predictible objects
-function Item(fun, array) {
-    this.fun = fun;
-    this.array = array;
-}
-Item.prototype.run = function () {
-    this.fun.apply(null, this.array);
-};
-process.title = 'browser';
-process.browser = true;
-process.env = {};
-process.argv = [];
-process.version = ''; // empty string to avoid regexp issues
-process.versions = {};
-
-function noop() {}
-
-process.on = noop;
-process.addListener = noop;
-process.once = noop;
-process.off = noop;
-process.removeListener = noop;
-process.removeAllListeners = noop;
-process.emit = noop;
-
-process.binding = function (name) {
-    throw new Error('process.binding is not supported');
-};
-
-process.cwd = function () { return '/' };
-process.chdir = function (dir) {
-    throw new Error('process.chdir is not supported');
-};
-process.umask = function() { return 0; };
-
-
-/***/ }),
-/* 6 */
-/***/ (function(module, exports) {
-
-/* (ignored) */
-
-/***/ }),
-/* 7 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-// From https://codepen.io/gapcode/pen/vEJNZN
-
-/**
- * detect IE
- * returns version of IE or false, if browser is not Internet Explorer
- */
-function detectIE() {
-  var ua = window.navigator.userAgent;
-
-  // Test values; Uncomment to check result …
-
-  // IE 10
-  // ua = 'Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; Trident/6.0)';
-
-  // IE 11
-  // ua = 'Mozilla/5.0 (Windows NT 6.3; Trident/7.0; rv:11.0) like Gecko';
-
-  // Edge 12 (Spartan)
-  // ua = 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36 Edge/12.0';
-
-  // Edge 13
-  // ua = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2486.0 Safari/537.36 Edge/13.10586';
-
-  var msie = ua.indexOf('MSIE ');
-  if (msie > 0) {
-    // IE 10 or older => return version number
-    return parseInt(ua.substring(msie + 5, ua.indexOf('.', msie)), 10);
-  }
-
-  var trident = ua.indexOf('Trident/');
-  if (trident > 0) {
-    // IE 11 => return version number
-    var rv = ua.indexOf('rv:');
-    return parseInt(ua.substring(rv + 3, ua.indexOf('.', rv)), 10);
-  }
-
-  var edge = ua.indexOf('Edge/');
-  if (edge > 0) {
-    // Edge (IE 12+) => return version number
-    return parseInt(ua.substring(edge + 5, ua.indexOf('.', edge)), 10);
-  }
-
-  // other browser
-  return false;
-}
-
-module.exports = function () {
-  var version = detectIE();
-  return version !== false && version < 12;
-};
-
-/***/ }),
-/* 8 */
+/* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -54580,7 +54305,455 @@ module.exports = {
 };
 
 /***/ }),
+/* 5 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var domain = window.location.host;
+
+var setUpClickHandlerForTitle = function setUpClickHandlersForTitle() {
+  var titleDiv = document.querySelector('.main-container__header__title');
+
+  titleDiv.addEventListener("click", function () {
+    window.location = '//' + domain + '/';
+  });
+
+  var logoImage = document.querySelector('.logo-image');
+
+  logoImage.addEventListener("click", function () {
+    window.location = '//' + domain + '/';
+  });
+};
+
+module.exports = setUpClickHandlerForTitle;
+
+/***/ }),
+/* 6 */
+/***/ (function(module, exports) {
+
+// shim for using process in browser
+var process = module.exports = {};
+
+// cached from whatever global is present so that test runners that stub it
+// don't break things.  But we need to wrap it in a try catch in case it is
+// wrapped in strict mode code which doesn't define any globals.  It's inside a
+// function because try/catches deoptimize in certain engines.
+
+var cachedSetTimeout;
+var cachedClearTimeout;
+
+function defaultSetTimout() {
+    throw new Error('setTimeout has not been defined');
+}
+function defaultClearTimeout () {
+    throw new Error('clearTimeout has not been defined');
+}
+(function () {
+    try {
+        if (typeof setTimeout === 'function') {
+            cachedSetTimeout = setTimeout;
+        } else {
+            cachedSetTimeout = defaultSetTimout;
+        }
+    } catch (e) {
+        cachedSetTimeout = defaultSetTimout;
+    }
+    try {
+        if (typeof clearTimeout === 'function') {
+            cachedClearTimeout = clearTimeout;
+        } else {
+            cachedClearTimeout = defaultClearTimeout;
+        }
+    } catch (e) {
+        cachedClearTimeout = defaultClearTimeout;
+    }
+} ())
+function runTimeout(fun) {
+    if (cachedSetTimeout === setTimeout) {
+        //normal enviroments in sane situations
+        return setTimeout(fun, 0);
+    }
+    // if setTimeout wasn't available but was latter defined
+    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
+        cachedSetTimeout = setTimeout;
+        return setTimeout(fun, 0);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedSetTimeout(fun, 0);
+    } catch(e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
+            return cachedSetTimeout.call(null, fun, 0);
+        } catch(e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
+            return cachedSetTimeout.call(this, fun, 0);
+        }
+    }
+
+
+}
+function runClearTimeout(marker) {
+    if (cachedClearTimeout === clearTimeout) {
+        //normal enviroments in sane situations
+        return clearTimeout(marker);
+    }
+    // if clearTimeout wasn't available but was latter defined
+    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
+        cachedClearTimeout = clearTimeout;
+        return clearTimeout(marker);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedClearTimeout(marker);
+    } catch (e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
+            return cachedClearTimeout.call(null, marker);
+        } catch (e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
+            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
+            return cachedClearTimeout.call(this, marker);
+        }
+    }
+
+
+
+}
+var queue = [];
+var draining = false;
+var currentQueue;
+var queueIndex = -1;
+
+function cleanUpNextTick() {
+    if (!draining || !currentQueue) {
+        return;
+    }
+    draining = false;
+    if (currentQueue.length) {
+        queue = currentQueue.concat(queue);
+    } else {
+        queueIndex = -1;
+    }
+    if (queue.length) {
+        drainQueue();
+    }
+}
+
+function drainQueue() {
+    if (draining) {
+        return;
+    }
+    var timeout = runTimeout(cleanUpNextTick);
+    draining = true;
+
+    var len = queue.length;
+    while(len) {
+        currentQueue = queue;
+        queue = [];
+        while (++queueIndex < len) {
+            if (currentQueue) {
+                currentQueue[queueIndex].run();
+            }
+        }
+        queueIndex = -1;
+        len = queue.length;
+    }
+    currentQueue = null;
+    draining = false;
+    runClearTimeout(timeout);
+}
+
+process.nextTick = function (fun) {
+    var args = new Array(arguments.length - 1);
+    if (arguments.length > 1) {
+        for (var i = 1; i < arguments.length; i++) {
+            args[i - 1] = arguments[i];
+        }
+    }
+    queue.push(new Item(fun, args));
+    if (queue.length === 1 && !draining) {
+        runTimeout(drainQueue);
+    }
+};
+
+// v8 likes predictible objects
+function Item(fun, array) {
+    this.fun = fun;
+    this.array = array;
+}
+Item.prototype.run = function () {
+    this.fun.apply(null, this.array);
+};
+process.title = 'browser';
+process.browser = true;
+process.env = {};
+process.argv = [];
+process.version = ''; // empty string to avoid regexp issues
+process.versions = {};
+
+function noop() {}
+
+process.on = noop;
+process.addListener = noop;
+process.once = noop;
+process.off = noop;
+process.removeListener = noop;
+process.removeAllListeners = noop;
+process.emit = noop;
+
+process.binding = function (name) {
+    throw new Error('process.binding is not supported');
+};
+
+process.cwd = function () { return '/' };
+process.chdir = function (dir) {
+    throw new Error('process.chdir is not supported');
+};
+process.umask = function() { return 0; };
+
+
+/***/ }),
+/* 7 */
+/***/ (function(module, exports) {
+
+/* (ignored) */
+
+/***/ }),
+/* 8 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+// From https://codepen.io/gapcode/pen/vEJNZN
+
+/**
+ * detect IE
+ * returns version of IE or false, if browser is not Internet Explorer
+ */
+function detectIE() {
+  var ua = window.navigator.userAgent;
+
+  // Test values; Uncomment to check result …
+
+  // IE 10
+  // ua = 'Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; Trident/6.0)';
+
+  // IE 11
+  // ua = 'Mozilla/5.0 (Windows NT 6.3; Trident/7.0; rv:11.0) like Gecko';
+
+  // Edge 12 (Spartan)
+  // ua = 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36 Edge/12.0';
+
+  // Edge 13
+  // ua = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2486.0 Safari/537.36 Edge/13.10586';
+
+  var msie = ua.indexOf('MSIE ');
+  if (msie > 0) {
+    // IE 10 or older => return version number
+    return parseInt(ua.substring(msie + 5, ua.indexOf('.', msie)), 10);
+  }
+
+  var trident = ua.indexOf('Trident/');
+  if (trident > 0) {
+    // IE 11 => return version number
+    var rv = ua.indexOf('rv:');
+    return parseInt(ua.substring(rv + 3, ua.indexOf('.', rv)), 10);
+  }
+
+  var edge = ua.indexOf('Edge/');
+  if (edge > 0) {
+    // Edge (IE 12+) => return version number
+    return parseInt(ua.substring(edge + 5, ua.indexOf('.', edge)), 10);
+  }
+
+  // other browser
+  return false;
+}
+
+module.exports = function () {
+  var version = detectIE();
+  return version !== false && version < 12;
+};
+
+/***/ }),
 /* 9 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var vis = __webpack_require__(3);
+
+var nodes = null;
+var edges = null;
+var data = null;
+var optimalAnswer = null;
+
+var updateOptimalAnswer = function updateOptimalAnswer() {
+  optimalAnswer = nodes.get().reduce(function (total, node) {
+    return node.original ? total + 1 : total;
+  }, 0);
+};
+
+var getOptimalAnswer = function getOptimalAnswer() {
+  return optimalAnswer;
+};
+
+var revealOriginalHotspots = function revealOriginalHotspots() {
+  nodes.forEach(function (node) {
+    if (node.original) {
+      node.group = 'hotspot';
+      nodes.update(node);
+    }
+  });
+};
+
+var updateConnectedNodes = function updateConnectedNodes() {
+  // Reset all serviced nodes to unserviced (but leave hotspots alone)
+  nodes.forEach(function (node) {
+    if (node.group === 'service') {
+      node.group = 'noService';
+      nodes.update(node);
+    }
+  });
+
+  // Find all the hotspot nodes and have them service all the connected non-hotspot nodes
+  nodes.forEach(function (node) {
+    if (node.group === 'hotspot') {
+      edges.forEach(function (edge) {
+        var servicedId = 0;
+        if (edge.from === node.id) {
+          servicedId = edge.to;
+        } else if (edge.to === node.id) {
+          servicedId = edge.from;
+        }
+
+        if (servicedId) {
+          var servicedNode = nodes.get(servicedId);
+
+          if (servicedNode.group === 'noService') {
+            servicedNode.group = 'service';
+            nodes.update(servicedNode);
+          }
+        }
+      });
+    }
+  });
+};
+
+var resetAllNodes = function resetAllNodes() {
+  nodes.forEach(function (node) {
+    node.group = 'noService';
+    nodes.update(node);
+  });
+};
+
+var setUpData = function setUpData(nodeArray, edgeArray) {
+  var newEdgeArray = [];
+  edgeArray.forEach(function (edge) {
+    newEdgeArray.push({ id: edge.id, from: edge.from, to: edge.to });
+  });
+
+  edges = new vis.DataSet(newEdgeArray);
+  nodes = new vis.DataSet(nodeArray);
+  resetAllNodes();
+  data = {
+    nodes: nodes,
+    edges: edges
+  };
+};
+
+var getData = function getData() {
+  return data;
+};
+
+var allNodesHaveWifi = function allNodesHaveWifi() {
+  return nodes.get().every(function (node) {
+    return node.group !== 'noService';
+  });
+};
+
+var countHotspots = function countHotspots() {
+  var hotspots = 0;
+
+  nodes.forEach(function (node) {
+    if (node.group === 'hotspot') {
+      hotspots += 1;
+    }
+  });
+
+  return hotspots;
+};
+
+var processNodeClick = function processNodeClick(id) {
+  var node = nodes.get(id);
+  if (node.group !== 'hotspot') {
+    nodes.update({ id: id, group: 'hotspot' });
+  } else if (node.group === 'hotspot') {
+    nodes.update({ id: id, group: 'noService' });
+  }
+  // Update which nodes should be in group 'service'
+  updateConnectedNodes();
+};
+
+var useDefaultPuzzle = function useDefaultPuzzle() {
+  var coordsArray = [[0, 0], [2, 0], [3, 0], [4, 0], [4, 2], [4, 3], [4, 4], [3, 4], [2, 4], [1, 4], [0, 4], [0, 3], [0, 2], [1, 2], [1, 1], [2, 1], [3, 1], [3, 2], [3, 3], [2, 3], [2, 2], [1, 3]];
+
+  coordsArray = coordsArray.map(function (coords) {
+    return [coords[0] * 0.707 - coords[1] * -0.707, coords[0] * -0.707 + coords[1] * 0.707 * 0.75];
+  });
+  var scaleFactor = 100;
+
+  var nodeArray = [];
+  var originals = [6, 12, 15, 17, 20];
+
+  for (var i = 1; i <= coordsArray.length; i += 1) {
+    var isOriginal = false;
+    if (originals.includes(i)) {
+      isOriginal = true;
+    }
+    nodeArray.push({
+      id: i,
+      group: 'noService',
+      // label: i,
+      original: isOriginal,
+      x: coordsArray[i - 1][0] * scaleFactor,
+      y: coordsArray[i - 1][1] * scaleFactor
+    });
+  }
+
+  var edgePairs = [[1, 2], [1, 15], [1, 13], [2, 15], [2, 3], [2, 16], [3, 4], [3, 17], [5, 18], [5, 6], [6, 8], [6, 7], [7, 8], [8, 9], [9, 10], [9, 20], [10, 11], [10, 12], [11, 12], [12, 13], [13, 14], [14, 15], [14, 21], [15, 16], [16, 21], [17, 18], [18, 19], [18, 21], [19, 20], [20, 21], [4, 5], [4, 17], [12, 22], [14, 22]];
+
+  var edgeArray = [];
+
+  edgePairs.forEach(function (edgePair) {
+    return edgeArray.push({ from: edgePair[0], to: edgePair[1] });
+  });
+
+  return { nodeArray: nodeArray, edgeArray: edgeArray };
+  // setUpNetwork(nodeArray, edgeArray);
+};
+
+module.exports = {
+  allNodesHaveWifi: allNodesHaveWifi,
+  countHotspots: countHotspots,
+  getOptimalAnswer: getOptimalAnswer,
+  updateOptimalAnswer: updateOptimalAnswer,
+  resetAllNodes: resetAllNodes,
+  updateConnectedNodes: updateConnectedNodes,
+  processNodeClick: processNodeClick,
+  getData: getData,
+  setUpData: setUpData,
+  revealOriginalHotspots: revealOriginalHotspots,
+  useDefaultPuzzle: useDefaultPuzzle
+};
+
+/***/ }),
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -54600,7 +54773,7 @@ var setUpClickHandlersForCreateOwnLinks = function setUpClickHandlersForCreateOw
 module.exports = setUpClickHandlersForCreateOwnLinks;
 
 /***/ }),
-/* 10 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -54811,7 +54984,7 @@ var setUp = function setUp(domain, codeToUse) {
 module.exports = { setUp: setUp, show: show, hide: hide, isActive: isActive };
 
 /***/ }),
-/* 11 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -54885,7 +55058,7 @@ module.exports = setUpClickHandlersForNextGraphLinks;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2)))
 
 /***/ }),
-/* 12 */
+/* 13 */
 /***/ (function(module, exports) {
 
 if (window.NodeList && !NodeList.prototype.forEach) {
@@ -54899,169 +55072,6 @@ if (window.NodeList && !NodeList.prototype.forEach) {
 
 
 /***/ }),
-/* 13 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var vis = __webpack_require__(4);
-
-var nodes = null;
-var edges = null;
-var data = null;
-var optimalAnswer = null;
-
-var updateOptimalAnswer = function updateOptimalAnswer() {
-  optimalAnswer = nodes.get().reduce(function (total, node) {
-    return node.original ? total + 1 : total;
-  }, 0);
-};
-
-var getOptimalAnswer = function getOptimalAnswer() {
-  return optimalAnswer;
-};
-
-var updateConnectedNodes = function updateConnectedNodes() {
-  // Reset all serviced nodes to unserviced (but leave hotspots alone)
-  nodes.forEach(function (node) {
-    if (node.group === 'service') {
-      node.group = 'noService';
-      nodes.update(node);
-    }
-  });
-
-  // Find all the hotspot nodes and have them service all the connected non-hotspot nodes
-  nodes.forEach(function (node) {
-    if (node.group === 'hotspot') {
-      edges.forEach(function (edge) {
-        var servicedId = 0;
-        if (edge.from === node.id) {
-          servicedId = edge.to;
-        } else if (edge.to === node.id) {
-          servicedId = edge.from;
-        }
-
-        if (servicedId) {
-          var servicedNode = nodes.get(servicedId);
-
-          if (servicedNode.group === 'noService') {
-            servicedNode.group = 'service';
-            nodes.update(servicedNode);
-          }
-        }
-      });
-    }
-  });
-};
-
-var resetAllNodes = function resetAllNodes() {
-  nodes.forEach(function (node) {
-    node.group = 'noService';
-    nodes.update(node);
-  });
-};
-
-var setUpData = function setUpData(nodeArray, edgeArray) {
-  var newEdgeArray = [];
-  edgeArray.forEach(function (edge) {
-    newEdgeArray.push({ id: edge.id, from: edge.from, to: edge.to });
-  });
-
-  edges = new vis.DataSet(newEdgeArray);
-  nodes = new vis.DataSet(nodeArray);
-  resetAllNodes();
-  data = {
-    nodes: nodes,
-    edges: edges
-  };
-};
-
-var getData = function getData() {
-  return data;
-};
-
-var allNodesHaveWifi = function allNodesHaveWifi() {
-  return nodes.get().every(function (node) {
-    return node.group !== 'noService';
-  });
-};
-
-var countHotspots = function countHotspots() {
-  var hotspots = 0;
-
-  nodes.forEach(function (node) {
-    if (node.group === 'hotspot') {
-      hotspots += 1;
-    }
-  });
-
-  return hotspots;
-};
-
-var processNodeClick = function processNodeClick(id) {
-  var node = nodes.get(id);
-  if (node.group !== 'hotspot') {
-    nodes.update({ id: id, group: 'hotspot' });
-  } else if (node.group === 'hotspot') {
-    nodes.update({ id: id, group: 'noService' });
-  }
-  // Update which nodes should be in group 'service'
-  updateConnectedNodes();
-};
-
-var useDefaultPuzzle = function useDefaultPuzzle() {
-  var coordsArray = [[0, 0], [2, 0], [3, 0], [4, 0], [4, 2], [4, 3], [4, 4], [3, 4], [2, 4], [1, 4], [0, 4], [0, 3], [0, 2], [1, 2], [1, 1], [2, 1], [3, 1], [3, 2], [3, 3], [2, 3], [2, 2], [1, 3]];
-
-  coordsArray = coordsArray.map(function (coords) {
-    return [coords[0] * 0.707 - coords[1] * -0.707, coords[0] * -0.707 + coords[1] * 0.707 * 0.75];
-  });
-  var scaleFactor = 100;
-
-  var nodeArray = [];
-  var originals = [6, 12, 15, 17, 20];
-
-  for (var i = 1; i <= coordsArray.length; i += 1) {
-    var isOriginal = false;
-    if (originals.includes(i)) {
-      isOriginal = true;
-    }
-    nodeArray.push({
-      id: i,
-      group: 'noService',
-      // label: i,
-      original: isOriginal,
-      x: coordsArray[i - 1][0] * scaleFactor,
-      y: coordsArray[i - 1][1] * scaleFactor
-    });
-  }
-
-  var edgePairs = [[1, 2], [1, 15], [1, 13], [2, 15], [2, 3], [2, 16], [3, 4], [3, 17], [5, 18], [5, 6], [6, 8], [6, 7], [7, 8], [8, 9], [9, 10], [9, 20], [10, 11], [10, 12], [11, 12], [12, 13], [13, 14], [14, 15], [14, 21], [15, 16], [16, 21], [17, 18], [18, 19], [18, 21], [19, 20], [20, 21], [4, 5], [4, 17], [12, 22], [14, 22]];
-
-  var edgeArray = [];
-
-  edgePairs.forEach(function (edgePair) {
-    return edgeArray.push({ from: edgePair[0], to: edgePair[1] });
-  });
-
-  return { nodeArray: nodeArray, edgeArray: edgeArray };
-  // setUpNetwork(nodeArray, edgeArray);
-};
-
-module.exports = {
-  allNodesHaveWifi: allNodesHaveWifi,
-  countHotspots: countHotspots,
-  getOptimalAnswer: getOptimalAnswer,
-  updateOptimalAnswer: updateOptimalAnswer,
-  resetAllNodes: resetAllNodes,
-  updateConnectedNodes: updateConnectedNodes,
-  processNodeClick: processNodeClick,
-  getData: getData,
-  setUpData: setUpData,
-  useDefaultPuzzle: useDefaultPuzzle
-};
-
-/***/ }),
 /* 14 */,
 /* 15 */,
 /* 16 */,
@@ -55071,18 +55081,18 @@ module.exports = {
 "use strict";
 /* WEBPACK VAR INJECTION */(function(fetch) {
 
-__webpack_require__(12);
-var vis = __webpack_require__(4);
+__webpack_require__(13);
+var vis = __webpack_require__(3);
 
-var browserIsIE = __webpack_require__(7);
-var Graph = __webpack_require__(13);
-var NetworkOptions = __webpack_require__(8);
+var browserIsIE = __webpack_require__(8);
+var Graph = __webpack_require__(9);
+var NetworkOptions = __webpack_require__(4);
 
 // Get title set up to link to main page
-var setUpTitleLink = __webpack_require__(3);
-var setUpNextPuzzleLinks = __webpack_require__(11);
-var setUpCreateLinks = __webpack_require__(9);
-var messageBox = __webpack_require__(10);
+var setUpTitleLink = __webpack_require__(5);
+var setUpNextPuzzleLinks = __webpack_require__(12);
+var setUpCreateLinks = __webpack_require__(10);
+var messageBox = __webpack_require__(11);
 
 var container = null;
 var options = null;

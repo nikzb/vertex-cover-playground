@@ -12,6 +12,10 @@ const HotspotPuzzle = mongoose.model('HotspotPuzzle', {
   size: {
     type: String,
     required: true
+  },
+  approved: {
+    type: String,
+    required: true
   }
 });
 

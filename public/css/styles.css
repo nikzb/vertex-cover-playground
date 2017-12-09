@@ -916,6 +916,19 @@ input:valid {
   display: none;
 }
 
+.btn--delete-always-shown {
+  font-size: 1.4em;
+  height: 2.2em;
+  padding: 0 1em;
+  border: 1px solid red;
+}
+
+.btn--admin {
+  font-size: 1.4em;
+  height: 2.2em;
+  padding: 0 1em;
+}
+
 .btn--full-width {
   font-size: 1.7em;
   font-weight: 300;
@@ -1001,6 +1014,13 @@ input:valid {
 .main-container__no-ie {
   display: none;
   margin: 0 2em;
+}
+
+.main-container--admin-view {
+  -webkit-box-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
+  max-width: 800px;
 }
 
 .middle-container {

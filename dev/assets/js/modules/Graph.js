@@ -15,6 +15,15 @@ const getOptimalAnswer = function getOptimalAnswer() {
   return optimalAnswer;
 };
 
+const revealOriginalHotspots = function revealOriginalHotspots() {
+  nodes.forEach((node) => {
+    if (node.original) {
+      node.group = 'hotspot';
+      nodes.update(node);
+    }
+  });
+};
+
 const updateConnectedNodes = function updateConnectedNodes() {
   // Reset all serviced nodes to unserviced (but leave hotspots alone)
   nodes.forEach((node) => {
@@ -160,5 +169,6 @@ module.exports = {
   processNodeClick,
   getData,
   setUpData,
+  revealOriginalHotspots,
   useDefaultPuzzle
 };

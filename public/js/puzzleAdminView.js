@@ -64,7 +64,7 @@ var EntryPoint =
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 15);
+/******/ 	return __webpack_require__(__webpack_require__.s = 18);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -54305,31 +54305,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 5 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var domain = window.location.host;
-
-var setUpClickHandlerForTitle = function setUpClickHandlersForTitle() {
-  var titleDiv = document.querySelector('.main-container__header__title');
-
-  titleDiv.addEventListener("click", function () {
-    window.location = '//' + domain + '/';
-  });
-
-  var logoImage = document.querySelector('.logo-image');
-
-  logoImage.addEventListener("click", function () {
-    window.location = '//' + domain + '/';
-  });
-};
-
-module.exports = setUpClickHandlerForTitle;
-
-/***/ }),
+/* 5 */,
 /* 6 */
 /***/ (function(module, exports) {
 
@@ -54522,83 +54498,8 @@ process.umask = function() { return 0; };
 /* (ignored) */
 
 /***/ }),
-/* 8 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-// From https://codepen.io/gapcode/pen/vEJNZN
-
-/**
- * detect IE
- * returns version of IE or false, if browser is not Internet Explorer
- */
-function detectIE() {
-  var ua = window.navigator.userAgent;
-
-  // Test values; Uncomment to check result …
-
-  // IE 10
-  // ua = 'Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; Trident/6.0)';
-
-  // IE 11
-  // ua = 'Mozilla/5.0 (Windows NT 6.3; Trident/7.0; rv:11.0) like Gecko';
-
-  // Edge 12 (Spartan)
-  // ua = 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36 Edge/12.0';
-
-  // Edge 13
-  // ua = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2486.0 Safari/537.36 Edge/13.10586';
-
-  var msie = ua.indexOf('MSIE ');
-  if (msie > 0) {
-    // IE 10 or older => return version number
-    return parseInt(ua.substring(msie + 5, ua.indexOf('.', msie)), 10);
-  }
-
-  var trident = ua.indexOf('Trident/');
-  if (trident > 0) {
-    // IE 11 => return version number
-    var rv = ua.indexOf('rv:');
-    return parseInt(ua.substring(rv + 3, ua.indexOf('.', rv)), 10);
-  }
-
-  var edge = ua.indexOf('Edge/');
-  if (edge > 0) {
-    // Edge (IE 12+) => return version number
-    return parseInt(ua.substring(edge + 5, ua.indexOf('.', edge)), 10);
-  }
-
-  // other browser
-  return false;
-}
-
-module.exports = function () {
-  var version = detectIE();
-  return version !== false && version < 12;
-};
-
-/***/ }),
-/* 9 */,
-/* 10 */,
-/* 11 */,
-/* 12 */,
-/* 13 */
-/***/ (function(module, exports) {
-
-if (window.NodeList && !NodeList.prototype.forEach) {
-    NodeList.prototype.forEach = function (callback, thisArg) {
-        thisArg = thisArg || window;
-        for (var i = 0; i < this.length; i++) {
-            callback.call(thisArg, this[i], i, this);
-        }
-    };
-}
-
-
-/***/ }),
-/* 14 */
+/* 8 */,
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -54609,580 +54510,322 @@ var vis = __webpack_require__(3);
 var nodes = null;
 var edges = null;
 var data = null;
+var optimalAnswer = null;
 
-var getNode = function getNode(id) {
-  return nodes.get(id);
+var updateOptimalAnswer = function updateOptimalAnswer() {
+  optimalAnswer = nodes.get().reduce(function (total, node) {
+    return node.original ? total + 1 : total;
+  }, 0);
 };
 
-var getEdge = function getEdge(id) {
-  return edges.get(id);
+var getOptimalAnswer = function getOptimalAnswer() {
+  return optimalAnswer;
 };
 
-var updateNode = function updateNode(node) {
-  nodes.update(node);
+var revealOriginalHotspots = function revealOriginalHotspots() {
+  nodes.forEach(function (node) {
+    if (node.original) {
+      node.group = 'hotspot';
+      nodes.update(node);
+    }
+  });
 };
 
-var getNodes = function getNodes() {
-  return nodes.get();
+var updateConnectedNodes = function updateConnectedNodes() {
+  // Reset all serviced nodes to unserviced (but leave hotspots alone)
+  nodes.forEach(function (node) {
+    if (node.group === 'service') {
+      node.group = 'noService';
+      nodes.update(node);
+    }
+  });
+
+  // Find all the hotspot nodes and have them service all the connected non-hotspot nodes
+  nodes.forEach(function (node) {
+    if (node.group === 'hotspot') {
+      edges.forEach(function (edge) {
+        var servicedId = 0;
+        if (edge.from === node.id) {
+          servicedId = edge.to;
+        } else if (edge.to === node.id) {
+          servicedId = edge.from;
+        }
+
+        if (servicedId) {
+          var servicedNode = nodes.get(servicedId);
+
+          if (servicedNode.group === 'noService') {
+            servicedNode.group = 'service';
+            nodes.update(servicedNode);
+          }
+        }
+      });
+    }
+  });
 };
 
-var getEdges = function getEdges() {
-  return edges.get();
+var resetAllNodes = function resetAllNodes() {
+  nodes.forEach(function (node) {
+    node.group = 'noService';
+    nodes.update(node);
+  });
+};
+
+var setUpData = function setUpData(nodeArray, edgeArray) {
+  var newEdgeArray = [];
+  edgeArray.forEach(function (edge) {
+    newEdgeArray.push({ id: edge.id, from: edge.from, to: edge.to });
+  });
+
+  edges = new vis.DataSet(newEdgeArray);
+  nodes = new vis.DataSet(nodeArray);
+  resetAllNodes();
+  data = {
+    nodes: nodes,
+    edges: edges
+  };
 };
 
 var getData = function getData() {
   return data;
 };
 
-// Just deletes a particular node - does not look at connections at all
-var deleteNode = function deleteNode(id) {
-  nodes.remove(id);
-};
-
-var deleteEdge = function deleteEdge(id) {
-  edges.remove(id);
-};
-
-var addNode = function addNode(newNode) {
-  nodes.add(newNode);
-};
-
-var getNumberOfHotspots = function getNumberOfHotspots() {
-  var nodesArray = nodes.get();
-  return nodesArray.reduce(function (sum, node) {
-    if (node.original) {
-      return sum + 1;
-    } else {
-      return sum;
-    }
-  }, 0);
-};
-
-var getNumberOfServicedNodes = function getNumberOfServicedNodes() {
-  var nodesArray = nodes.get();
-  return nodesArray.reduce(function (sum, node) {
-    if (node.original) {
-      return sum;
-    } else {
-      return sum + 1;
-    }
-  }, 0);
-};
-
-var reset = function reset() {
-  nodes = new vis.DataSet();
-  edges = new vis.DataSet();
-  data = { nodes: nodes, edges: edges };
-};
-
-// Remove nodes that are not connected to any other nodes
-var removeLonelyNodes = function removeLonelyNodes() {
-  var i = 0;
-
-  var nodesArray = nodes.get();
-
-  while (i < nodesArray.length) {
-    if (nodesArray[i].connectedToWithinCluster.length === 0) {
-      nodes.remove(nodesArray[i].id);
-    }
-    i += 1;
-  }
-
-  console.log(nodes.get());
-};
-
-var getSize = function getSize() {
-  var numHotspots = getNumberOfHotspots();
-  var size = void 0;
-  if (numHotspots <= 4) {
-    size = 'small';
-  } else if (numHotspots <= 7) {
-    size = 'medium';
-  } else if (numHotspots <= 10) {
-    size = 'large';
-  } else {
-    size = 'x-large';
-  }
-
-  return size;
-};
-
-var deleteEdgesTouchingNode = function deleteEdgesTouchingNode(nodeId) {
-  getEdges().forEach(function (edgeToCheck) {
-    if (edgeToCheck.from === nodeId || edgeToCheck.to === nodeId) {
-      deleteEdge(edgeToCheck.id);
-    }
+var allNodesHaveWifi = function allNodesHaveWifi() {
+  return nodes.get().every(function (node) {
+    return node.group !== 'noService';
   });
 };
 
-var processDeleteNode = function processDeleteNode(id) {
-  var nodeToDelete = getNode(id);
+var countHotspots = function countHotspots() {
+  var hotspots = 0;
 
-  if (nodeToDelete.group === 'hotspot') {
-    // Delete all the edges touching the serviced nodes this hotspot is connected to
-    nodeToDelete.connectedToWithinCluster.forEach(function (serviceNodeId) {
-      deleteEdgesTouchingNode(serviceNodeId);
-    });
-
-    // Delete all the service nodes connected to the hotspot we are deleting
-    nodeToDelete.connectedToWithinCluster.forEach(function (serviceNodeId) {
-      deleteNode(serviceNodeId);
-    });
-
-    // Delete the hotspot
-    deleteNode(id);
-  } else {
-    // must be a service node
-    // Must remove nodeId from the hotspots connectedToWithinCluster list
-    if (nodeToDelete.connectedToWithinCluster.length > 0) {
-      var hotspotId = nodeToDelete.connectedToWithinCluster[0];
-      var hotspot = getNode(hotspotId);
-      var index = hotspot.connectedToWithinCluster.indexOf(id);
-      hotspot.connectedToWithinCluster.splice(index, 1);
-      updateNode(hotspot);
-
-      // Delete all the edges touching the serviced node
-      deleteEdgesTouchingNode(id);
+  nodes.forEach(function (node) {
+    if (node.group === 'hotspot') {
+      hotspots += 1;
     }
+  });
 
-    // Delete the service node
-    deleteNode(id);
-  }
+  return hotspots;
 };
 
-var processDeleteEdge = function processDeleteEdge(id) {
-  var edgeToDelete = getEdge(id);
-
-  var fromNode = getNode(edgeToDelete.from);
-  var toNode = getNode(edgeToDelete.to);
-
-  // Check if is a cluster edge
-  if (fromNode.group === 'hotspot' || toNode.group === 'hotspot') {
-    // Deleting a cluster edge must also delete the serviced node
-    var serviceNodeId = void 0;
-    var hotspotId = void 0;
-
-    if (fromNode.group === 'hotspot') {
-      serviceNodeId = edgeToDelete.to;
-      hotspotId = edgeToDelete.from;
-    } else {
-      serviceNodeId = edgeToDelete.from;
-      hotspotId = edgeToDelete.to;
-    }
-
-    // Need to remove the id of the serviced node from the hotspot's connectedToWithinCluster list
-    var hotspot = getNode(hotspotId);
-    var index = hotspot.connectedToWithinCluster.indexOf(serviceNodeId);
-    hotspot.connectedToWithinCluster.splice(index, 1);
-    updateNode(hotspot);
-
-    // Need to delete all the edges that touch the service node that is about to get deleted
-    deleteEdgesTouchingNode(serviceNodeId);
-
-    // Delete the service node this edge touches
-    deleteNode(serviceNodeId);
-  } else {
-    // It is a joining edge (connecting clusters)
-    // Only have to delete the selected edge
-    deleteEdge(id);
+var processNodeClick = function processNodeClick(id) {
+  var node = nodes.get(id);
+  if (node.group !== 'hotspot') {
+    nodes.update({ id: id, group: 'hotspot' });
+  } else if (node.group === 'hotspot') {
+    nodes.update({ id: id, group: 'noService' });
   }
+  // Update which nodes should be in group 'service'
+  updateConnectedNodes();
+};
+
+var useDefaultPuzzle = function useDefaultPuzzle() {
+  var coordsArray = [[0, 0], [2, 0], [3, 0], [4, 0], [4, 2], [4, 3], [4, 4], [3, 4], [2, 4], [1, 4], [0, 4], [0, 3], [0, 2], [1, 2], [1, 1], [2, 1], [3, 1], [3, 2], [3, 3], [2, 3], [2, 2], [1, 3]];
+
+  coordsArray = coordsArray.map(function (coords) {
+    return [coords[0] * 0.707 - coords[1] * -0.707, coords[0] * -0.707 + coords[1] * 0.707 * 0.75];
+  });
+  var scaleFactor = 100;
+
+  var nodeArray = [];
+  var originals = [6, 12, 15, 17, 20];
+
+  for (var i = 1; i <= coordsArray.length; i += 1) {
+    var isOriginal = false;
+    if (originals.includes(i)) {
+      isOriginal = true;
+    }
+    nodeArray.push({
+      id: i,
+      group: 'noService',
+      // label: i,
+      original: isOriginal,
+      x: coordsArray[i - 1][0] * scaleFactor,
+      y: coordsArray[i - 1][1] * scaleFactor
+    });
+  }
+
+  var edgePairs = [[1, 2], [1, 15], [1, 13], [2, 15], [2, 3], [2, 16], [3, 4], [3, 17], [5, 18], [5, 6], [6, 8], [6, 7], [7, 8], [8, 9], [9, 10], [9, 20], [10, 11], [10, 12], [11, 12], [12, 13], [13, 14], [14, 15], [14, 21], [15, 16], [16, 21], [17, 18], [18, 19], [18, 21], [19, 20], [20, 21], [4, 5], [4, 17], [12, 22], [14, 22]];
+
+  var edgeArray = [];
+
+  edgePairs.forEach(function (edgePair) {
+    return edgeArray.push({ from: edgePair[0], to: edgePair[1] });
+  });
+
+  return { nodeArray: nodeArray, edgeArray: edgeArray };
+  // setUpNetwork(nodeArray, edgeArray);
 };
 
 module.exports = {
-  getNode: getNode,
-  getEdge: getEdge,
-  updateNode: updateNode,
-  getNodes: getNodes,
-  getEdges: getEdges,
+  allNodesHaveWifi: allNodesHaveWifi,
+  countHotspots: countHotspots,
+  getOptimalAnswer: getOptimalAnswer,
+  updateOptimalAnswer: updateOptimalAnswer,
+  resetAllNodes: resetAllNodes,
+  updateConnectedNodes: updateConnectedNodes,
+  processNodeClick: processNodeClick,
   getData: getData,
-  deleteNode: deleteNode,
-  deleteEdge: deleteEdge,
-  addNode: addNode,
-  reset: reset,
-  removeLonelyNodes: removeLonelyNodes,
-  getSize: getSize,
-  getNumberOfHotspots: getNumberOfHotspots,
-  getNumberOfServicedNodes: getNumberOfServicedNodes,
-  processDeleteNode: processDeleteNode,
-  processDeleteEdge: processDeleteEdge
+  setUpData: setUpData,
+  revealOriginalHotspots: revealOriginalHotspots,
+  useDefaultPuzzle: useDefaultPuzzle
 };
 
 /***/ }),
-/* 15 */
+/* 10 */,
+/* 11 */,
+/* 12 */,
+/* 13 */,
+/* 14 */,
+/* 15 */,
+/* 16 */,
+/* 17 */,
+/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 /* WEBPACK VAR INJECTION */(function(fetch) {
 
-__webpack_require__(13);
 var vis = __webpack_require__(3);
 
-var browserIsIE = __webpack_require__(8);
-var graph = __webpack_require__(14);
+var Graph = __webpack_require__(9);
 var NetworkOptions = __webpack_require__(4);
 
-// Get title set up to link to main page
-var setUpTitleLink = __webpack_require__(5);
-
-setUpTitleLink();
-
-// Variables for manipulating the DOM
-var instructDiv = null;
-var buttonDiv = null;
-var prevButton = null;
-var resetButton = null;
-var instruct = null;
-var stepTitle = null;
-var deleteButton = null;
-
-var stageInstructions = null;
-var needMoreNodesWarning = null;
-var nodesNeedMoreSpaceWarning = null;
-
-var selected = null;
-
+var container = null;
+var options = null;
 var network = null;
-var container = void 0;
-// const domain = 'localhost:3001';
+
 var domain = window.location.host;
 
-// The stages are
-// 0: intro
-// 1: add-hotspots
-// 2: add-serviced-nodes
-// 3: make-clusters
-// 4: connect-clusters
-// 5: finished
-var stage = 'intro';
-var options = void 0;
-
-var populateStageInstructions = function populateStageInstructions() {
-  stageInstructions = [];
-
-  stageInstructions[0] = '\n    <h2 class=\'info-container__step-label\'>Overview</h2>\n    <h3 class=\'info-container__todo\'>Click the NEXT arrow above to begin creating your own Wifi Hotspot Problem!</h3>\n    <ul class=\'info-container__list\'>\n      <li>It is relatively easy to create one of these problems. It may be very difficult for someone else to solve your problem!</li>\n    </ul>\n    <h4 class=\'info-container__sub-list-header\'>5 Steps: Create a Wifi Hotspot Problem</h4>\n    <ul class=\'info-container__sub-list\'>\n      <li>Add hotspot nodes.</li>\n      <li>Add nodes that will receive service from the hotspots.</li>\n      <li>Connect each serviced node to exactly one hotspot.</li>\n      <li>Connect serviced nodes to other serviced nodes.</li>\n      <li>Make final adjustments to the positions of your nodes.</li>\n    </ul>\n  ';
-
-  stageInstructions[1] = '\n    <h2 class=\'info-container__step-label\'>Add the Hotspots</h2>\n    <h3 class=\'info-container__todo\'>Click in the graph canvas to add the hotspots.</h3>\n    <ul class=\'info-container__list\'>\n      <li>The nodes that will receive service will be added in the next step.</li>\n    </ul>\n  ';
-
-  stageInstructions[2] = '\n    <h2 class=\'info-container__step-label\'>Add The Serviced Nodes</h2>\n    <h3 class=\'info-container__todo\'>Click in the graph canvas to add the nodes that will receive service from the hotspots.</h3>\n    <ul class=\'info-container__list\'>\n      <li>You will connect the nodes in the next steps.</li>\n    </ul>\n  ';
-
-  stageInstructions[3] = '\n    <h2 class=\'info-container__step-label\'>Make Clusters</h2>\n    <h3 class=\'info-container__todo\'>Click the white nodes and drag to connect them to a black node.</h3>\n    <ul class=\'info-container__list\'>\n      <li>Each white node should be connected to exactly one black node.</li>\n      <li>Black nodes can be connected to multiple white nodes to form a cluster of nodes.</li>\n    </ul>\n  ';
-
-  stageInstructions[4] = '\n    <h2 class=\'info-container__step-label\'>Connect the Clusters</h2>\n    <h3 class=\'info-container__todo\'>Connect white nodes from different clusters.</h3>\n    <ul class=\'info-container__list\'>\n      <li>You can connect nodes to multiple other nodes, as long as they are from different clusters.</li>\n      <li>You will be able to adjust the positions of the nodes in the next step.</li>\n    </ul>\n  ';
-
-  stageInstructions[5] = '\n    <h2 class=\'info-container__step-label\'>Finish Up</h2>\n    <h3 class=\'info-container__todo\'>Adjust the final positioning of the nodes and you are done!</h3>\n    <ul class=\'info-container__list\'>\n      <li>Click the NEXT arrow to finish creating your puzzle.</li>\n    </ul>\n  ';
-
-  needMoreNodesWarning = '\n    <h3 class=\'info-container__todo info-container__todo-warning\'>\n      Your puzzle is too small! Go back and add some more nodes!\n    </h3>\n  ';
-
-  nodesNeedMoreSpaceWarning = '\n  <h3 class=\'info-container__todo info-container__todo-warning\'>\n    Some of your nodes are too close together! Move them a bit further apart from each other.\n  </h3>\n  ';
-};
-
-populateStageInstructions();
-
-var showDeleteButton = function showDeleteButton() {
-  // const deleteButton = document.querySelector('.btn--delete');
-  deleteButton.style.display = 'block';
-};
-
-var hideDeleteButton = function hideDeleteButton() {
-  // const deleteButton = document.querySelector('.btn--delete');
-  deleteButton.style.display = 'none';
+var setUpContainer = function setUpContainer() {
+  container = document.querySelector('.graph-area__graph-canvas');
 };
 
 var updateHotspotCount = function updateHotspotCount() {
-  document.querySelector('.graph-area__hotspot-count').textContent = graph.getNumberOfHotspots();
+  document.querySelector('.graph-area__count-wrap-count').innerHTML = Graph.countHotspots();
 };
 
-var setUpEventHandlers = function setUpEventHandlers() {
-  network.on('click', function (params) {
-    if (params.nodes.length > 0) {
-      // If a node is selected
-      network.selectNodes([params.nodes[0]]);
-      selected = params.nodes[0];
-      showDeleteButton();
-    } else if (params.edges.length > 0) {
-      // Else if an edge is selected
-      network.selectEdges([params.edges[0]]);
-      selected = params.edges[0];
-      showDeleteButton();
-    } else if (selected !== null) {
-      // Else if a node was already selected, on a click is made on empty space, just deselect the node
-      network.unselectAll();
-      selected = null;
-      hideDeleteButton();
-    } else if (stage === 'add-hotspots') {
-      graph.addNode({
-        label: '',
-        original: true,
-        group: 'hotspot',
-        connectedToWithinCluster: [],
-        x: params.pointer.canvas.x,
-        y: params.pointer.canvas.y
-      });
-    } else if (stage === 'add-serviced-nodes') {
-      graph.addNode({
-        label: '',
-        original: false,
-        group: 'service',
-        connectedToWithinCluster: [],
-        x: params.pointer.canvas.x,
-        y: params.pointer.canvas.y
-      });
-    }
-    updateHotspotCount();
-  });
-
-  network.on("dragEnd", function (params) {
-    if (params.nodes.length > 0) {
-      var nodeId = params.nodes[0];
-      selected = nodeId;
-      showDeleteButton();
-
-      var node = graph.getNode(nodeId);
-      node.x = params.pointer.canvas.x;
-      node.y = params.pointer.canvas.y;
-      graph.updateNode(node);
-    }
-  });
-};
-
-var resetPuzzleBuilder = function resetPuzzleBuilder() {
-  network.destroy();
-
-  graph.reset();
-  updateHotspotCount();
-  network = new vis.Network(container, graph.getData(), options);
-  setUpEventHandlers();
-
-  stage = 'add-hotspots';
-  instruct.innerHTML = stageInstructions[1];
-  stepTitle.innerHTML = 'Step 1';
-  prevButton.style.visibility = 'hidden';
-  NetworkOptions.setUpOptionsForAddHotspots(network, graph, options);
-};
-
-var deleteSelected = function deleteSelected() {
-  var selection = network.getSelection();
-
-  if (selection.nodes.length === 0 && selection.edges.length === 0) {
-    throw new Error('Nothing selected to delete');
-  }
-
-  // The delete button should already be showing when something is selected.
-  // Therefore we just need to know if it is a node or edge that is selected
-  if (selection.nodes.length > 0) {
-    graph.processDeleteNode(selection.nodes[0]);
-  } else {
-    graph.processDeleteEdge(selection.edges[0]);
-  }
-
-  selected = null;
-  hideDeleteButton();
+var setUpNetwork = function setUpNetwork(nodeArray, edgeArray) {
+  options = NetworkOptions.getOptionsForPuzzle();
+  Graph.setUpData(nodeArray, edgeArray);
+  setUpContainer();
+  network = new vis.Network(container, Graph.getData(), options);
+  Graph.revealOriginalHotspots();
+  Graph.updateOptimalAnswer();
+  Graph.updateConnectedNodes();
   updateHotspotCount();
 };
 
-var nodesHaveAdequateSpace = function nodesHaveAdequateSpace() {
-  // getPositions - takes array of node ids and returns object with ids as name and object with x, y as name and coords as values as value
-  var nodes = graph.getNodes();
-
-  for (var index = 0; index < nodes.length - 1; index += 1) {
-    for (var compIndex = index + 1; compIndex < nodes.length; compIndex += 1) {
-      var nodeA = nodes[index];
-      var nodeB = nodes[compIndex];
-
-      // distance is center to center
-      var distanceBetween = Math.hypot(nodeA.x - nodeB.x, nodeA.y - nodeB.y);
-
-      if (distanceBetween < 45) {
-        return false;
-      }
-    }
-  }
-
-  return true;
-};
-
-var savePuzzleAndLoad = function savePuzzleAndLoad() {
-  var newCodeHeaders = new Headers({
-    'Content-Type': 'text/html'
+var deletePuzzle = function deletePuzzle(code) {
+  console.log('delete button pressed');
+  var deletePuzzleRequestHeaders = new Headers({
+    'Content-Type': 'application/json'
   });
-  var newCodeInit = {
-    method: 'GET',
-    headers: newCodeHeaders
+
+  var deletePuzzleRequestInit = {
+    method: 'POST',
+    headers: deletePuzzleRequestHeaders,
+    body: JSON.stringify({
+      code: code
+    })
   };
 
-  // const requestNewCode = new Request(`https://${domain}/hotspot/newCode`, newCodeInit);
-  var requestNewCode = new Request('//' + domain + '/hotspot/newCode', newCodeInit);
+  var deletePuzzleRequest = new Request('//' + domain + '/hotspot-remove/', deletePuzzleRequestInit);
 
-  fetch(requestNewCode).then(function (response) {
-    if (!response.ok) {
-      throw new Error("Error in response to fetch request");
+  fetch(deletePuzzleRequest).then(function (deletePuzzleResponse) {
+    if (!deletePuzzleResponse.ok) {
+      throw new Error("Error with response to deleting puzzle");
     }
-    var contentType = response.headers.get('content-type');
-    if (!contentType || contentType.indexOf('text') === -1) {
-      throw new Error("Problem with content type");
-    }
-    // The text sent back is the code that will be used to save this puzzle
-    response.text().then(function (code) {
-      // Figure out the correct size for the puzzle
-      var size = graph.getSize();
-      console.log("in save puzzle and load");
-      console.log(size);
+    // Successfully deleted puzzle, so load the next pending puzzle
+    console.log('back where fetch request has returned');
 
-      var addPuzzleRequestHeaders = new Headers({
-        'Content-Type': 'application/json'
-      });
-
-      var addPuzzleRequestInit = {
-        method: 'POST',
-        headers: addPuzzleRequestHeaders,
-        body: JSON.stringify({
-          graph: {
-            nodes: graph.getNodes(),
-            edges: graph.getEdges()
-          },
-          approved: 'pending',
-          code: code,
-          size: size
-        })
-      };
-
-      var addPuzzleRequest = new Request('//' + domain + '/hotspot/', addPuzzleRequestInit);
-
-      fetch(addPuzzleRequest).then(function (addPuzzleResponse) {
-        if (!addPuzzleResponse.ok) {
-          throw new Error("Error with response to adding puzzle");
-        }
-        // Successfully added puzzle, so load page with puzzle
-        window.location = '//' + domain + '/hotspot/' + code + '?new=true';
-      }).catch(function (error) {
-        throw new Error(error);
-      });
-    }).catch(function (error) {
-      throw new Error(error);
-    });
+    // Need to change this to match comment above. For now, should try to find puzzle and fail
+    //window.location=`//${domain}/hotspot/${code}`;
   }).catch(function (error) {
     throw new Error(error);
   });
 };
 
-var goToNextStage = function goToNextStage() {
-  if (stage === 'intro') {
-    stage = 'add-hotspots';
-    NetworkOptions.setUpOptionsForAddHotspots(network, graph, options);
-    instruct.innerHTML = stageInstructions[1];
-    stepTitle.innerHTML = 'Step 1';
-    resetButton.style.visibility = 'visible';
-  } else if (stage === 'add-hotspots') {
-    stage = 'add-serviced-nodes';
-    NetworkOptions.setUpOptionsForAddServicedNodes(network, graph, options);
-    instruct.innerHTML = stageInstructions[2];
-    stepTitle.innerHTML = 'Step 2';
-    prevButton.style.visibility = 'visible';
-  } else if (stage === 'add-serviced-nodes') {
-    stage = 'make-clusters';
-    NetworkOptions.setUpOptionsForMakeClusters(network, graph, options);
-    instruct.innerHTML = stageInstructions[3];
-    stepTitle.innerHTML = 'Step 3';
-  } else if (stage === 'make-clusters') {
-    stage = 'connect-clusters';
-    graph.removeLonelyNodes();
-    updateHotspotCount();
-    NetworkOptions.setUpOptionsForConnectClusters(network, graph, options);
-    instruct.innerHTML = stageInstructions[4];
-    stepTitle.innerHTML = 'Step 4';
-  } else if (stage === 'connect-clusters') {
-    stage = 'finished';
-    graph.removeLonelyNodes();
-    updateHotspotCount();
-    NetworkOptions.setUpOptionsForFinished(network, options);
-    instruct.innerHTML = stageInstructions[5];
-    stepTitle.innerHTML = 'Step 5';
-  } else if (stage === 'finished') {
-    // Validate puzzle
-    // 1) Make sure there are enough hotspots to make a legitimate puzzle
-    // 2) Make sure there is enough space between the nodes (not too crowded)
-    var warningMessage = '';
-    if (graph.getNumberOfHotspots() < 2 || graph.getNumberOfServicedNodes() < 4) {
-      warningMessage += needMoreNodesWarning;
-    }
-    if (!nodesHaveAdequateSpace()) {
-      warningMessage += nodesNeedMoreSpaceWarning;
-    }
+var setUpClickHandlersForButtons = function setUpClickHandlersForButtons(code, approved) {
+  var approveButton = document.querySelector('button[name="approve"]');
+  var disapproveButton = document.querySelector('button[name="disapprove"]');
+  var deleteButton = document.querySelector('button[name="delete-permanent"]');
+  var nextButton = document.querySelector('button[name="next"]');
 
-    // If there are warnings to give, show them, otherwise save puzzle
-    if (warningMessage.length > 0) {
-      instruct.innerHTML = stageInstructions[5] + warningMessage;
-    } else {
-      savePuzzleAndLoad();
-    }
-  }
-};
+  if (approved === 'yes') {
+    // already approved so disable approve buttons
+    approveButton.disable = true;
+    deleteButton.disable = true;
+  } else {
+    approveButton.addEventListener("click", function () {
+      // update puzzle in database to show that it has been approved
 
-var goToPrevStage = function goToPrevStage() {
-  if (stage === 'add-serviced-nodes') {
-    stage = 'add-hotspots';
-    NetworkOptions.setUpOptionsForAddHotspots(network, graph, options);
-    instruct.innerHTML = stageInstructions[1];
-    stepTitle.innerHTML = 'Step 1';
-    prevButton.style.visibility = 'hidden';
-  } else if (stage === 'make-clusters') {
-    stage = 'add-serviced-nodes';
-    NetworkOptions.setUpOptionsForAddServicedNodes(network, graph, options);
-    instruct.innerHTML = stageInstructions[2];
-    stepTitle.innerHTML = 'Step 2';
-  } else if (stage === 'connect-clusters') {
-    stage = 'make-clusters';
-    NetworkOptions.setUpOptionsForMakeClusters(network, graph, options);
-    instruct.innerHTML = stageInstructions[3];
-    stepTitle.innerHTML = 'Step 3';
-  } else if (stage === 'finished') {
-    stage = 'connect-clusters';
-    NetworkOptions.setUpOptionsForConnectClusters(network, graph, options);
-    instruct.innerHTML = stageInstructions[4];
-    stepTitle.innerHTML = 'Step 4';
-  }
-};
+    });
 
-var draw = function draw() {
-  // Create a network
-  container = document.querySelector('.graph-area__graph-canvas');
-
-  options = NetworkOptions.getOptionsForCreatePuzzle();
-  graph.reset();
-
-  network = new vis.Network(container, graph.getData(), options);
-  setUpEventHandlers();
-};
-
-var init = function init() {
-  if (browserIsIE()) {
-    document.querySelector('.main-container__no-ie').style.display = 'block';
-    document.querySelector('.middle-container').style.display = 'none';
-    return;
+    deleteButton.addEventListener("click", function () {
+      // permanently delete the puzzle from the database
+      deletePuzzle(code);
+    });
   }
 
-  // challengeDiv = document.querySelector('.info-container.challenge');
-  instructDiv = document.querySelector('.info-container.instructions');
-  instruct = document.querySelector('.info-container__details.instructions');
-  stepTitle = document.querySelector('.info-container__step-title');
-  // keyDiv = document.querySelector('.key-container');
-  buttonDiv = document.querySelector('.btn-container');
-  prevButton = document.querySelector('button[name="prev"]');
-  resetButton = document.querySelector('button[name="reset"]');
-  deleteButton = document.querySelector('button[name="delete"]');
+  if (approved === 'no') {
+    disapproveButton.disable = true;
+  } else {
+    disapproveButton.addEventListener("click", function () {
+      // update puzzle in database to show that it has been disapproved
+    });
+  }
 
-  document.querySelector('button[name="next"]').addEventListener('click', goToNextStage);
-  prevButton.addEventListener('click', goToPrevStage);
-  resetButton.addEventListener('click', resetPuzzleBuilder);
-  deleteButton.addEventListener('click', deleteSelected);
+  nextButton.addEventListener("click", function () {
+    // pull up the next puzzle that is pending approval
 
-  prevButton.style.visibility = 'hidden';
-
-  draw();
+  });
 };
 
+var setUpAll = function setUpAll(_ref) {
+  var nodes = _ref.nodes,
+      edges = _ref.edges,
+      size = _ref.size,
+      approved = _ref.approved,
+      code = _ref.code;
+
+  setUpNetwork(nodes, edges);
+  setUpClickHandlersForButtons(code, approved);
+};
+
+var handleResponseToPuzzleRequest = function handleResponseToPuzzleRequest(response, code) {
+  if (response.ok) {
+    var contentType = response.headers.get('content-type');
+    if (contentType && contentType.indexOf('application/json') !== -1) {
+      return response.json().then(function (json) {
+        console.log(json);
+        setUpAll({
+          nodes: json.puzzle.graph.nodes,
+          edges: json.puzzle.graph.edges,
+          size: json.puzzle.size,
+          approved: json.puzzle.approved,
+          code: code
+        });
+      }).catch(function (error) {
+        throw new Error(error + ', Error with JSON file');
+      });
+    }
+    throw new Error('Unexpected content type');
+  }
+  throw new Error('Error in network response');
+};
+
+var usePuzzle = function usePuzzle(code) {
+  fetch('//' + domain + '/hotspot-data/' + code).then(function (response) {
+    handleResponseToPuzzleRequest(response, code);
+  }).catch(function (error) {
+    throw new Error(error);
+  });
+};
+
+// Export this so that puzzleAdminView.hbs can call this function to get the puzzle set up
 module.exports = {
-  init: init
+  usePuzzle: usePuzzle
 };
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2)))
 

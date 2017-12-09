@@ -24,4 +24,9 @@
     display: none;
     margin: 0 2em;
   }
+
+  &--admin-view {
+    flex: 1;
+    max-width: 800px;
+  }
 }

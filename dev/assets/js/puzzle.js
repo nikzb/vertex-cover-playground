@@ -15,6 +15,7 @@ let container = null;
 let options = null;
 let network = null;
 
+
 const domain = window.location.host;
 
 const setUpContainer = function setUpContainer() {

@@ -1,0 +1,45 @@
+<!doctype html>
+<html>
+<head>
+  <title>Wireless Hotspot Challenge - Vertex Cover Proble - Admin View</title>
+  <link href="https://fonts.googleapis.com/css?family=Titillium+Web:300,400,500" rel="stylesheet">
+  <link href="/css/styles.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+  <div class='main-container--admin-view'>
+    <h2>Admin View</h2>
+    <div class='middle-container'>
+      <div class='graph-area'>
+        <div class='graph-area__header'>
+          <div class='graph-area__code-area'>
+            <h2 class='title graph-area__header-title'>Graph:
+              <span class='graph-area__code'>{{code}}</span>
+            </h2>
+          </div>
+
+          <div class='graph-area__count-wrap'>
+            <h2 class='graph-area__count-wrap-label'>Hotspots: <span class="graph-area__count-wrap-count">0</span></h2>
+          </div>
+        </div>
+        <div class='graph-area__graph-canvas'></div>
+        <div class='graph-area__control-buttons'>
+          <button class='btn btn--admin' type='button' name='approve'>Approve</button>
+          <button class='btn btn--admin' type='button' name='disapprove'>Disapprove</button>
+          <button class='btn btn--admin' type='button' name='next'>Next</button>
+          <button class='btn btn--delete-always-shown' type='button' name='delete-permanent'>Delete</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="text/javascript" src="/js/puzzleAdminView.js"></script>
+  <script>
+  window.onload = function() {
+    var code = '{{code}}';
+    EntryPoint.usePuzzle(code);
+  }
+  </script>
+</body>
+
+</html>

@@ -77,6 +77,19 @@ app.get('/hotspot/:code', (req, res) => {
   }).catch(e => res.send('<h1>There was an error while attempting to load the puzzle</h1>'));
 });
 
+app.get('/hotspot-master/:code', (req, res) => {
+  const code = req.params.code;
+
+  HotspotPuzzle.findOne({ code }).then((puzzle) => {
+    if (!puzzle) {
+      return res.render('notFound.hbs', { code });
+    }
+    return res.render('puzzleAdminView.hbs', { code });
+  }).catch((e) => {
+    res.status(400).send(e);
+  });
+});
+
 app.get('/hotspot-data/:code', (req, res) => {
   const code = req.params.code;
 
@@ -152,17 +165,30 @@ app.post('/hotspot', (req, res) => {
   const puzzle = new HotspotPuzzle({
     graph: req.body.graph,
     code: req.body.code,
-    size: req.body.size
+    size: req.body.size,
+    approved: req.body.approved
   });
 
   console.log('saving puzzle');
   console.log(puzzle);
-  console.log(req.body.size);
 
   puzzle.save().then((savedPuzzle) => {
     res.send({ savedPuzzle });
   }, (e) => {
     res.status(400).send(e);
+  });
+});
+
+app.post('/hotspot-remove/', (req, res) => {
+  const code = req.body.code;
+  console.log(`attempting to delete puzzle with code ${code}`);
+  HotspotPuzzle.findOne({ code }).then((puzzle) => {
+    console.log(puzzle);
+    console.log(`found puzzle with id ${puzzle.id}, now trying to remove it`);
+    HotspotPuzzle.findByIdAndRemove(puzzle.id).then(() => {
+      console.log(`deleted puzzle with code ${code}`);
+      res.send(200);
+    });
   });
 });
 

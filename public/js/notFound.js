@@ -210,7 +210,7 @@ function flush() {
 function attemptVertx() {
   try {
     var r = require;
-    var vertx = __webpack_require__(6);
+    var vertx = __webpack_require__(7);
     vertxNext = vertx.runOnLoop || vertx.runOnContext;
     return useVertxTimer();
   } catch (e) {
@@ -1237,7 +1237,7 @@ return Promise;
 /*** EXPORTS FROM exports-loader ***/
 module.exports = global.Promise;
 }.call(global));
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5), __webpack_require__(0), __webpack_require__(1)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(6), __webpack_require__(0), __webpack_require__(1)))
 
 /***/ }),
 /* 1 */
@@ -1742,7 +1742,9 @@ module.exports = global.fetch;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0), __webpack_require__(1)))
 
 /***/ }),
-/* 3 */
+/* 3 */,
+/* 4 */,
+/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1767,8 +1769,7 @@ var setUpClickHandlerForTitle = function setUpClickHandlersForTitle() {
 module.exports = setUpClickHandlerForTitle;
 
 /***/ }),
-/* 4 */,
-/* 5 */
+/* 6 */
 /***/ (function(module, exports) {
 
 // shim for using process in browser
@@ -1954,15 +1955,15 @@ process.umask = function() { return 0; };
 
 
 /***/ }),
-/* 6 */
+/* 7 */
 /***/ (function(module, exports) {
 
 /* (ignored) */
 
 /***/ }),
-/* 7 */,
 /* 8 */,
-/* 9 */
+/* 9 */,
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1982,7 +1983,7 @@ var setUpClickHandlersForCreateOwnLinks = function setUpClickHandlersForCreateOw
 module.exports = setUpClickHandlersForCreateOwnLinks;
 
 /***/ }),
-/* 10 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2193,7 +2194,7 @@ var setUp = function setUp(domain, codeToUse) {
 module.exports = { setUp: setUp, show: show, hide: hide, isActive: isActive };
 
 /***/ }),
-/* 11 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2267,7 +2268,6 @@ module.exports = setUpClickHandlersForNextGraphLinks;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2)))
 
 /***/ }),
-/* 12 */,
 /* 13 */,
 /* 14 */,
 /* 15 */,
@@ -2278,10 +2278,10 @@ module.exports = setUpClickHandlersForNextGraphLinks;
 
 
 // Get title set up to link to main page
-var setUpTitleLink = __webpack_require__(3);
-var setUpNextPuzzleLinks = __webpack_require__(11);
-var setUpCreateLinks = __webpack_require__(9);
-var messageBox = __webpack_require__(10);
+var setUpTitleLink = __webpack_require__(5);
+var setUpNextPuzzleLinks = __webpack_require__(12);
+var setUpCreateLinks = __webpack_require__(10);
+var messageBox = __webpack_require__(11);
 
 var domain = window.location.host;
 

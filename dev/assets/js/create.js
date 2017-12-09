@@ -276,6 +276,7 @@ const savePuzzleAndLoad = function savePuzzleAndLoad() {
               nodes: graph.getNodes(),
               edges: graph.getEdges()
             },
+            approved: 'pending',
             code,
             size
           })
