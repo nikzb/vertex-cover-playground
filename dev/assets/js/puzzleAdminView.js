@@ -64,17 +64,11 @@ const deletePuzzle = function deletePuzzle(code) {
 
   fetch(deletePuzzleRequest)
   .then((deletePuzzleResponse) => {
-    console.log('response from delete request');
-    console.log(deletePuzzleResponse);
     if (!deletePuzzleResponse.ok) {
       throw new Error("Error with response to deleting puzzle");
     }
     // Successfully deleted puzzle, so load the next pending puzzle
-    console.log('back where fetch request has returned');
     nextPendingPuzzle();
-
-    // Need to change this to match comment above. For now, should try to find puzzle and fail
-    window.location=`//${domain}/hotspot/${code}`;
   })
   .catch((error) => {
     throw new Error(error);
@@ -100,17 +94,11 @@ const approvePuzzle = function approvePuzzle({ code, approved }) {
 
   fetch(approvePuzzleRequest)
   .then((approvePuzzleResponse) => {
-    console.log('response from approve request');
-    console.log(approvePuzzleResponse);
     if (!approvePuzzleResponse.ok) {
       throw new Error("Error with response to approving puzzle");
     }
     // Successfully approved puzzle, so load the next pending puzzle
-    console.log('back where fetch request has returned');
     nextPendingPuzzle(code);
-
-    // Need to change this to match comment above. For now, should try to find puzzle
-    // window.location=`//${domain}/hotspot/${code}`;
   })
   .catch((error) => {
     throw new Error(error);
@@ -164,7 +152,6 @@ const handleResponseToPuzzleRequest = function handleResponseToPuzzleRequest(res
     const contentType = response.headers.get('content-type');
     if (contentType && contentType.indexOf('application/json') !== -1) {
       return response.json().then((json) => {
-        console.log(json);
         setUpAll({
           nodes: json.puzzle.graph.nodes,
           edges: json.puzzle.graph.edges,

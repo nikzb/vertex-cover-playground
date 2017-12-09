@@ -54750,17 +54750,11 @@ var deletePuzzle = function deletePuzzle(code) {
   var deletePuzzleRequest = new Request('//' + domain + '/hotspot-remove/', deletePuzzleRequestInit);
 
   fetch(deletePuzzleRequest).then(function (deletePuzzleResponse) {
-    console.log('response from delete request');
-    console.log(deletePuzzleResponse);
     if (!deletePuzzleResponse.ok) {
       throw new Error("Error with response to deleting puzzle");
     }
     // Successfully deleted puzzle, so load the next pending puzzle
-    console.log('back where fetch request has returned');
     nextPendingPuzzle();
-
-    // Need to change this to match comment above. For now, should try to find puzzle and fail
-    window.location = '//' + domain + '/hotspot/' + code;
   }).catch(function (error) {
     throw new Error(error);
   });
@@ -54787,17 +54781,11 @@ var approvePuzzle = function approvePuzzle(_ref) {
   var approvePuzzleRequest = new Request('//' + domain + '/hotspot-approve/', approvePuzzleRequestInit);
 
   fetch(approvePuzzleRequest).then(function (approvePuzzleResponse) {
-    console.log('response from approve request');
-    console.log(approvePuzzleResponse);
     if (!approvePuzzleResponse.ok) {
       throw new Error("Error with response to approving puzzle");
     }
     // Successfully approved puzzle, so load the next pending puzzle
-    console.log('back where fetch request has returned');
     nextPendingPuzzle(code);
-
-    // Need to change this to match comment above. For now, should try to find puzzle
-    // window.location=`//${domain}/hotspot/${code}`;
   }).catch(function (error) {
     throw new Error(error);
   });
@@ -54856,7 +54844,6 @@ var handleResponseToPuzzleRequest = function handleResponseToPuzzleRequest(respo
     var contentType = response.headers.get('content-type');
     if (contentType && contentType.indexOf('application/json') !== -1) {
       return response.json().then(function (json) {
-        console.log(json);
         setUpAll({
           nodes: json.puzzle.graph.nodes,
           edges: json.puzzle.graph.edges,
