@@ -196,6 +196,25 @@ app.post('/hotspot-remove/', (req, res) => {
   });
 });
 
+app.post('/hotspot-approve/', (req, res) => {
+  const code = req.body.code;
+  const approved = req.body.approved;
+  console.log(`attempting to approve puzzle with code ${code}`);
+  HotspotPuzzle.findOneAndUpdate({ code }, { approved }, { new: true })
+  .then((puzzle) => {
+    console.log(puzzle);
+    console.log(`found puzzle with id ${puzzle.id}, and approved it`);
+    res.send({ puzzle });
+    // HotspotPuzzle.findByIdAndRemove(puzzle.id).then(() => {
+    //   console.log(`deleted puzzle with code ${code}`);
+    //   res.send(200);
+    // });
+  }, (e) => {
+    res.status(400).send(e);
+  });
+
+});
+
 app.listen(port, () => {
   console.log(`Started on port ${port}`);
 });

@@ -62,6 +62,42 @@ const deletePuzzle = function deletePuzzle(code) {
   });
 };
 
+const approvePuzzle = function approvePuzzle({ code, approved }) {
+  console.log('approve button pressed');
+  const approvePuzzleRequestHeaders = new Headers({
+    'Content-Type': 'application/json'
+  });
+
+  const approvePuzzleRequestInit = {
+    method: 'POST',
+    headers: approvePuzzleRequestHeaders,
+    body: JSON.stringify({
+      code,
+      approved
+    })
+  };
+
+  const approvePuzzleRequest = new Request(`//${domain}/hotspot-approve/`, approvePuzzleRequestInit);
+
+  fetch(approvePuzzleRequest)
+  .then((approvePuzzleResponse) => {
+    console.log('response from approve request');
+    console.log(approvePuzzleResponse);
+    if (!approvePuzzleResponse.ok) {
+      throw new Error("Error with response to approving puzzle");
+    }
+    // Successfully approved puzzle, so load the next pending puzzle
+    console.log('back where fetch request has returned');
+
+    // Need to change this to match comment above. For now, should try to find puzzle
+    //window.location=`//${domain}/hotspot/${code}`;
+  })
+  .catch((error) => {
+    throw new Error(error);
+  });
+
+};
+
 const setUpClickHandlersForButtons = function setUpClickHandlersForButtons(code, approved) {
   const approveButton = document.querySelector('button[name="approve"]');
   const disapproveButton = document.querySelector('button[name="disapprove"]');
@@ -70,12 +106,13 @@ const setUpClickHandlersForButtons = function setUpClickHandlersForButtons(code,
 
   if (approved === 'yes') {
     // already approved so disable approve buttons
-    approveButton.disable = true;
-    deleteButton.disable = true;
+    console.log('puzzle is already approved');
+    approveButton.disabled = true;
+    deleteButton.disabled = true;
   } else {
     approveButton.addEventListener("click", () => {
       // update puzzle in database to show that it has been approved
-
+      approvePuzzle({ code, approved: 'yes' });
     });
 
     deleteButton.addEventListener("click", () => {
@@ -85,10 +122,11 @@ const setUpClickHandlersForButtons = function setUpClickHandlersForButtons(code,
   }
 
   if (approved === 'no') {
-    disapproveButton.disable = true;
+    disapproveButton.disabled = true;
   } else {
     disapproveButton.addEventListener("click", () => {
       // update puzzle in database to show that it has been disapproved
+      approvePuzzle({ code, approved: 'no' });
     });
   }
 

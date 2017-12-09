@@ -54748,6 +54748,42 @@ var deletePuzzle = function deletePuzzle(code) {
   });
 };
 
+var approvePuzzle = function approvePuzzle(_ref) {
+  var code = _ref.code,
+      approved = _ref.approved;
+
+  console.log('approve button pressed');
+  var approvePuzzleRequestHeaders = new Headers({
+    'Content-Type': 'application/json'
+  });
+
+  var approvePuzzleRequestInit = {
+    method: 'POST',
+    headers: approvePuzzleRequestHeaders,
+    body: JSON.stringify({
+      code: code,
+      approved: approved
+    })
+  };
+
+  var approvePuzzleRequest = new Request('//' + domain + '/hotspot-approve/', approvePuzzleRequestInit);
+
+  fetch(approvePuzzleRequest).then(function (approvePuzzleResponse) {
+    console.log('response from approve request');
+    console.log(approvePuzzleResponse);
+    if (!approvePuzzleResponse.ok) {
+      throw new Error("Error with response to approving puzzle");
+    }
+    // Successfully approved puzzle, so load the next pending puzzle
+    console.log('back where fetch request has returned');
+
+    // Need to change this to match comment above. For now, should try to find puzzle
+    //window.location=`//${domain}/hotspot/${code}`;
+  }).catch(function (error) {
+    throw new Error(error);
+  });
+};
+
 var setUpClickHandlersForButtons = function setUpClickHandlersForButtons(code, approved) {
   var approveButton = document.querySelector('button[name="approve"]');
   var disapproveButton = document.querySelector('button[name="disapprove"]');
@@ -54756,12 +54792,13 @@ var setUpClickHandlersForButtons = function setUpClickHandlersForButtons(code, a
 
   if (approved === 'yes') {
     // already approved so disable approve buttons
-    approveButton.disable = true;
-    deleteButton.disable = true;
+    console.log('puzzle is already approved');
+    approveButton.disabled = true;
+    deleteButton.disabled = true;
   } else {
     approveButton.addEventListener("click", function () {
       // update puzzle in database to show that it has been approved
-
+      approvePuzzle({ code: code, approved: 'yes' });
     });
 
     deleteButton.addEventListener("click", function () {
@@ -54771,10 +54808,11 @@ var setUpClickHandlersForButtons = function setUpClickHandlersForButtons(code, a
   }
 
   if (approved === 'no') {
-    disapproveButton.disable = true;
+    disapproveButton.disabled = true;
   } else {
     disapproveButton.addEventListener("click", function () {
       // update puzzle in database to show that it has been disapproved
+      approvePuzzle({ code: code, approved: 'no' });
     });
   }
 
@@ -54784,12 +54822,12 @@ var setUpClickHandlersForButtons = function setUpClickHandlersForButtons(code, a
   });
 };
 
-var setUpAll = function setUpAll(_ref) {
-  var nodes = _ref.nodes,
-      edges = _ref.edges,
-      size = _ref.size,
-      approved = _ref.approved,
-      code = _ref.code;
+var setUpAll = function setUpAll(_ref2) {
+  var nodes = _ref2.nodes,
+      edges = _ref2.edges,
+      size = _ref2.size,
+      approved = _ref2.approved,
+      code = _ref2.code;
 
   setUpNetwork(nodes, edges);
   setUpClickHandlersForButtons(code, approved);
