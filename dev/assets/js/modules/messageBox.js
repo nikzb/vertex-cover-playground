@@ -67,10 +67,11 @@ const showCodeSelection = function showCodeSelection() {
 
 const setUpClickHandlerForHide = function setUpClickHandlerForHide() {
   messageDiv.addEventListener("click", (event) => {
-    if (event.target.className !== 'message-box__input' &&
+    if (event.target.className.indexOf('message-box__input') === -1 &&
         event.target.className.indexOf('message-box__input-button') === -1 &&
-        event.target.className !== 'message-box__link-in-text-area' &&
-        event.target.className.indexOf('message-box__options') === -1) {
+        event.target.className.indexOf('message-box__link-in-text-area') === -1 &&
+        event.target.className.indexOf('message-box__options') === -1 &&
+        event.target.className.indexOf('message-box__code-element') === -1) {
       removeActive(messageDiv);
       document.querySelector('.message-box__input').value = '';
       messageInput.style.display = 'none';
