@@ -33,8 +33,8 @@
       <div class='graph-area__graph-canvas'></div>
       <button class='btn btn--full-width' type="button" name="reset">Start Over</button>
       <div class='graph-area__options-wrap'>
-        <a href='#'><h2 class='graph-area__options next-graph'>Try Another Graph</h2></a>
-        <a href='#'><h2 class='graph-area__options create-own'>Create Your Own</h2></a>
+        <button class='graph-area__options next-graph pseudo-btn'>Try Another Graph</button>
+        <button class='graph-area__options create-own pseudo-btn'>Create Your Own</button>
       </div>
       <div class='message-box message-box--slide-in hide-below'>
         <h2 class='message-box__message'></h2>
@@ -46,17 +46,8 @@
             <input class='message-box__input' type='text' name='code-input' required pattern="[A-Za-z0-9]{4}"/>
             <button class='btn message-box__input-button'>Load</button>
         </div>
-        <div class='message-box__options'>
-          <a href='#'><h2 class='message-box__options next-graph'>Try Another Graph</h2></a>
-          <h2 class='message-box__options'>or</h2>
-          <a href='#'><h2 class='message-box__options create-own'>Create Your Own</h2></a>
-        </div>
-        <div class='message-box__puzzle-size-selection'>
-          <a href='#'><h2 class='graph-area__options graph-area__options--small'>Small</h2></a>
-          <a href='#'><h2 class='graph-area__options graph-area__options--medium'>Medium</h2></a>
-          <a href='#'><h2 class='graph-area__options graph-area__options--large'>Large</h2></a>
-          <a href='#'><h2 class='graph-area__options graph-area__options--x-large'>Extra-Large</h2></a>
-        </div>
+        {{> messageBoxOptions}}
+        {{> puzzleSizeSelection}}
       </div>
     </div>
     <div class='guide'>

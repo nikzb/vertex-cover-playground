@@ -72,6 +72,10 @@
     font-weight: normal;
   }
 
+  &__options.next-graph.pseudo-btn, &__options.create-own.pseudo-btn {
+    margin: 0.3em;
+  }
+
   &__options.create-own {
     text-align: right;
   }

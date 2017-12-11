@@ -45,7 +45,7 @@ const hideLinks = function hideLinks() {
 
 const showLinks = function showLinks() {
   links.forEach((link) => {
-    link.style.display = 'block';
+    link.style.display = 'flex';
   });
 };
 
@@ -136,7 +136,7 @@ const hideCodeAndLink = function hideCodeAndLink() {
 };
 
 const showGraphSizeSelection = function showGraphSizeSelection() {
-  graphSizeSelection.style.display = 'block';
+  graphSizeSelection.style.display = 'flex';
   secondaryMessageElem.classList.add('message-box__message-secondary-puzzle-select');
 };
 

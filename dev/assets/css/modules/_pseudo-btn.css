@@ -1,0 +1,21 @@
+.pseudo-btn {
+  text-decoration: none;
+  color: $linkColor;
+  font-size: 1.2em;
+  border: none;
+  text-shadow: $smallShadowSize $smallShadowSize $lightShadowColor;
+  cursor: pointer;
+  text-align: center;
+  margin: 0;
+  /*padding: 0 0.5em;*/
+  background: transparent;
+
+  @mixin wide {
+    font-size: 1.5em;
+    /*padding: 0.2em 0.5em;*/
+  }
+
+  &:hover {
+    text-decoration: underline;
+  }
+}

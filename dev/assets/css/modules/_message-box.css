@@ -29,31 +29,33 @@
     min-width: 80%;
 
     &--not-found {
-      top: 36em;
+      top: 30em;
     }
   }
 
   &__message {
-    font-size: 2em;
+    font-size: 1.5em;
     text-align: center;
     margin: 0.2em;
     background: transparent;
 
     @mixin wide {
+      font-size: 2em;
       margin: 0.5em;
     }
   }
 
   &__message-secondary {
     font-weight: 300;
-    font-size: 1.5em;
+    font-size: 1.2em;
     text-align: center;
     margin: 0.4em;
     background: transparent;
 
     @mixin wide {
+      font-size: 1.5em;
       margin-top: 0.5em;
-      margin-bottom: 1.6em;
+      margin-bottom: 0.5em;
     }
   }
 
@@ -73,12 +75,34 @@
 
   &__options {
     background: transparent;
-    text-align: center;
+    align-items: center;
+    flex-direction: column;
+  }
+
+  &__options--container {
+    margin-top: 0.8em;
+  }
+
+  &__options--or {
+    font-size: 0.8em;
+    margin: 0.3em;
+    color: #888;
+    text-shadow: none;
+
+    @mixin wide {
+      font-size: 1.2em;
+    }
+  }
+
+  &__options.next-graph {
+
   }
 
   &__puzzle-size-selection {
     background: transparent;
     text-align: center;
+    display: flex;
+    flex-direction: column;
   }
 
   &--slide-in {
@@ -105,6 +129,7 @@
   &__input-label {
     font-size: 1.5em;
     font-weight: 300;
+    margin: 0.5em;
   }
 
   &__input {
@@ -129,11 +154,15 @@
   }
 
   &__link-in-text-area {
-    width: 24em;
+    width: 20em;
     font-size: 1.2em;
     text-align: center;
     resize: none;
     height: 1.3em;
+
+    @mixin wide {
+      width: 24em;
+    }
   }
 
   &__code-element {

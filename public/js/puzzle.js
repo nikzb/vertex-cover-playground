@@ -54826,7 +54826,7 @@ var hideLinks = function hideLinks() {
 
 var showLinks = function showLinks() {
   links.forEach(function (link) {
-    link.style.display = 'block';
+    link.style.display = 'flex';
   });
 };
 
@@ -54916,7 +54916,7 @@ var hideCodeAndLink = function hideCodeAndLink() {
 };
 
 var showGraphSizeSelection = function showGraphSizeSelection() {
-  graphSizeSelection.style.display = 'block';
+  graphSizeSelection.style.display = 'flex';
   secondaryMessageElem.classList.add('message-box__message-secondary-puzzle-select');
 };
 

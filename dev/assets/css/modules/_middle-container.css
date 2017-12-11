@@ -1,14 +1,20 @@
 .middle-container {
   display: flex;
   flex: 1 1 auto;
-  flex-direction: column-reverse;
+  flex-direction: column;
 
   &--not-found {
     flex-direction: column;
     text-align: center;
+    justify-content: center;
     margin-top: 0.5em;
     padding: 2em;
     border: 1px solid $lightBorder;
+    height: 28.5em;
+  }
+
+  &__not-valid-message {
+    margin-top: 3.7em;
   }
 
   @mixin wide {
