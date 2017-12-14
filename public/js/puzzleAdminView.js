@@ -54734,20 +54734,11 @@ var nextPendingPuzzle = function nextPendingPuzzle(code) {
 };
 
 var deletePuzzle = function deletePuzzle(code) {
-  console.log('delete button pressed');
-  var deletePuzzleRequestHeaders = new Headers({
-    'Content-Type': 'application/json'
-  });
-
   var deletePuzzleRequestInit = {
-    method: 'POST',
-    headers: deletePuzzleRequestHeaders,
-    body: JSON.stringify({
-      code: code
-    })
+    method: 'DELETE'
   };
 
-  var deletePuzzleRequest = new Request('//' + domain + '/hotspot-remove/', deletePuzzleRequestInit);
+  var deletePuzzleRequest = new Request('//' + domain + '/hotspot/' + code, deletePuzzleRequestInit);
 
   fetch(deletePuzzleRequest).then(function (deletePuzzleResponse) {
     if (!deletePuzzleResponse.ok) {
@@ -54765,20 +54756,20 @@ var approvePuzzle = function approvePuzzle(_ref) {
       approved = _ref.approved;
 
   console.log('approve button pressed');
-  var approvePuzzleRequestHeaders = new Headers({
-    'Content-Type': 'application/json'
-  });
+  // const approvePuzzleRequestHeaders = new Headers({
+  //   'Content-Type': 'application/json'
+  // });
 
   var approvePuzzleRequestInit = {
-    method: 'POST',
-    headers: approvePuzzleRequestHeaders,
-    body: JSON.stringify({
-      code: code,
-      approved: approved
-    })
+    method: 'PATCH'
+    // headers: approvePuzzleRequestHeaders,
+    // body: JSON.stringify({
+    //   code,
+    //   approved
+    // })
   };
 
-  var approvePuzzleRequest = new Request('//' + domain + '/hotspot-approve/', approvePuzzleRequestInit);
+  var approvePuzzleRequest = new Request('//' + domain + '/hotspot-approve/' + code + '/' + approved, approvePuzzleRequestInit);
 
   fetch(approvePuzzleRequest).then(function (approvePuzzleResponse) {
     if (!approvePuzzleResponse.ok) {

@@ -47,20 +47,11 @@ const nextPendingPuzzle = function nextPendingPuzzle(code) {
 };
 
 const deletePuzzle = function deletePuzzle(code) {
-  console.log('delete button pressed');
-  const deletePuzzleRequestHeaders = new Headers({
-    'Content-Type': 'application/json'
-  });
-
   const deletePuzzleRequestInit = {
-    method: 'POST',
-    headers: deletePuzzleRequestHeaders,
-    body: JSON.stringify({
-      code
-    })
+    method: 'DELETE',
   };
 
-  const deletePuzzleRequest = new Request(`//${domain}/hotspot-remove/`, deletePuzzleRequestInit);
+  const deletePuzzleRequest = new Request(`//${domain}/hotspot/${code}`, deletePuzzleRequestInit);
 
   fetch(deletePuzzleRequest)
   .then((deletePuzzleResponse) => {
@@ -77,20 +68,20 @@ const deletePuzzle = function deletePuzzle(code) {
 
 const approvePuzzle = function approvePuzzle({ code, approved }) {
   console.log('approve button pressed');
-  const approvePuzzleRequestHeaders = new Headers({
-    'Content-Type': 'application/json'
-  });
+  // const approvePuzzleRequestHeaders = new Headers({
+  //   'Content-Type': 'application/json'
+  // });
 
   const approvePuzzleRequestInit = {
-    method: 'POST',
-    headers: approvePuzzleRequestHeaders,
-    body: JSON.stringify({
-      code,
-      approved
-    })
+    method: 'PATCH'
+    // headers: approvePuzzleRequestHeaders,
+    // body: JSON.stringify({
+    //   code,
+    //   approved
+    // })
   };
 
-  const approvePuzzleRequest = new Request(`//${domain}/hotspot-approve/`, approvePuzzleRequestInit);
+  const approvePuzzleRequest = new Request(`//${domain}/hotspot-approve/${code}/${approved}`, approvePuzzleRequestInit);
 
   fetch(approvePuzzleRequest)
   .then((approvePuzzleResponse) => {

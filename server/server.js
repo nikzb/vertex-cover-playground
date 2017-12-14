@@ -114,7 +114,7 @@ app.get('/hotspot-data/:code', (req, res) => {
   });
 });
 
-app.get('/approved-fix/', (req, res) => {
+app.get('/approved-fix', (req, res) => {
   HotspotPuzzle.find({}).then((puzzleList) => {
     puzzleList.forEach((puzzle) => {
       // Fix the sizes - only used an experiment
@@ -198,7 +198,7 @@ const getRandomCodeNotInListToAvoid = function getRandomCodeNotInListToAvoid(cod
 };
 
 // Fetches a randomly selected puzzle code given a list of codes to avoid
-app.post('/get-random-hotspot/', (req, res) => {
+app.post('/get-random-hotspot', (req, res) => {
   const codesToAvoid = req.body;
   HotspotPuzzle.find({}, 'code').then((codeList) => {
     console.log(`Codes in database: ${codeList}`);
@@ -240,8 +240,8 @@ app.post('/hotspot', (req, res) => {
   });
 });
 
-app.post('/hotspot-remove/', (req, res) => {
-  const code = req.body.code;
+app.delete('/hotspot/:code', (req, res) => {
+  const code = req.params.code;
   HotspotPuzzle.findOneAndRemove({ code })
   .then((puzzle) => {
     res.send({ puzzle });
@@ -250,9 +250,9 @@ app.post('/hotspot-remove/', (req, res) => {
   });
 });
 
-app.post('/hotspot-approve/', (req, res) => {
-  const code = req.body.code;
-  const approved = req.body.approved;
+app.patch('/hotspot-approve/:code/:approved', (req, res) => {
+  const code = req.params.code;
+  const approved = req.params.approved;
   HotspotPuzzle.findOneAndUpdate({ code }, { approved }, { new: true })
   .then((puzzle) => {
     res.send({ puzzle });
