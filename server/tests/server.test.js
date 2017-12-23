@@ -6,7 +6,7 @@ const { app } = require('./../server');
 const { HotspotPuzzle } = require('./../models/hotspotPuzzle');
 
 const puzzle = {
-  code: '1',
+  code: '1234',
   size: "small",
   graph: {
     nodes: [
@@ -24,20 +24,24 @@ const puzzle = {
       { from: 3, to: 5 },
       { from: 3, to: 6 }
     ]
-  }
+  },
+  approved: true
 };
 
-beforeEach((done) => {
-  HotspotPuzzle.remove({}).then(() => {
+beforeEach(async () => {
+  try {
+    await HotspotPuzzle.remove({});
     HotspotPuzzle.create(puzzle);
-  }).then(() => done());
+  } catch (e) {
+    throw new Error('Error setting up database for tests');
+  }
 });
 
 describe('GET /hotspot-data/:code', () => {
-  it('should return puzzle with given code', (done) => {
-    const code = '1';
+  it('should return puzzle with given code', () => {
+    const code = '1234';
 
-    request(app)
+    return request(app)
       .get(`/hotspot-data/${code}`)
       .expect(200)
       .expect((res) => {
@@ -45,28 +49,31 @@ describe('GET /hotspot-data/:code', () => {
         expect(res.body.puzzle.code).toBe(code);
         expect(res.body.puzzle.size).toBeA('string');
       })
-      .end(done);
+      .catch((e) => {
+        throw new Error(`Unable to get puzzle object with code ${1234}`);
+      });
   });
 
-  it('should return 404 if puzzle not found', (done) => {
-    request(app)
+  it('should return 404 if puzzle not found', () => {
+    return request(app)
       .get('/hotspot-data/2')
       .expect(404)
-      .end(done);
+      .catch((e) => { throw new Error(e); });
   });
 });
 
 describe('GET /hotspot/:code', () => {
-  it('should render a puzzle page,', (done) => {
+  it('should render a puzzle page,', () => {
     const code = '1';
-    request(app)
+    return request(app)
       .get(`/hotspot/${code}`)
       .expect(200)
       .expect((res) => {
         expect(res.text).toExist();
       })
-      .end(done);
+      .catch((e) => { throw new Error(e); });
   });
+
   it('should return puzzle does not exist message when puzzle not found', (done) => {
     request(app)
       .get('/hotspot/2')
@@ -79,7 +86,7 @@ describe('GET /hotspot/:code', () => {
 });
 
 describe('POST /hotspot', () => {
-  it('should create a new puzzle', (done) => {
+  it('should create a new puzzle', () => {
     const newPuzzle = {
       code: 'A123',
       size: "small",
@@ -99,49 +106,45 @@ describe('POST /hotspot', () => {
           { from: 2, to: 6 },
           { from: 3, to: 4 }
         ]
-      }
+      },
+      approved: 'pending'
     };
 
-    request(app)
+    return request(app)
       .post('/hotspot')
       .send(newPuzzle)
       .expect(200)
       .expect((res) => {
-        console.log("res.body:");
-        console.log(res.body);
         expect(res.body.savedPuzzle.graph).toExist();
         expect(res.body.savedPuzzle.code).toBe('A123');
         expect(res.body.savedPuzzle.size).toBeA('string');
       })
-      .end((err, res) => {
-        if (err) {
-          return done(err);
-        }
-        HotspotPuzzle.find({}).then((puzzles) => {
+      .then(async (response) => {
+        try {
+          const puzzles = await HotspotPuzzle.find({});
           expect(puzzles.length).toBe(2);
-          return done();
-        }).catch(e => done(e));
-
-        // return done();
-      });
+        } catch (e) {
+          throw new Error(e);
+        }
+      })
+      .catch((e) => { throw new Error(e); });
   });
 
-  it('should not create puzzle with invalid body data', (done) => {
-    request(app)
+  it('should not create puzzle with invalid body data', () => {
+    return request(app)
       .post('/hotspot')
       .send({})
       .expect(400)
-      .end((err, res) => {
-        if (err) {
-          return done(err);
-        }
-
-        HotspotPuzzle.find().then((puzzles) => {
+      .then(async (response) => {
+        try {
+          const puzzles = await HotspotPuzzle.find();
           expect(puzzles.length).toBe(1);
-          return done();
-        }).catch(e => done(e));
-
-        // return done();
+        } catch (e) {
+          throw new Error(e);
+        }
+      })
+      .catch((e) => {
+        throw new Error(e);
       });
   });
 });

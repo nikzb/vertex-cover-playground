@@ -16,7 +16,9 @@ const generateCode = function generateCode(res, callback) {
     newCode += alphaNumChar;
   }
   // The code CODE is reserved for the Code.org puzzle
-  if (newCode === 'CODE') {
+  // Avoid using cursewords as well
+  const curseWords = ['SHIT', 'FUCK', 'CUNT', 'CRAP', 'DICK'];
+  if (newCode === 'CODE' || curseWords.contains(newCode)) {
     generateCode(res, callback);
   } else {
     // Check if code is already in use. If so, generate another one
@@ -26,7 +28,7 @@ const generateCode = function generateCode(res, callback) {
       } else {
         generateCode(res, callback);
       }
-    }).catch(e => 'Error');
+    }).catch((e) => { throw new Error(e); });
   }
 };
 

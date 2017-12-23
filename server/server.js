@@ -50,7 +50,25 @@ app.get('/', (req, res) => {
 });
 
 // Render a puzzle page with the puzzle that has the requested code
-app.get('/hotspot/:code', (req, res) => {
+// app.get('/hotspot/:code', (req, res) => {
+//   const code = req.params.code;
+//
+//   const isNew = req.query.new || false;
+//
+//   if (code === 'CODE') {
+//     return res.render('puzzle.hbs', { code, isNew });
+//   }
+//   // if not a valid code, render the puzzle not found page
+//   HotspotPuzzle.findOne({ code }).then((puzzle) => {
+//     if (!puzzle) {
+//       return res.render('notFound.hbs', { code });
+//     }
+//     return res.render('puzzle.hbs', { code, isNew });
+//   }).catch(e => res.send('<h1>There was an error while attempting to load the puzzle</h1>'));
+// });
+
+// Render a puzzle page with the puzzle that has the requested code
+app.get('/hotspot/:code', async (req, res) => {
   const code = req.params.code;
 
   const isNew = req.query.new || false;
@@ -58,16 +76,16 @@ app.get('/hotspot/:code', (req, res) => {
   if (code === 'CODE') {
     return res.render('puzzle.hbs', { code, isNew });
   }
-  // if not a valid code, render the puzzle not found page
-  HotspotPuzzle.findOne({ code }).then((puzzle) => {
+  try {
+    // if not a valid code, render the puzzle not found page
+    const puzzle = HotspotPuzzle.findOne({ code });
     if (!puzzle) {
-      // return res.send(`
-      //   <h1>The code puzzle code ${code} is not valid!</h1>
-      // `);
       return res.render('notFound.hbs', { code });
     }
     return res.render('puzzle.hbs', { code, isNew });
-  }).catch(e => res.send('<h1>There was an error while attempting to load the puzzle</h1>'));
+  } catch (e) {
+    return res.send('<h1>There was an error while attempting to load the puzzle</h1>');
+  }
 });
 
 // Take a puzzle code and render the admin view for that puzzle
