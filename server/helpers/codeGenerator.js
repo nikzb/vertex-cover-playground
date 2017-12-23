@@ -18,7 +18,7 @@ const generateCode = function generateCode(res, callback) {
   // The code CODE is reserved for the Code.org puzzle
   // Avoid using cursewords as well
   const curseWords = ['SHIT', 'FUCK', 'CUNT', 'CRAP', 'DICK'];
-  if (newCode === 'CODE' || curseWords.contains(newCode)) {
+  if (newCode === 'CODE' || curseWords.indexOf(newCode) !== -1) {
     generateCode(res, callback);
   } else {
     // Check if code is already in use. If so, generate another one
