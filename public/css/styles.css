@@ -1006,6 +1006,14 @@ input:valid {
 .main-container__header__title {
   margin-left: 20px;
   cursor: pointer;
+  font-size: 1.6em;
+}
+
+@media (min-width: 1000px) {
+
+  .main-container__header__title {
+    font-size: 2em;
+  }
 }
 
 .main-container--not-found {
