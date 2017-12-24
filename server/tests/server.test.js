@@ -64,7 +64,7 @@ describe('GET /hotspot/data/:code', () => {
 
 describe('GET /hotspot/:code', () => {
   it('should render a puzzle page,', () => {
-    const code = '1';
+    const code = '1234';
     return request(app)
       .get(`/hotspot/${code}`)
       .expect(200)
@@ -161,5 +161,3 @@ describe('GET /code/new', () => {
       .end(done);
   });
 });
-
-describe()
