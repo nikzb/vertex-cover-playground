@@ -13,7 +13,7 @@ const loadGraph = function loadGraph(domain, size) {
     body: puzzleListString
   };
 
-  const myRequest = new Request(`//${domain}/get-hotspot-given-size/${size}`, myInit);
+  const myRequest = new Request(`//${domain}/code/random/${size}`, myInit);
   fetch(myRequest)
     .then(
       (response) => {

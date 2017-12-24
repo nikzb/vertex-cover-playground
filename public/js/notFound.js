@@ -2215,7 +2215,7 @@ var loadGraph = function loadGraph(domain, size) {
     body: puzzleListString
   };
 
-  var myRequest = new Request('//' + domain + '/get-hotspot-given-size/' + size, myInit);
+  var myRequest = new Request('//' + domain + '/code/random/' + size, myInit);
   fetch(myRequest).then(function (response) {
     response.text().then(function (code) {
       if (code) {

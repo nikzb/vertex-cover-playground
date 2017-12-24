@@ -15,7 +15,6 @@ let container = null;
 let options = null;
 let network = null;
 
-
 const domain = window.location.host;
 
 const setUpContainer = function setUpContainer() {
@@ -163,9 +162,10 @@ const usePuzzle = function usePuzzle(code, isNew) {
       code
     });
   } else {
-    fetch(`//${domain}/hotspot-data/${code}`)
+    fetch(`//${domain}/hotspot/data/${code}`)
     .then(
       (response) => {
+        console.log(response, code);
         handleResponseToPuzzleRequest(response, code, isNew);
       }
     )

@@ -55005,7 +55005,7 @@ var loadGraph = function loadGraph(domain, size) {
     body: puzzleListString
   };
 
-  var myRequest = new Request('//' + domain + '/get-hotspot-given-size/' + size, myInit);
+  var myRequest = new Request('//' + domain + '/code/random/' + size, myInit);
   fetch(myRequest).then(function (response) {
     response.text().then(function (code) {
       if (code) {
@@ -55249,7 +55249,8 @@ var usePuzzle = function usePuzzle(code, isNew) {
       code: code
     });
   } else {
-    fetch('//' + domain + '/hotspot-data/' + code).then(function (response) {
+    fetch('//' + domain + '/hotspot/data/' + code).then(function (response) {
+      console.log(response, code);
       handleResponseToPuzzleRequest(response, code, isNew);
     }).catch(function (error) {
       throw new Error(error);

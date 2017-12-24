@@ -29,7 +29,7 @@ const setUpNetwork = function setUpNetwork(nodeArray, edgeArray) {
 };
 
 const nextPendingPuzzle = function nextPendingPuzzle(code) {
-  fetch(`//${domain}/next-pending/${code}`)
+  fetch(`//${domain}/code/next-pending/${code}`)
   .then((response) => {
     if (response.ok) {
       const contentType = response.headers.get('content-type');
@@ -37,7 +37,7 @@ const nextPendingPuzzle = function nextPendingPuzzle(code) {
       if (contentType && contentType.indexOf('text') !== -1) {
         response.text().then((nextCode) => {
           console.log(nextCode);
-          window.location = `//${domain}/hotspot-master/${nextCode}`;
+          window.location = `//${domain}/hotspot/master/${nextCode}`;
         });
       }
     }
@@ -81,7 +81,7 @@ const approvePuzzle = function approvePuzzle({ code, approved }) {
     // })
   };
 
-  const approvePuzzleRequest = new Request(`//${domain}/hotspot-approve/${code}/${approved}`, approvePuzzleRequestInit);
+  const approvePuzzleRequest = new Request(`//${domain}/hotspot/approve/${code}/${approved}`, approvePuzzleRequestInit);
 
   fetch(approvePuzzleRequest)
   .then((approvePuzzleResponse) => {
@@ -160,7 +160,7 @@ const handleResponseToPuzzleRequest = function handleResponseToPuzzleRequest(res
 };
 
 const usePuzzle = function usePuzzle(code) {
-  fetch(`//${domain}/hotspot-data/${code}`)
+  fetch(`//${domain}/hotspot/data/${code}`)
   .then(
     (response) => {
       handleResponseToPuzzleRequest(response, code);

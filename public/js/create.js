@@ -55011,8 +55011,7 @@ var savePuzzleAndLoad = function savePuzzleAndLoad() {
     headers: newCodeHeaders
   };
 
-  // const requestNewCode = new Request(`https://${domain}/hotspot/newCode`, newCodeInit);
-  var requestNewCode = new Request('//' + domain + '/hotspot/newCode', newCodeInit);
+  var requestNewCode = new Request('//' + domain + '/code/new', newCodeInit);
 
   fetch(requestNewCode).then(function (response) {
     if (!response.ok) {

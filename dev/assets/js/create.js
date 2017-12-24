@@ -246,8 +246,7 @@ const savePuzzleAndLoad = function savePuzzleAndLoad() {
     headers: newCodeHeaders
   };
 
-  // const requestNewCode = new Request(`https://${domain}/hotspot/newCode`, newCodeInit);
-  const requestNewCode = new Request(`//${domain}/hotspot/newCode`, newCodeInit);
+  const requestNewCode = new Request(`//${domain}/code/new`, newCodeInit);
 
   fetch(requestNewCode)
     .then((response) => {

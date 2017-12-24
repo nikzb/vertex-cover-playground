@@ -54717,14 +54717,14 @@ var setUpNetwork = function setUpNetwork(nodeArray, edgeArray) {
 };
 
 var nextPendingPuzzle = function nextPendingPuzzle(code) {
-  fetch('//' + domain + '/next-pending/' + code).then(function (response) {
+  fetch('//' + domain + '/code/next-pending/' + code).then(function (response) {
     if (response.ok) {
       var contentType = response.headers.get('content-type');
       console.log(contentType);
       if (contentType && contentType.indexOf('text') !== -1) {
         response.text().then(function (nextCode) {
           console.log(nextCode);
-          window.location = '//' + domain + '/hotspot-master/' + nextCode;
+          window.location = '//' + domain + '/hotspot/master/' + nextCode;
         });
       }
     }
@@ -54769,7 +54769,7 @@ var approvePuzzle = function approvePuzzle(_ref) {
     // })
   };
 
-  var approvePuzzleRequest = new Request('//' + domain + '/hotspot-approve/' + code + '/' + approved, approvePuzzleRequestInit);
+  var approvePuzzleRequest = new Request('//' + domain + '/hotspot/approve/' + code + '/' + approved, approvePuzzleRequestInit);
 
   fetch(approvePuzzleRequest).then(function (approvePuzzleResponse) {
     if (!approvePuzzleResponse.ok) {
@@ -54852,7 +54852,7 @@ var handleResponseToPuzzleRequest = function handleResponseToPuzzleRequest(respo
 };
 
 var usePuzzle = function usePuzzle(code) {
-  fetch('//' + domain + '/hotspot-data/' + code).then(function (response) {
+  fetch('//' + domain + '/hotspot/data/' + code).then(function (response) {
     handleResponseToPuzzleRequest(response, code);
   }).catch(function (error) {
     throw new Error(error);

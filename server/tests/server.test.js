@@ -37,12 +37,12 @@ beforeEach(async () => {
   }
 });
 
-describe('GET /hotspot-data/:code', () => {
+describe('GET /hotspot/data/:code', () => {
   it('should return puzzle with given code', () => {
     const code = '1234';
 
     return request(app)
-      .get(`/hotspot-data/${code}`)
+      .get(`/hotspot/data/${code}`)
       .expect(200)
       .expect((res) => {
         expect(res.body.puzzle.graph).toExist();
@@ -56,7 +56,7 @@ describe('GET /hotspot-data/:code', () => {
 
   it('should return 404 if puzzle not found', () => {
     return request(app)
-      .get('/hotspot-data/2')
+      .get('/hotspot/data/2')
       .expect(404)
       .catch((e) => { throw new Error(e); });
   });
@@ -149,10 +149,10 @@ describe('POST /hotspot', () => {
   });
 });
 
-describe('GET /hotspot/newCode', () => {
+describe('GET /code/new', () => {
   it('should return a 4 character code', (done) => {
     request(app)
-      .get('/hotspot/newCode')
+      .get('/code/new')
       .expect(200)
       .expect((res) => {
         expect(res.text).toExist();
@@ -161,3 +161,5 @@ describe('GET /hotspot/newCode', () => {
       .end(done);
   });
 });
+
+describe()
