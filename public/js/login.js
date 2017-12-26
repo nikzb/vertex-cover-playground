@@ -64,7 +64,7 @@ var EntryPoint =
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 17);
+/******/ 	return __webpack_require__(__webpack_require__.s = 16);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -1743,32 +1743,7 @@ module.exports = global.fetch;
 
 /***/ }),
 /* 3 */,
-/* 4 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var domain = window.location.host;
-
-var setUpClickHandlerForTitle = function setUpClickHandlersForTitle() {
-
-  var titleDiv = document.querySelector('.main-container__header__title');
-
-  titleDiv.addEventListener("click", function () {
-    window.location = '//' + domain + '/';
-  });
-
-  var logoImage = document.querySelector('.logo-image');
-
-  logoImage.addEventListener("click", function () {
-    window.location = '//' + domain + '/';
-  });
-};
-
-module.exports = setUpClickHandlerForTitle;
-
-/***/ }),
+/* 4 */,
 /* 5 */
 /***/ (function(module, exports) {
 
@@ -1964,334 +1939,75 @@ process.umask = function() { return 0; };
 /* 7 */,
 /* 8 */,
 /* 9 */,
-/* 10 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var setUpClickHandlersForCreateOwnLinks = function setUpClickHandlersForCreateOwnLinks() {
-  var domain = window.location.host;
-  var createOwnLinks = document.querySelectorAll('.create-own');
-
-  createOwnLinks.forEach(function (link) {
-    link.addEventListener("click", function () {
-      window.location = "//" + domain + "/create";
-    });
-  });
-};
-
-module.exports = setUpClickHandlersForCreateOwnLinks;
-
-/***/ }),
-/* 11 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var messageDiv = null;
-var messageElem = null;
-var secondaryMessageElem = null;
-var links = null;
-var messageInput = null;
-var loadButton = null;
-var input = null;
-var codeAndLinksElem = null;
-var graphSizeSelection = null;
-var nextGraph = null;
-var code = null;
-
-var updateMessage = function updateMessage(main, secondary) {
-  messageElem.textContent = main;
-  if (secondary !== null) {
-    secondaryMessageElem.style.display = 'block';
-    secondaryMessageElem.textContent = secondary;
-  } else {
-    secondaryMessageElem.style.display = 'none';
-    secondaryMessageElem.textContent = '';
-  }
-};
-
-var removeActive = function removeActive(element) {
-  if (element.classList.contains('active')) {
-    element.classList.remove('active');
-  }
-};
-
-var addActive = function addActive(element) {
-  if (!element.classList.contains('active')) {
-    element.classList.add('active');
-  }
-};
-
-var isActive = function isActive() {
-  return messageDiv.classList.contains('active');
-};
-
-var hideLinks = function hideLinks() {
-  links.forEach(function (link) {
-    link.style.display = 'none';
-  });
-};
-
-var showLinks = function showLinks() {
-  links.forEach(function (link) {
-    link.style.display = 'flex';
-  });
-};
-
-var hideCodeSelectionInfo = function hideCodeSelectionInfo() {
-  messageInput.style.display = 'none';
-  messageElem.textContent = '';
-  input.style.display = 'none';
-};
-
-var showCodeSelection = function showCodeSelection() {
-  messageInput.style.display = 'flex';
-  updateMessage('Load a Puzzle', null);
-  input.style.display = 'block';
-
-  addActive(messageDiv);
-
-  setTimeout(function () {
-    input.focus();
-  }, 600);
-};
-
-var setUpClickHandlerForHide = function setUpClickHandlerForHide() {
-  messageDiv.addEventListener("click", function (event) {
-    if (event.target.className.indexOf('message-box__input') === -1 && event.target.className.indexOf('message-box__input-button') === -1 && event.target.className.indexOf('message-box__link-in-text-area') === -1 && event.target.className.indexOf('message-box__options') === -1 && event.target.className.indexOf('message-box__code-element') === -1) {
-      removeActive(messageDiv);
-      document.querySelector('.message-box__input').value = '';
-      messageInput.style.display = 'none';
-    }
-  });
-};
-
-var attemptToLoad = function attemptToLoad(domain) {
-  var userCode = document.querySelector('.message-box__input').value;
-
-  if (userCode.length === 4 && /[A-Za-z0-9]{4}/.test(userCode)) {
-    document.querySelector('.message-box__input').value = '';
-    window.location = 'http://' + domain + '/hotspot/' + userCode;
-  }
-};
-
-var setUpClickHandlerForLoadButton = function setUpClickHandlerForLoadButton(domain) {
-  loadButton.addEventListener('click', function () {
-    attemptToLoad(domain);
-  });
-};
-
-var hide = function hide() {
-  removeActive(messageDiv);
-};
-
-var addCodeAndLinkToDocument = function addCodeAndLinkToDocument(domain) {
-  var codeElement = document.createElement("h2");
-  var text = document.createTextNode(code);
-  codeElement.classList.add('message-box__code-element');
-  codeElement.appendChild(text);
-
-  codeAndLinksElem = document.querySelector('.message-box__code-and-links');
-  codeAndLinksElem.appendChild(codeElement);
-
-  var linkMessage = document.createElement("h3");
-  var linkMessageText = document.createTextNode("Link to share:");
-  linkMessage.classList.add('message-box__link-message');
-  linkMessage.appendChild(linkMessageText);
-
-  var linkInTextArea = document.createElement("textarea");
-  var textAreaText = document.createTextNode('http://' + domain + '/hotspot/' + code);
-  linkInTextArea.classList.add('message-box__link-in-text-area');
-  linkInTextArea.setAttributeNode(document.createAttribute('readonly'));
-  // const overflowAttr = document.createAttribute('overflow');
-  // overflowAttr.value = 'hidden';
-  // linkInTextArea.setAttributeNode(overflowAttr);
-  linkInTextArea.appendChild(textAreaText);
-  linkInTextArea.addEventListener('click', function () {
-    linkInTextArea.select();
-  });
-
-  codeAndLinksElem.appendChild(linkMessage);
-  codeAndLinksElem.appendChild(linkInTextArea);
-};
-
-var showCodeAndLink = function showCodeAndLink() {
-  codeAndLinksElem.style.display = 'flex';
-};
-
-var hideCodeAndLink = function hideCodeAndLink() {
-  codeAndLinksElem.style.display = 'none';
-};
-
-var showGraphSizeSelection = function showGraphSizeSelection() {
-  graphSizeSelection.style.display = 'flex';
-  secondaryMessageElem.classList.add('message-box__message-secondary-puzzle-select');
-};
-
-var hideGraphSizeSelection = function hideGraphSizeSelection() {
-  graphSizeSelection.style.display = 'none';
-  secondaryMessageElem.classList.remove('message-box__message-secondary-puzzle-select');
-};
-
-var hideAll = function hideAll() {
-  hideCodeSelectionInfo();
-  hideLinks();
-  hideCodeAndLink();
-  hideGraphSizeSelection();
-};
-
-var show = function show(status, numHotspots) {
-  if (status === 'success') {
-    hideAll();
-    updateMessage('You found an optimal solution!', 'You used only ' + numHotspots + ' hotspots!');
-    showLinks();
-  } else if (status === 'retry') {
-    hideAll();
-    updateMessage('You used ' + numHotspots + ' hotspots.', 'Try again using less hotspots.');
-  } else if (status === 'load') {
-    hideAll();
-    showCodeSelection();
-  } else if (status === 'share') {
-    hideAll();
-    updateMessage('Graph Code:', null);
-    showCodeAndLink();
-  } else if (status === 'selectGraphSize') {
-    hideAll();
-    updateMessage('Try Another Graph', 'Choose a Graph Size');
-    showGraphSizeSelection();
-  }
-  addActive(messageDiv);
-};
-
-var setUp = function setUp(domain, codeToUse) {
-  messageDiv = document.querySelector('.message-box');
-  messageElem = document.querySelector('.message-box__message');
-  secondaryMessageElem = document.querySelector('.message-box__message-secondary');
-  links = document.querySelectorAll('.message-box__options');
-  messageInput = document.querySelector('.message-box__input-container');
-  loadButton = document.querySelector('.message-box__input-button');
-  input = document.querySelector('.message-box__input');
-  graphSizeSelection = document.querySelector('.message-box__puzzle-size-selection');
-  nextGraph = document.querySelector('.message-box__options.next-graph');
-  code = codeToUse;
-
-  addCodeAndLinkToDocument(domain);
-  messageInput.style.display = 'none';
-  hideAll();
-
-  setUpClickHandlerForHide();
-  setUpClickHandlerForLoadButton(domain);
-
-  document.addEventListener('keydown', function (event) {
-    if (event.key === 'Enter' && messageDiv.classList.contains('active')) {
-      attemptToLoad(domain);
-    }
-  });
-};
-
-module.exports = { setUp: setUp, show: show, hide: hide, isActive: isActive };
-
-/***/ }),
-/* 12 */
+/* 10 */,
+/* 11 */,
+/* 12 */,
+/* 13 */,
+/* 14 */,
+/* 15 */,
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 /* WEBPACK VAR INJECTION */(function(fetch) {
 
-var loadGraph = function loadGraph(domain, size) {
-  // const domain = window.location.host;
-  // Need to get a puzzle that hasn't been attempted yet based on what is in localStorage
-  var puzzleListString = localStorage.getItem('hotspotPuzzlesAttempted');
+var attemptLogin = async function attemptLogin(email, password) {
+  var domain = window.location.host;
 
-  var myHeaders = new Headers({
+  var loginRequestHeaders = new Headers({
     'Content-Type': 'application/json'
   });
 
-  var myInit = {
+  var loginRequestInit = {
     method: 'POST',
-    headers: myHeaders,
-    body: puzzleListString
+    headers: loginRequestHeaders,
+    body: JSON.stringify({
+      email: email,
+      password: password
+    })
   };
 
-  var myRequest = new Request('//' + domain + '/code/random/' + size, myInit);
-  fetch(myRequest).then(function (response) {
-    response.text().then(function (code) {
-      if (code) {
-        // This would work except then I would need to also update the graph code that shows up
-        // usePuzzle(code);
-        // Reload the page so that the code in the URL and the code shown on the page match the puzzle shown
-        // window.location=`http://${domain}/hotspot/${code}`;
-        window.location = '//' + domain + '/hotspot/' + code;
-      }
-    }).catch(function (error) {
-      throw new Error(error);
-    });
-  }).catch(function (error) {
-    throw new Error(error);
+  var loginRequest = new Request('//' + domain + '/users/login', loginRequestInit);
+
+  try {
+    var response = await fetch(loginRequest);
+
+    if (!response.ok) {
+      throw new Error('Error with response to login attempt');
+    }
+
+    // Save the token that was sent back in localStorage
+    var localStorage = window.localStorage;
+
+    console.log(response.headers);
+    localStorage.setItem('hotspotAuthToken', response.headers['x-auth']);
+  } catch (e) {
+    throw new Error(e);
+  }
+};
+
+var setUpSubmitButton = function setUpSubmitButton() {
+  var submitButton = document.querySelector('.login-submit');
+
+  submitButton.addEventListener('click', function () {
+    var email = document.getElementById('userEmail');
+    var password = document.getElementById('userPassword');
+
+    if (email && password) {
+      attemptLogin(email, password);
+    }
   });
 };
 
-var setUpClickHandlersForNextGraphLinks = function setUpClickHandlersForNextGraphLinks(messageBox, domain) {
-  var nextGraphLinks = document.querySelectorAll('.next-graph');
-
-  nextGraphLinks.forEach(function (link) {
-    link.addEventListener('click', function () {
-      messageBox.show('selectGraphSize', 0);
-    });
-  });
-
-  var smallPuzzleButton = document.querySelector('.graph-area__options--small');
-  var mediumPuzzleButton = document.querySelector('.graph-area__options--medium');
-  var largePuzzleButton = document.querySelector('.graph-area__options--large');
-  var xLargePuzzleButton = document.querySelector('.graph-area__options--x-large');
-
-  smallPuzzleButton.addEventListener('click', function () {
-    loadGraph(domain, 'small');
-  });
-
-  mediumPuzzleButton.addEventListener('click', function () {
-    loadGraph(domain, 'medium');
-  });
-
-  largePuzzleButton.addEventListener('click', function () {
-    loadGraph(domain, 'large');
-  });
-
-  xLargePuzzleButton.addEventListener('click', function () {
-    loadGraph(domain, 'x-large');
-  });
+var setUpLoginPage = function setUpLoginPage() {
+  setUpSubmitButton();
 };
 
-module.exports = setUpClickHandlersForNextGraphLinks;
+// Export this so that puzzleAdminView.hbs can call this function to get the puzzle set up
+module.exports = {
+  setUpLoginPage: setUpLoginPage
+};
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2)))
-
-/***/ }),
-/* 13 */,
-/* 14 */,
-/* 15 */,
-/* 16 */,
-/* 17 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-// Get title set up to link to main page
-var setUpTitleLink = __webpack_require__(4);
-var setUpNextPuzzleLinks = __webpack_require__(12);
-var setUpCreateLinks = __webpack_require__(10);
-var messageBox = __webpack_require__(11);
-
-var domain = window.location.host;
-
-messageBox.setUp(domain, '');
-
-setUpTitleLink();
-setUpNextPuzzleLinks(messageBox, domain);
-setUpCreateLinks();
 
 /***/ })
 /******/ ]);
