@@ -33,7 +33,8 @@ hbs.registerHelper('loadScriptWithPuzzleCode', codeToUse =>
                             <script>useDefaultPuzzle(${codeToUse});</script>`)
 );
 
-app.use('/batch', batch);
+// Batch was only needed when the approved field was added to the model
+// app.use('/batch', batch);
 app.use('/code', codes);
 app.use('/hotspot', hotspot);
 

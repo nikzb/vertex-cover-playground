@@ -1743,8 +1743,7 @@ module.exports = global.fetch;
 
 /***/ }),
 /* 3 */,
-/* 4 */,
-/* 5 */
+/* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1753,6 +1752,7 @@ module.exports = global.fetch;
 var domain = window.location.host;
 
 var setUpClickHandlerForTitle = function setUpClickHandlersForTitle() {
+
   var titleDiv = document.querySelector('.main-container__header__title');
 
   titleDiv.addEventListener("click", function () {
@@ -1769,6 +1769,7 @@ var setUpClickHandlerForTitle = function setUpClickHandlersForTitle() {
 module.exports = setUpClickHandlerForTitle;
 
 /***/ }),
+/* 5 */,
 /* 6 */
 /***/ (function(module, exports) {
 
@@ -2278,7 +2279,7 @@ module.exports = setUpClickHandlersForNextGraphLinks;
 
 
 // Get title set up to link to main page
-var setUpTitleLink = __webpack_require__(5);
+var setUpTitleLink = __webpack_require__(4);
 var setUpNextPuzzleLinks = __webpack_require__(12);
 var setUpCreateLinks = __webpack_require__(10);
 var messageBox = __webpack_require__(11);

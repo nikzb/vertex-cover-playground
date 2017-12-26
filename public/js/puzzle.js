@@ -54093,6 +54093,32 @@ return /******/ (function(modules) { // webpackBootstrap
 "use strict";
 
 
+var domain = window.location.host;
+
+var setUpClickHandlerForTitle = function setUpClickHandlersForTitle() {
+
+  var titleDiv = document.querySelector('.main-container__header__title');
+
+  titleDiv.addEventListener("click", function () {
+    window.location = '//' + domain + '/';
+  });
+
+  var logoImage = document.querySelector('.logo-image');
+
+  logoImage.addEventListener("click", function () {
+    window.location = '//' + domain + '/';
+  });
+};
+
+module.exports = setUpClickHandlerForTitle;
+
+/***/ }),
+/* 5 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
 var getOptionsForPuzzle = function getOptionsForPuzzle() {
   return {
     nodes: {
@@ -54303,31 +54329,6 @@ module.exports = {
   setUpOptionsForConnectClusters: setUpOptionsForConnectClusters,
   setUpOptionsForFinished: setUpOptionsForFinished
 };
-
-/***/ }),
-/* 5 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var domain = window.location.host;
-
-var setUpClickHandlerForTitle = function setUpClickHandlersForTitle() {
-  var titleDiv = document.querySelector('.main-container__header__title');
-
-  titleDiv.addEventListener("click", function () {
-    window.location = '//' + domain + '/';
-  });
-
-  var logoImage = document.querySelector('.logo-image');
-
-  logoImage.addEventListener("click", function () {
-    window.location = '//' + domain + '/';
-  });
-};
-
-module.exports = setUpClickHandlerForTitle;
 
 /***/ }),
 /* 6 */
@@ -55086,10 +55087,10 @@ var vis = __webpack_require__(3);
 
 var browserIsIE = __webpack_require__(8);
 var Graph = __webpack_require__(9);
-var NetworkOptions = __webpack_require__(4);
+var NetworkOptions = __webpack_require__(5);
 
 // Get title set up to link to main page
-var setUpTitleLink = __webpack_require__(5);
+var setUpTitleLink = __webpack_require__(4);
 var setUpNextPuzzleLinks = __webpack_require__(12);
 var setUpCreateLinks = __webpack_require__(10);
 var messageBox = __webpack_require__(11);

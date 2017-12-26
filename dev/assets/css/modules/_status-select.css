@@ -1,0 +1,40 @@
+.status-select {
+  &__instruct {
+    margin-left: 1em;
+    font-size: 1.2em;
+
+    @mixin wide {
+      font-size: 1.5em;
+    }
+  }
+
+  &__no-puzzles-to-show {
+    display: none;
+    margin-left: 1em;
+    font-size: 1.2em;
+
+    @mixin wide {
+      font-size: 1.5em;
+    }
+  }
+
+  &__radio-container {
+    margin: 1em 1em 1em 3em;
+  }
+
+  &__radio-container {
+    font-size: 1.0em;
+
+    @mixin wide {
+      font-size: 1.4em;
+    }
+  }
+
+  &__radio {
+    vertical-align: middle;
+  }
+
+  &__radio-label {
+    margin-right: 1em;
+  }
+}

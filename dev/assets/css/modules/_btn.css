@@ -13,16 +13,27 @@
   }
 
   &--delete-always-shown {
-    font-size: 1.4em;
+    font-size: 0.9em;
     height: 2.2em;
-    padding: 0 1em;
+    padding: 0 0.7em;
     border: 1px solid red;
+
+    @mixin wide {
+      font-size: 1.4em;
+      padding: 0 1em;
+    }
+
   }
 
   &--admin {
-    font-size: 1.4em;
+    font-size: 0.9em;
     height: 2.2em;
-    padding: 0 1em;
+    padding: 0 0.7em;
+
+    @mixin wide {
+      font-size: 1.4em;
+      padding: 0 1em;
+    }
   }
 
   &--full-width {

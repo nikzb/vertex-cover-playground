@@ -1,9 +1,14 @@
+/* eslint-env node, mocha */
+
 const expect = require('expect');
 const request = require('supertest');
 const { ObjectID } = require('mongodb');
 
 const { app } = require('./../server');
 const { HotspotPuzzle } = require('./../models/hotspotPuzzle');
+
+require('./admin.test')(app);
+require('./codes.test')(app);
 
 const puzzle = {
   code: '1234',
@@ -25,19 +30,19 @@ const puzzle = {
       { from: 3, to: 6 }
     ]
   },
-  approved: true
+  approved: 'pending'
 };
 
-beforeEach(async () => {
-  try {
-    await HotspotPuzzle.remove({});
-    HotspotPuzzle.create(puzzle);
-  } catch (e) {
-    throw new Error('Error setting up database for tests');
-  }
-});
-
 describe('GET /hotspot/data/:code', () => {
+  before(async () => {
+    try {
+      await HotspotPuzzle.remove({});
+      HotspotPuzzle.create(puzzle);
+    } catch (e) {
+      throw new Error('Error setting up database for tests');
+    }
+  });
+
   it('should return puzzle with given code', () => {
     const code = '1234';
 
@@ -45,9 +50,9 @@ describe('GET /hotspot/data/:code', () => {
       .get(`/hotspot/data/${code}`)
       .expect(200)
       .expect((res) => {
-        expect(res.body.puzzle.graph).toExist();
+        expect(res.body.puzzle.graph).toBeTruthy();
         expect(res.body.puzzle.code).toBe(code);
-        expect(res.body.puzzle.size).toBeA('string');
+        expect(typeof res.body.puzzle.size).toBe('string');
       })
       .catch((e) => {
         throw new Error(`Unable to get puzzle object with code ${1234}`);
@@ -63,13 +68,22 @@ describe('GET /hotspot/data/:code', () => {
 });
 
 describe('GET /hotspot/:code', () => {
+  before(async () => {
+    try {
+      await HotspotPuzzle.remove({});
+      HotspotPuzzle.create(puzzle);
+    } catch (e) {
+      throw new Error('Error setting up database for tests');
+    }
+  });
+
   it('should render a puzzle page,', () => {
     const code = '1234';
     return request(app)
       .get(`/hotspot/${code}`)
       .expect(200)
       .expect((res) => {
-        expect(res.text).toExist();
+        expect(res.text).toBeTruthy();
       })
       .catch((e) => { throw new Error(e); });
   });
@@ -86,6 +100,15 @@ describe('GET /hotspot/:code', () => {
 });
 
 describe('POST /hotspot', () => {
+  beforeEach(async () => {
+    try {
+      await HotspotPuzzle.remove({});
+      HotspotPuzzle.create(puzzle);
+    } catch (e) {
+      throw new Error('Error setting up database for tests');
+    }
+  });
+
   it('should create a new puzzle', () => {
     const newPuzzle = {
       code: 'A123',
@@ -115,9 +138,9 @@ describe('POST /hotspot', () => {
       .send(newPuzzle)
       .expect(200)
       .expect((res) => {
-        expect(res.body.savedPuzzle.graph).toExist();
+        expect(res.body.savedPuzzle.graph).toBeTruthy();
         expect(res.body.savedPuzzle.code).toBe('A123');
-        expect(res.body.savedPuzzle.size).toBeA('string');
+        expect(typeof res.body.savedPuzzle.size).toBe('string');
       })
       .then(async (response) => {
         try {
@@ -146,18 +169,5 @@ describe('POST /hotspot', () => {
       .catch((e) => {
         throw new Error(e);
       });
-  });
-});
-
-describe('GET /code/new', () => {
-  it('should return a 4 character code', (done) => {
-    request(app)
-      .get('/code/new')
-      .expect(200)
-      .expect((res) => {
-        expect(res.text).toExist();
-        expect(res.text.length).toBe(4);
-      })
-      .end(done);
   });
 });

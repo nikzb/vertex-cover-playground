@@ -891,6 +891,16 @@ li {
   text-align: right;
 }
 
+.graph-area__control-buttons {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
+  margin: 0.2em 0;
+}
+
 .share-icon {
   -ms-flex-item-align: center;
       -ms-grid-row-align: center;
@@ -921,16 +931,32 @@ input:valid {
 }
 
 .btn--delete-always-shown {
-  font-size: 1.4em;
+  font-size: 0.9em;
   height: 2.2em;
-  padding: 0 1em;
+  padding: 0 0.7em;
   border: 1px solid red;
 }
 
+@media (min-width: 1000px) {
+
+  .btn--delete-always-shown {
+    font-size: 1.4em;
+    padding: 0 1em;
+  }
+}
+
 .btn--admin {
-  font-size: 1.4em;
+  font-size: 0.9em;
   height: 2.2em;
-  padding: 0 1em;
+  padding: 0 0.7em;
+}
+
+@media (min-width: 1000px) {
+
+  .btn--admin {
+    font-size: 1.4em;
+    padding: 0 1em;
+  }
 }
 
 .btn--full-width {
@@ -1529,4 +1555,52 @@ textarea {
 
 .pseudo-btn:hover {
   text-decoration: underline;
+}
+
+.status-select__instruct {
+  margin-left: 1em;
+  font-size: 1.2em;
+}
+
+@media (min-width: 1000px) {
+
+  .status-select__instruct {
+    font-size: 1.5em;
+  }
+}
+
+.status-select__no-puzzles-to-show {
+  display: none;
+  margin-left: 1em;
+  font-size: 1.2em;
+}
+
+@media (min-width: 1000px) {
+
+  .status-select__no-puzzles-to-show {
+    font-size: 1.5em;
+  }
+}
+
+.status-select__radio-container {
+  margin: 1em 1em 1em 3em;
+}
+
+.status-select__radio-container {
+  font-size: 1.0em;
+}
+
+@media (min-width: 1000px) {
+
+  .status-select__radio-container {
+    font-size: 1.4em;
+  }
+}
+
+.status-select__radio {
+  vertical-align: middle;
+}
+
+.status-select__radio-label {
+  margin-right: 1em;
 }

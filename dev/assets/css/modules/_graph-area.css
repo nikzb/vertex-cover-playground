@@ -79,6 +79,12 @@
   &__options.create-own {
     text-align: right;
   }
+
+  &__control-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin: 0.2em 0;
+  }
 }
 
 .share-icon {

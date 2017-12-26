@@ -54093,6 +54093,32 @@ return /******/ (function(modules) { // webpackBootstrap
 "use strict";
 
 
+var domain = window.location.host;
+
+var setUpClickHandlerForTitle = function setUpClickHandlersForTitle() {
+
+  var titleDiv = document.querySelector('.main-container__header__title');
+
+  titleDiv.addEventListener("click", function () {
+    window.location = '//' + domain + '/';
+  });
+
+  var logoImage = document.querySelector('.logo-image');
+
+  logoImage.addEventListener("click", function () {
+    window.location = '//' + domain + '/';
+  });
+};
+
+module.exports = setUpClickHandlerForTitle;
+
+/***/ }),
+/* 5 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
 var getOptionsForPuzzle = function getOptionsForPuzzle() {
   return {
     nodes: {
@@ -54305,7 +54331,6 @@ module.exports = {
 };
 
 /***/ }),
-/* 5 */,
 /* 6 */
 /***/ (function(module, exports) {
 
@@ -54689,7 +54714,8 @@ module.exports = {
 var vis = __webpack_require__(3);
 
 var Graph = __webpack_require__(9);
-var NetworkOptions = __webpack_require__(4);
+var NetworkOptions = __webpack_require__(5);
+var setUpTitleLink = __webpack_require__(4);
 
 var container = null;
 var options = null;
@@ -54716,15 +54742,41 @@ var setUpNetwork = function setUpNetwork(nodeArray, edgeArray) {
   updateHotspotCount();
 };
 
-var nextPendingPuzzle = function nextPendingPuzzle(code) {
-  fetch('//' + domain + '/code/next-pending/' + code).then(function (response) {
+var getPuzzleApprovedSelection = function getPuzzleApprovedSelection() {
+  // Look at radio elements to figure out which approved status is selected for viewing
+  var selection = void 0;
+
+  if (document.getElementById('status-1').checked) {
+    selection = 'pending';
+  } else if (document.getElementById('status-2').checked) {
+    selection = 'yes';
+  } else if (document.getElementById('status-3').checked) {
+    selection = 'no';
+  }
+
+  return selection;
+};
+
+var nextPuzzle = function nextPuzzle() {
+  var code = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'X';
+  var direction = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'forward';
+
+  var approved = getPuzzleApprovedSelection();
+
+  fetch('//' + domain + '/code/next/' + approved + '/' + code + '/' + direction).then(function (response) {
     if (response.ok) {
       var contentType = response.headers.get('content-type');
-      console.log(contentType);
       if (contentType && contentType.indexOf('text') !== -1) {
         response.text().then(function (nextCode) {
-          console.log(nextCode);
-          window.location = '//' + domain + '/hotspot/master/' + nextCode;
+          // If there is a valid code returned, show the admin page for it
+          // Otherwise, need to show a "No more of this type" message
+
+          if (nextCode === '') {
+            document.querySelector('.status-select__no-puzzles-to-show').style.display = 'block';
+            document.querySelector('.graph-area').style.display = 'none';
+          } else {
+            window.location = '//' + domain + '/hotspot/master/' + nextCode;
+          }
         });
       }
     }
@@ -54744,8 +54796,8 @@ var deletePuzzle = function deletePuzzle(code) {
     if (!deletePuzzleResponse.ok) {
       throw new Error("Error with response to deleting puzzle");
     }
-    // Successfully deleted puzzle, so load the next pending puzzle
-    nextPendingPuzzle();
+    // Successfully deleted puzzle, so load the next puzzle
+    nextPuzzle();
   }).catch(function (error) {
     throw new Error(error);
   });
@@ -54755,18 +54807,8 @@ var approvePuzzle = function approvePuzzle(_ref) {
   var code = _ref.code,
       approved = _ref.approved;
 
-  console.log('approve button pressed');
-  // const approvePuzzleRequestHeaders = new Headers({
-  //   'Content-Type': 'application/json'
-  // });
-
   var approvePuzzleRequestInit = {
     method: 'PATCH'
-    // headers: approvePuzzleRequestHeaders,
-    // body: JSON.stringify({
-    //   code,
-    //   approved
-    // })
   };
 
   var approvePuzzleRequest = new Request('//' + domain + '/hotspot/approve/' + code + '/' + approved, approvePuzzleRequestInit);
@@ -54775,10 +54817,32 @@ var approvePuzzle = function approvePuzzle(_ref) {
     if (!approvePuzzleResponse.ok) {
       throw new Error("Error with response to approving puzzle");
     }
-    // Successfully approved puzzle, so load the next pending puzzle
-    nextPendingPuzzle(code);
+    // Successfully approved puzzle, so load the next puzzle
+    nextPuzzle(code);
   }).catch(function (error) {
     throw new Error(error);
+  });
+};
+
+var setUpRadio = function setUpRadio(approved) {
+  var radio1 = document.getElementById('status-1');
+  var radio2 = document.getElementById('status-2');
+  var radio3 = document.getElementById('status-3');
+
+  if (approved === 'yes') {
+    radio2.checked = true;
+  } else if (approved === 'no') {
+    radio3.checked = true;
+  }
+
+  radio1.addEventListener('click', function () {
+    nextPuzzle();
+  });
+  radio2.addEventListener('click', function () {
+    nextPuzzle();
+  });
+  radio3.addEventListener('click', function () {
+    nextPuzzle();
   });
 };
 
@@ -54787,6 +54851,7 @@ var setUpClickHandlersForButtons = function setUpClickHandlersForButtons(code, a
   var disapproveButton = document.querySelector('button[name="disapprove"]');
   var deleteButton = document.querySelector('button[name="delete-permanent"]');
   var nextButton = document.querySelector('button[name="next"]');
+  var previousButton = document.querySelector('button[name="previous"]');
 
   if (approved === 'yes') {
     // already approved so disable approve buttons
@@ -54815,7 +54880,12 @@ var setUpClickHandlersForButtons = function setUpClickHandlersForButtons(code, a
 
   nextButton.addEventListener("click", function () {
     // pull up the next puzzle that is pending approval
-    nextPendingPuzzle(code);
+    nextPuzzle(code);
+  });
+
+  previousButton.addEventListener("click", function () {
+    // pull up the next puzzle that is pending approval
+    nextPuzzle(code, 'back');
   });
 };
 
@@ -54827,7 +54897,9 @@ var setUpAll = function setUpAll(_ref2) {
       code = _ref2.code;
 
   setUpNetwork(nodes, edges);
+  setUpRadio(approved);
   setUpClickHandlersForButtons(code, approved);
+  setUpTitleLink();
 };
 
 var handleResponseToPuzzleRequest = function handleResponseToPuzzleRequest(response, code) {
@@ -54835,6 +54907,7 @@ var handleResponseToPuzzleRequest = function handleResponseToPuzzleRequest(respo
     var contentType = response.headers.get('content-type');
     if (contentType && contentType.indexOf('application/json') !== -1) {
       return response.json().then(function (json) {
+        console.log('JSON', json.puzzle);
         setUpAll({
           nodes: json.puzzle.graph.nodes,
           edges: json.puzzle.graph.edges,

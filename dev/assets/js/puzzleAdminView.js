@@ -2,6 +2,7 @@ const vis = require('vis');
 
 const Graph = require('./modules/Graph');
 const NetworkOptions = require('./modules/NetworkOptions');
+const setUpTitleLink = require('./modules/title');
 
 let container = null;
 let options = null;
@@ -28,16 +29,39 @@ const setUpNetwork = function setUpNetwork(nodeArray, edgeArray) {
   updateHotspotCount();
 };
 
-const nextPendingPuzzle = function nextPendingPuzzle(code) {
-  fetch(`//${domain}/code/next-pending/${code}`)
+const getPuzzleApprovedSelection = function getPuzzleApprovedSelection() {
+  // Look at radio elements to figure out which approved status is selected for viewing
+  let selection;
+
+  if (document.getElementById('status-1').checked) {
+    selection = 'pending';
+  } else if (document.getElementById('status-2').checked) {
+    selection = 'yes';
+  } else if (document.getElementById('status-3').checked) {
+    selection = 'no';
+  }
+
+  return selection;
+};
+
+const nextPuzzle = function nextPuzzle(code='X', direction='forward') {
+  const approved = getPuzzleApprovedSelection();
+
+  fetch(`//${domain}/code/next/${approved}/${code}/${direction}`)
   .then((response) => {
     if (response.ok) {
       const contentType = response.headers.get('content-type');
-      console.log(contentType);
       if (contentType && contentType.indexOf('text') !== -1) {
         response.text().then((nextCode) => {
-          console.log(nextCode);
-          window.location = `//${domain}/hotspot/master/${nextCode}`;
+          // If there is a valid code returned, show the admin page for it
+          // Otherwise, need to show a "No more of this type" message
+
+          if (nextCode === '') {
+            document.querySelector('.status-select__no-puzzles-to-show').style.display = 'block';
+            document.querySelector('.graph-area').style.display = 'none';
+          } else {
+            window.location = `//${domain}/hotspot/master/${nextCode}`;
+          }
         });
       }
     }
@@ -58,27 +82,19 @@ const deletePuzzle = function deletePuzzle(code) {
     if (!deletePuzzleResponse.ok) {
       throw new Error("Error with response to deleting puzzle");
     }
-    // Successfully deleted puzzle, so load the next pending puzzle
-    nextPendingPuzzle();
+    // Successfully deleted puzzle, so load the next puzzle
+    nextPuzzle();
   })
   .catch((error) => {
     throw new Error(error);
   });
 };
 
-const approvePuzzle = function approvePuzzle({ code, approved }) {
-  console.log('approve button pressed');
-  // const approvePuzzleRequestHeaders = new Headers({
-  //   'Content-Type': 'application/json'
-  // });
 
+
+const approvePuzzle = function approvePuzzle({ code, approved }) {
   const approvePuzzleRequestInit = {
     method: 'PATCH'
-    // headers: approvePuzzleRequestHeaders,
-    // body: JSON.stringify({
-    //   code,
-    //   approved
-    // })
   };
 
   const approvePuzzleRequest = new Request(`//${domain}/hotspot/approve/${code}/${approved}`, approvePuzzleRequestInit);
@@ -88,11 +104,33 @@ const approvePuzzle = function approvePuzzle({ code, approved }) {
     if (!approvePuzzleResponse.ok) {
       throw new Error("Error with response to approving puzzle");
     }
-    // Successfully approved puzzle, so load the next pending puzzle
-    nextPendingPuzzle(code);
+    // Successfully approved puzzle, so load the next puzzle
+    nextPuzzle(code);
   })
   .catch((error) => {
     throw new Error(error);
+  });
+};
+
+const setUpRadio = function setUpRadio(approved) {
+  const radio1 = document.getElementById('status-1');
+  const radio2 = document.getElementById('status-2');
+  const radio3 = document.getElementById('status-3');
+
+  if (approved === 'yes') {
+    radio2.checked = true;
+  } else if (approved === 'no') {
+    radio3.checked = true;
+  }
+
+  radio1.addEventListener('click', () => {
+    nextPuzzle();
+  });
+  radio2.addEventListener('click', () => {
+    nextPuzzle();
+  });
+  radio3.addEventListener('click', () => {
+    nextPuzzle();
   });
 };
 
@@ -101,6 +139,7 @@ const setUpClickHandlersForButtons = function setUpClickHandlersForButtons(code,
   const disapproveButton = document.querySelector('button[name="disapprove"]');
   const deleteButton = document.querySelector('button[name="delete-permanent"]');
   const nextButton = document.querySelector('button[name="next"]');
+  const previousButton = document.querySelector('button[name="previous"]');
 
   if (approved === 'yes') {
     // already approved so disable approve buttons
@@ -129,13 +168,20 @@ const setUpClickHandlersForButtons = function setUpClickHandlersForButtons(code,
 
   nextButton.addEventListener("click", () => {
     // pull up the next puzzle that is pending approval
-    nextPendingPuzzle(code);
+    nextPuzzle(code);
+  });
+
+  previousButton.addEventListener("click", () => {
+    // pull up the next puzzle that is pending approval
+    nextPuzzle(code, 'back');
   });
 };
 
 const setUpAll = function setUpAll({ nodes, edges, size, approved, code }) {
   setUpNetwork(nodes, edges);
+  setUpRadio(approved);
   setUpClickHandlersForButtons(code, approved);
+  setUpTitleLink();
 };
 
 const handleResponseToPuzzleRequest = function handleResponseToPuzzleRequest(response, code) {
@@ -143,6 +189,7 @@ const handleResponseToPuzzleRequest = function handleResponseToPuzzleRequest(res
     const contentType = response.headers.get('content-type');
     if (contentType && contentType.indexOf('application/json') !== -1) {
       return response.json().then((json) => {
+        console.log('JSON', json.puzzle);
         setUpAll({
           nodes: json.puzzle.graph.nodes,
           edges: json.puzzle.graph.edges,

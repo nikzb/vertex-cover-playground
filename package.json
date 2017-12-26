@@ -35,7 +35,7 @@
     "eslint-plugin-import": "^2.2.0",
     "eslint-plugin-jsx-a11y": "^4.0.0",
     "eslint-plugin-react": "^6.10.3",
-    "expect": "^1.20.2",
+    "expect": "^22.0.3",
     "exports-loader": "^0.6.4",
     "gulp": "^3.9.1",
     "gulp-postcss": "^6.3.0",

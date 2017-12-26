@@ -66,7 +66,8 @@ router.delete('/:code', (req, res) => {
 router.patch('/approve/:code/:approved', (req, res) => {
   const code = req.params.code;
   const approved = req.params.approved;
-  HotspotPuzzle.findOneAndUpdate({ code }, { approved }, { new: true })
+  // HotspotPuzzle.findOneAndUpdate({ code }, { approved }, { new: true })
+  HotspotPuzzle.findOneAndUpdate({ code }, { approved })
   .then((puzzle) => {
     res.send({ puzzle });
   }, (e) => {
