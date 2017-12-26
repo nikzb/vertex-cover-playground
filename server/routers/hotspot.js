@@ -2,6 +2,7 @@ const express = require('express');
 
 const router = express.Router();
 const { HotspotPuzzle } = require('../models/hotspotPuzzle');
+const { authenticateAdmin } = require('../middleware/authenticate');
 
 // Render a puzzle page with the puzzle that has the requested code
 router.get('/:code', async (req, res) => {
@@ -53,7 +54,7 @@ router.post('/', (req, res) => {
   });
 });
 
-router.delete('/:code', (req, res) => {
+router.delete('/:code', authenticateAdmin, (req, res) => {
   const code = req.params.code;
   HotspotPuzzle.findOneAndRemove({ code })
   .then((puzzle) => {
@@ -63,7 +64,7 @@ router.delete('/:code', (req, res) => {
   });
 });
 
-router.patch('/approve/:code/:approved', (req, res) => {
+router.patch('/approve/:code/:approved', authenticateAdmin, (req, res) => {
   const code = req.params.code;
   const approved = req.params.approved;
   // HotspotPuzzle.findOneAndUpdate({ code }, { approved }, { new: true })
@@ -78,7 +79,7 @@ router.patch('/approve/:code/:approved', (req, res) => {
 // Take a puzzle code and render the admin view for that puzzle
 // Code 'X' can be used to load the next puzzle pending approval
 // If there are no pending puzzles, it will render a random puzzle
-router.get('/master/:code', (req, res) => {
+router.get('/master/:code', authenticateAdmin, (req, res) => {
   const code = req.params.code;
 
   if (code === 'X') {

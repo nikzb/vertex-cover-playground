@@ -1,0 +1,5 @@
+.login-container {
+  &__input-label {
+    width: 20em;
+  }
+}

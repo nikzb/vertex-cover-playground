@@ -3,7 +3,9 @@ const express = require('express');
 const router = express.Router();
 const { HotspotPuzzle } = require('../models/hotspotPuzzle');
 
-router.patch('/approved-fix', (req, res) => {
+const { authenticateAdmin } = require('../middleware/authenticate');
+
+router.patch('/approved-fix', authenticateAdmin, (req, res) => {
   HotspotPuzzle.find({}).then((puzzleList) => {
     puzzleList.forEach((puzzle) => {
       if (puzzle !== undefined && puzzle.approved === undefined) {

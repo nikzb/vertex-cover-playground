@@ -11,10 +11,12 @@ const { ObjectID } = require('mongodb');
 const { mongoose } = require('./db/mongoose');
 
 const { HotspotPuzzle } = require('./models/hotspotPuzzle');
+const { User } = require('./models/user');
 
 const batch = require('./routers/batch');
 const codes = require('./routers/code');
 const hotspot = require('./routers/hotspot');
+const users = require('./routers/users');
 
 const app = express();
 
@@ -37,6 +39,7 @@ hbs.registerHelper('loadScriptWithPuzzleCode', codeToUse =>
 // app.use('/batch', batch);
 app.use('/code', codes);
 app.use('/hotspot', hotspot);
+app.use('/users', users);
 
 app.get('/', (req, res) => {
   // This code chooses a random small puzzle to use
@@ -45,6 +48,10 @@ app.get('/', (req, res) => {
     const code = codeList[randomIndex].code;
     return res.render('puzzle.hbs', { code, isNew: false });
   }).catch((e) => { console.log('Failed to find a small puzzle'); });
+});
+
+app.get('/login', (req, res) => {
+  res.render('login.hbs');
 });
 
 app.get('/create', (req, res) => {

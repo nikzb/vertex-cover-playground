@@ -1604,3 +1604,7 @@ textarea {
 .status-select__radio-label {
   margin-right: 1em;
 }
+
+.login-container__input-label {
+  width: 20em;
+}

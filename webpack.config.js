@@ -5,7 +5,8 @@ module.exports = {
     create: './dev/assets/js/create.js',
     puzzle: './dev/assets/js/puzzle.js',
     notFound: './dev/assets/js/notFound.js',
-    puzzleAdminView: './dev/assets/js/puzzleAdminView.js'
+    puzzleAdminView: './dev/assets/js/puzzleAdminView.js',
+    login: './dev/assets/js/login.js'
   },
   output: {
     path: './public/js',
