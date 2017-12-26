@@ -154,14 +154,14 @@
   }
 
   &__link-in-text-area {
-    width: 20em;
-    font-size: 1.2em;
+    width: 24em;
+    font-size: 0.9em;
     text-align: center;
     resize: none;
     height: 1.3em;
 
     @mixin wide {
-      width: 24em;
+      font-size: 1.2em;
     }
   }
 
