@@ -22,8 +22,7 @@ const loadGraph = function loadGraph(domain, size) {
             // This would work except then I would need to also update the graph code that shows up
             // usePuzzle(code);
             // Reload the page so that the code in the URL and the code shown on the page match the puzzle shown
-            // window.location=`http://${domain}/hotspot/${code}`;
-            window.location=`//${domain}/hotspot/${code}`;
+            window.location.href = `//${domain}/hotspot/${code}`;
           }
         })
         .catch((error) => {

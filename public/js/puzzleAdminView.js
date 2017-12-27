@@ -54100,13 +54100,13 @@ var setUpClickHandlerForTitle = function setUpClickHandlersForTitle() {
   var titleDiv = document.querySelector('.main-container__header__title');
 
   titleDiv.addEventListener("click", function () {
-    window.location = '//' + domain + '/';
+    window.location.href = '//' + domain + '/';
   });
 
   var logoImage = document.querySelector('.logo-image');
 
   logoImage.addEventListener("click", function () {
-    window.location = '//' + domain + '/';
+    window.location.href = '//' + domain + '/';
   });
 };
 
@@ -54771,12 +54771,11 @@ var nextPuzzle = function nextPuzzle() {
         response.text().then(function (nextCode) {
           // If there is a valid code returned, show the admin page for it
           // Otherwise, need to show a "No more of this type" message
-
           if (nextCode === '') {
             document.querySelector('.status-select__no-puzzles-to-show').style.display = 'block';
             document.querySelector('.graph-area').style.display = 'none';
           } else {
-            window.location = '//' + domain + '/hotspot/master/' + nextCode;
+            window.location.href = '//' + domain + '/hotspot/master/' + nextCode;
           }
         });
       }
@@ -54787,8 +54786,13 @@ var nextPuzzle = function nextPuzzle() {
 };
 
 var deletePuzzle = function deletePuzzle(code) {
+  var headers = new Headers({
+    'x-auth': window.localStorage.getItem('hotspotAuthToken')
+  });
+
   var deletePuzzleRequestInit = {
-    method: 'DELETE'
+    method: 'DELETE',
+    headers: headers
   };
 
   var deletePuzzleRequest = new Request('//' + domain + '/hotspot/' + code, deletePuzzleRequestInit);
@@ -54808,8 +54812,13 @@ var approvePuzzle = function approvePuzzle(_ref) {
   var code = _ref.code,
       approved = _ref.approved;
 
+  var headers = new Headers({
+    'x-auth': window.localStorage.getItem('hotspotAuthToken')
+  });
+
   var approvePuzzleRequestInit = {
-    method: 'PATCH'
+    method: 'PATCH',
+    headers: headers
   };
 
   var approvePuzzleRequest = new Request('//' + domain + '/hotspot/approve/' + code + '/' + approved, approvePuzzleRequestInit);

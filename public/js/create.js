@@ -54100,13 +54100,13 @@ var setUpClickHandlerForTitle = function setUpClickHandlersForTitle() {
   var titleDiv = document.querySelector('.main-container__header__title');
 
   titleDiv.addEventListener("click", function () {
-    window.location = '//' + domain + '/';
+    window.location.href = '//' + domain + '/';
   });
 
   var logoImage = document.querySelector('.logo-image');
 
   logoImage.addEventListener("click", function () {
-    window.location = '//' + domain + '/';
+    window.location.href = '//' + domain + '/';
   });
 };
 
@@ -55052,7 +55052,7 @@ var savePuzzleAndLoad = function savePuzzleAndLoad() {
           throw new Error("Error with response to adding puzzle");
         }
         // Successfully added puzzle, so load page with puzzle
-        window.location = '//' + domain + '/hotspot/' + code + '?new=true';
+        window.location.href = '//' + domain + '/hotspot/' + code + '?new=true';
       }).catch(function (error) {
         throw new Error(error);
       });

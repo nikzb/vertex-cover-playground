@@ -1756,13 +1756,13 @@ var setUpClickHandlerForTitle = function setUpClickHandlersForTitle() {
   var titleDiv = document.querySelector('.main-container__header__title');
 
   titleDiv.addEventListener("click", function () {
-    window.location = '//' + domain + '/';
+    window.location.href = '//' + domain + '/';
   });
 
   var logoImage = document.querySelector('.logo-image');
 
   logoImage.addEventListener("click", function () {
-    window.location = '//' + domain + '/';
+    window.location.href = '//' + domain + '/';
   });
 };
 
@@ -1976,7 +1976,7 @@ var setUpClickHandlersForCreateOwnLinks = function setUpClickHandlersForCreateOw
 
   createOwnLinks.forEach(function (link) {
     link.addEventListener("click", function () {
-      window.location = "//" + domain + "/create";
+      window.location.href = "//" + domain + "/create";
     });
   });
 };
@@ -2074,7 +2074,7 @@ var attemptToLoad = function attemptToLoad(domain) {
 
   if (userCode.length === 4 && /[A-Za-z0-9]{4}/.test(userCode)) {
     document.querySelector('.message-box__input').value = '';
-    window.location = 'http://' + domain + '/hotspot/' + userCode;
+    window.location.href = 'http://' + domain + '/hotspot/' + userCode;
   }
 };
 
@@ -2223,8 +2223,7 @@ var loadGraph = function loadGraph(domain, size) {
         // This would work except then I would need to also update the graph code that shows up
         // usePuzzle(code);
         // Reload the page so that the code in the URL and the code shown on the page match the puzzle shown
-        // window.location=`http://${domain}/hotspot/${code}`;
-        window.location = '//' + domain + '/hotspot/' + code;
+        window.location.href = '//' + domain + '/hotspot/' + code;
       }
     }).catch(function (error) {
       throw new Error(error);

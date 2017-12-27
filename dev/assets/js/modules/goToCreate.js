@@ -4,7 +4,7 @@ const setUpClickHandlersForCreateOwnLinks = function setUpClickHandlersForCreate
 
   createOwnLinks.forEach((link) => {
     link.addEventListener("click", () => {
-      window.location=`//${domain}/create`;
+      window.location.href =`//${domain}/create`;
     });
   });
 };

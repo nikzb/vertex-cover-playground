@@ -55,12 +55,11 @@ const nextPuzzle = function nextPuzzle(code='X', direction='forward') {
         response.text().then((nextCode) => {
           // If there is a valid code returned, show the admin page for it
           // Otherwise, need to show a "No more of this type" message
-
           if (nextCode === '') {
             document.querySelector('.status-select__no-puzzles-to-show').style.display = 'block';
             document.querySelector('.graph-area').style.display = 'none';
           } else {
-            window.location = `//${domain}/hotspot/master/${nextCode}`;
+            window.location.href = `//${domain}/hotspot/master/${nextCode}`;
           }
         });
       }
@@ -71,8 +70,13 @@ const nextPuzzle = function nextPuzzle(code='X', direction='forward') {
 };
 
 const deletePuzzle = function deletePuzzle(code) {
+  const headers = new Headers({
+    'x-auth': window.localStorage.getItem('hotspotAuthToken')
+  });
+
   const deletePuzzleRequestInit = {
     method: 'DELETE',
+    headers
   };
 
   const deletePuzzleRequest = new Request(`//${domain}/hotspot/${code}`, deletePuzzleRequestInit);
@@ -90,11 +94,14 @@ const deletePuzzle = function deletePuzzle(code) {
   });
 };
 
-
-
 const approvePuzzle = function approvePuzzle({ code, approved }) {
+  const headers = new Headers({
+    'x-auth': window.localStorage.getItem('hotspotAuthToken')
+  });
+
   const approvePuzzleRequestInit = {
-    method: 'PATCH'
+    method: 'PATCH',
+    headers
   };
 
   const approvePuzzleRequest = new Request(`//${domain}/hotspot/approve/${code}/${approved}`, approvePuzzleRequestInit);

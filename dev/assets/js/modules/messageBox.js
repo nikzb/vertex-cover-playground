@@ -84,7 +84,7 @@ const attemptToLoad = function attemptToLoad(domain) {
 
   if (userCode.length === 4 && /[A-Za-z0-9]{4}/.test(userCode)) {
     document.querySelector('.message-box__input').value = '';
-    window.location=`http://${domain}/hotspot/${userCode}`;
+    window.location.href = `http://${domain}/hotspot/${userCode}`;
   }
 };
 

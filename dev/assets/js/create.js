@@ -288,7 +288,7 @@ const savePuzzleAndLoad = function savePuzzleAndLoad() {
               throw new Error("Error with response to adding puzzle");
             }
             // Successfully added puzzle, so load page with puzzle
-            window.location=`//${domain}/hotspot/${code}?new=true`;
+            window.location.href =`//${domain}/hotspot/${code}?new=true`;
           })
           .catch((error) => {
             throw new Error(error);

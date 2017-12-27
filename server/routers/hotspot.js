@@ -15,13 +15,17 @@ router.get('/:code', async (req, res) => {
   }
   try {
     // if not a valid code, render the puzzle not found page
-    const puzzle = HotspotPuzzle.findOne({ code });
+    if (code.length !== 4) {
+      throw new Error('Requested code is not a valid length');
+    }
+    const puzzle = await HotspotPuzzle.findOne({ code });
+
     if (!puzzle) {
       return res.render('notFound.hbs', { code });
     }
     return res.render('puzzle.hbs', { code, isNew });
   } catch (e) {
-    return res.send('<h1>There was an error while attempting to load the puzzle</h1>');
+    return res.send(e.message);
   }
 });
 
@@ -79,7 +83,7 @@ router.patch('/approve/:code/:approved', authenticateAdmin, (req, res) => {
 // Take a puzzle code and render the admin view for that puzzle
 // Code 'X' can be used to load the next puzzle pending approval
 // If there are no pending puzzles, it will render a random puzzle
-router.get('/master/:code', authenticateAdmin, (req, res) => {
+router.get('/master/:code', (req, res) => {
   const code = req.params.code;
 
   if (code === 'X') {

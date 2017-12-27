@@ -1952,6 +1952,7 @@ process.umask = function() { return 0; };
 /* WEBPACK VAR INJECTION */(function(fetch) {
 
 var attemptLogin = async function attemptLogin(email, password) {
+  console.log('in attempt', email, password);
   var domain = window.location.host;
 
   var loginRequestHeaders = new Headers({
@@ -1976,11 +1977,18 @@ var attemptLogin = async function attemptLogin(email, password) {
       throw new Error('Error with response to login attempt');
     }
 
-    // Save the token that was sent back in localStorage
-    var localStorage = window.localStorage;
+    var contentType = response.headers.get('content-type');
+    if (contentType && contentType.indexOf('application/json') !== -1) {
+      var body = await response.json();
 
-    console.log(response.headers);
-    localStorage.setItem('hotspotAuthToken', response.headers['x-auth']);
+      // Save the token that was sent back in localStorage
+      var localStorage = window.localStorage;
+      var token = response.headers.get('x-auth');
+
+      localStorage.setItem('hotspotAuthToken', token);
+
+      window.location.href = '//' + domain + '/hotspot/master/X';
+    }
   } catch (e) {
     throw new Error(e);
   }
@@ -1990,8 +1998,8 @@ var setUpSubmitButton = function setUpSubmitButton() {
   var submitButton = document.querySelector('.login-submit');
 
   submitButton.addEventListener('click', function () {
-    var email = document.getElementById('userEmail');
-    var password = document.getElementById('userPassword');
+    var email = document.getElementById('userEmail').value;
+    var password = document.getElementById('userPassword').value;
 
     if (email && password) {
       attemptLogin(email, password);
