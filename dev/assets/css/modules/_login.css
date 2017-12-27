@@ -1,5 +1,17 @@
 .login-container {
-  &__input-label {
-    width: 20em;
+  &__login-instruct {
+    margin-bottom: 0.4em;
+  }
+
+  &__login-submit {
+    margin-top: 0.4em;
+  }
+
+  &__user-email {
+    width: 15em;
+  }
+
+  &__user-password {
+    width: 15em;
   }
 }

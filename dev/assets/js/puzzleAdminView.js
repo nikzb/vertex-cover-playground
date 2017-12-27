@@ -188,7 +188,6 @@ const setUpAll = function setUpAll({ nodes, edges, size, approved, code }) {
   setUpNetwork(nodes, edges);
   setUpRadio(approved);
   setUpClickHandlersForButtons(code, approved);
-  setUpTitleLink();
 };
 
 const handleResponseToPuzzleRequest = function handleResponseToPuzzleRequest(response, code) {
@@ -196,7 +195,6 @@ const handleResponseToPuzzleRequest = function handleResponseToPuzzleRequest(res
     const contentType = response.headers.get('content-type');
     if (contentType && contentType.indexOf('application/json') !== -1) {
       return response.json().then((json) => {
-        console.log('JSON', json.puzzle);
         setUpAll({
           nodes: json.puzzle.graph.nodes,
           edges: json.puzzle.graph.edges,

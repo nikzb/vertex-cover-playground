@@ -64,11 +64,12 @@ var EntryPoint =
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 19);
+/******/ 	return __webpack_require__(__webpack_require__.s = 90);
 /******/ })
 /************************************************************************/
-/******/ ([
-/* 0 */
+/******/ ({
+
+/***/ 1:
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(process, Promise, global) {var require;/*** IMPORTS FROM imports-loader ***/
@@ -210,7 +211,7 @@ function flush() {
 function attemptVertx() {
   try {
     var r = require;
-    var vertx = __webpack_require__(6);
+    var vertx = __webpack_require__(7);
     vertxNext = vertx.runOnLoop || vertx.runOnContext;
     return useVertxTimer();
   } catch (e) {
@@ -1237,10 +1238,185 @@ return Promise;
 /*** EXPORTS FROM exports-loader ***/
 module.exports = global.Promise;
 }.call(global));
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5), __webpack_require__(0), __webpack_require__(1)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(6), __webpack_require__(1), __webpack_require__(2)))
 
 /***/ }),
-/* 1 */
+
+/***/ 11:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var vis = __webpack_require__(4);
+
+var nodes = null;
+var edges = null;
+var data = null;
+var optimalAnswer = null;
+
+var updateOptimalAnswer = function updateOptimalAnswer() {
+  optimalAnswer = nodes.get().reduce(function (total, node) {
+    return node.original ? total + 1 : total;
+  }, 0);
+};
+
+var getOptimalAnswer = function getOptimalAnswer() {
+  return optimalAnswer;
+};
+
+var revealOriginalHotspots = function revealOriginalHotspots() {
+  nodes.forEach(function (node) {
+    if (node.original) {
+      node.group = 'hotspot';
+      nodes.update(node);
+    }
+  });
+};
+
+var updateConnectedNodes = function updateConnectedNodes() {
+  // Reset all serviced nodes to unserviced (but leave hotspots alone)
+  nodes.forEach(function (node) {
+    if (node.group === 'service') {
+      node.group = 'noService';
+      nodes.update(node);
+    }
+  });
+
+  // Find all the hotspot nodes and have them service all the connected non-hotspot nodes
+  nodes.forEach(function (node) {
+    if (node.group === 'hotspot') {
+      edges.forEach(function (edge) {
+        var servicedId = 0;
+        if (edge.from === node.id) {
+          servicedId = edge.to;
+        } else if (edge.to === node.id) {
+          servicedId = edge.from;
+        }
+
+        if (servicedId) {
+          var servicedNode = nodes.get(servicedId);
+
+          if (servicedNode.group === 'noService') {
+            servicedNode.group = 'service';
+            nodes.update(servicedNode);
+          }
+        }
+      });
+    }
+  });
+};
+
+var resetAllNodes = function resetAllNodes() {
+  nodes.forEach(function (node) {
+    node.group = 'noService';
+    nodes.update(node);
+  });
+};
+
+var setUpData = function setUpData(nodeArray, edgeArray) {
+  var newEdgeArray = [];
+  edgeArray.forEach(function (edge) {
+    newEdgeArray.push({ id: edge.id, from: edge.from, to: edge.to });
+  });
+
+  edges = new vis.DataSet(newEdgeArray);
+  nodes = new vis.DataSet(nodeArray);
+  resetAllNodes();
+  data = {
+    nodes: nodes,
+    edges: edges
+  };
+};
+
+var getData = function getData() {
+  return data;
+};
+
+var allNodesHaveWifi = function allNodesHaveWifi() {
+  return nodes.get().every(function (node) {
+    return node.group !== 'noService';
+  });
+};
+
+var countHotspots = function countHotspots() {
+  var hotspots = 0;
+
+  nodes.forEach(function (node) {
+    if (node.group === 'hotspot') {
+      hotspots += 1;
+    }
+  });
+
+  return hotspots;
+};
+
+var processNodeClick = function processNodeClick(id) {
+  var node = nodes.get(id);
+  if (node.group !== 'hotspot') {
+    nodes.update({ id: id, group: 'hotspot' });
+  } else if (node.group === 'hotspot') {
+    nodes.update({ id: id, group: 'noService' });
+  }
+  // Update which nodes should be in group 'service'
+  updateConnectedNodes();
+};
+
+var useDefaultPuzzle = function useDefaultPuzzle() {
+  var coordsArray = [[0, 0], [2, 0], [3, 0], [4, 0], [4, 2], [4, 3], [4, 4], [3, 4], [2, 4], [1, 4], [0, 4], [0, 3], [0, 2], [1, 2], [1, 1], [2, 1], [3, 1], [3, 2], [3, 3], [2, 3], [2, 2], [1, 3]];
+
+  coordsArray = coordsArray.map(function (coords) {
+    return [coords[0] * 0.707 - coords[1] * -0.707, coords[0] * -0.707 + coords[1] * 0.707 * 0.75];
+  });
+  var scaleFactor = 100;
+
+  var nodeArray = [];
+  var originals = [6, 12, 15, 17, 20];
+
+  for (var i = 1; i <= coordsArray.length; i += 1) {
+    var isOriginal = false;
+    if (originals.includes(i)) {
+      isOriginal = true;
+    }
+    nodeArray.push({
+      id: i,
+      group: 'noService',
+      // label: i,
+      original: isOriginal,
+      x: coordsArray[i - 1][0] * scaleFactor,
+      y: coordsArray[i - 1][1] * scaleFactor
+    });
+  }
+
+  var edgePairs = [[1, 2], [1, 15], [1, 13], [2, 15], [2, 3], [2, 16], [3, 4], [3, 17], [5, 18], [5, 6], [6, 8], [6, 7], [7, 8], [8, 9], [9, 10], [9, 20], [10, 11], [10, 12], [11, 12], [12, 13], [13, 14], [14, 15], [14, 21], [15, 16], [16, 21], [17, 18], [18, 19], [18, 21], [19, 20], [20, 21], [4, 5], [4, 17], [12, 22], [14, 22]];
+
+  var edgeArray = [];
+
+  edgePairs.forEach(function (edgePair) {
+    return edgeArray.push({ from: edgePair[0], to: edgePair[1] });
+  });
+
+  return { nodeArray: nodeArray, edgeArray: edgeArray };
+  // setUpNetwork(nodeArray, edgeArray);
+};
+
+module.exports = {
+  allNodesHaveWifi: allNodesHaveWifi,
+  countHotspots: countHotspots,
+  getOptimalAnswer: getOptimalAnswer,
+  updateOptimalAnswer: updateOptimalAnswer,
+  resetAllNodes: resetAllNodes,
+  updateConnectedNodes: updateConnectedNodes,
+  processNodeClick: processNodeClick,
+  getData: getData,
+  setUpData: setUpData,
+  revealOriginalHotspots: revealOriginalHotspots,
+  useDefaultPuzzle: useDefaultPuzzle
+};
+
+/***/ }),
+
+/***/ 2:
 /***/ (function(module, exports) {
 
 var g;
@@ -1267,7 +1443,8 @@ module.exports = g;
 
 
 /***/ }),
-/* 2 */
+
+/***/ 3:
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(Promise, global) {/*** IMPORTS FROM imports-loader ***/
@@ -1739,10 +1916,11 @@ module.exports = g;
 /*** EXPORTS FROM exports-loader ***/
 module.exports = global.fetch;
 }.call(global));
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0), __webpack_require__(1)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1), __webpack_require__(2)))
 
 /***/ }),
-/* 3 */
+
+/***/ 4:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -54087,7 +54265,8 @@ return /******/ (function(modules) { // webpackBootstrap
 ;
 
 /***/ }),
-/* 4 */
+
+/***/ 5:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -54113,7 +54292,8 @@ var setUpClickHandlerForTitle = function setUpClickHandlersForTitle() {
 module.exports = setUpClickHandlerForTitle;
 
 /***/ }),
-/* 5 */
+
+/***/ 6:
 /***/ (function(module, exports) {
 
 // shim for using process in browser
@@ -54299,13 +54479,15 @@ process.umask = function() { return 0; };
 
 
 /***/ }),
-/* 6 */
+
+/***/ 7:
 /***/ (function(module, exports) {
 
 /* (ignored) */
 
 /***/ }),
-/* 7 */
+
+/***/ 8:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -54523,200 +54705,18 @@ module.exports = {
 };
 
 /***/ }),
-/* 8 */,
-/* 9 */
-/***/ (function(module, exports, __webpack_require__) {
 
-"use strict";
-
-
-var vis = __webpack_require__(3);
-
-var nodes = null;
-var edges = null;
-var data = null;
-var optimalAnswer = null;
-
-var updateOptimalAnswer = function updateOptimalAnswer() {
-  optimalAnswer = nodes.get().reduce(function (total, node) {
-    return node.original ? total + 1 : total;
-  }, 0);
-};
-
-var getOptimalAnswer = function getOptimalAnswer() {
-  return optimalAnswer;
-};
-
-var revealOriginalHotspots = function revealOriginalHotspots() {
-  nodes.forEach(function (node) {
-    if (node.original) {
-      node.group = 'hotspot';
-      nodes.update(node);
-    }
-  });
-};
-
-var updateConnectedNodes = function updateConnectedNodes() {
-  // Reset all serviced nodes to unserviced (but leave hotspots alone)
-  nodes.forEach(function (node) {
-    if (node.group === 'service') {
-      node.group = 'noService';
-      nodes.update(node);
-    }
-  });
-
-  // Find all the hotspot nodes and have them service all the connected non-hotspot nodes
-  nodes.forEach(function (node) {
-    if (node.group === 'hotspot') {
-      edges.forEach(function (edge) {
-        var servicedId = 0;
-        if (edge.from === node.id) {
-          servicedId = edge.to;
-        } else if (edge.to === node.id) {
-          servicedId = edge.from;
-        }
-
-        if (servicedId) {
-          var servicedNode = nodes.get(servicedId);
-
-          if (servicedNode.group === 'noService') {
-            servicedNode.group = 'service';
-            nodes.update(servicedNode);
-          }
-        }
-      });
-    }
-  });
-};
-
-var resetAllNodes = function resetAllNodes() {
-  nodes.forEach(function (node) {
-    node.group = 'noService';
-    nodes.update(node);
-  });
-};
-
-var setUpData = function setUpData(nodeArray, edgeArray) {
-  var newEdgeArray = [];
-  edgeArray.forEach(function (edge) {
-    newEdgeArray.push({ id: edge.id, from: edge.from, to: edge.to });
-  });
-
-  edges = new vis.DataSet(newEdgeArray);
-  nodes = new vis.DataSet(nodeArray);
-  resetAllNodes();
-  data = {
-    nodes: nodes,
-    edges: edges
-  };
-};
-
-var getData = function getData() {
-  return data;
-};
-
-var allNodesHaveWifi = function allNodesHaveWifi() {
-  return nodes.get().every(function (node) {
-    return node.group !== 'noService';
-  });
-};
-
-var countHotspots = function countHotspots() {
-  var hotspots = 0;
-
-  nodes.forEach(function (node) {
-    if (node.group === 'hotspot') {
-      hotspots += 1;
-    }
-  });
-
-  return hotspots;
-};
-
-var processNodeClick = function processNodeClick(id) {
-  var node = nodes.get(id);
-  if (node.group !== 'hotspot') {
-    nodes.update({ id: id, group: 'hotspot' });
-  } else if (node.group === 'hotspot') {
-    nodes.update({ id: id, group: 'noService' });
-  }
-  // Update which nodes should be in group 'service'
-  updateConnectedNodes();
-};
-
-var useDefaultPuzzle = function useDefaultPuzzle() {
-  var coordsArray = [[0, 0], [2, 0], [3, 0], [4, 0], [4, 2], [4, 3], [4, 4], [3, 4], [2, 4], [1, 4], [0, 4], [0, 3], [0, 2], [1, 2], [1, 1], [2, 1], [3, 1], [3, 2], [3, 3], [2, 3], [2, 2], [1, 3]];
-
-  coordsArray = coordsArray.map(function (coords) {
-    return [coords[0] * 0.707 - coords[1] * -0.707, coords[0] * -0.707 + coords[1] * 0.707 * 0.75];
-  });
-  var scaleFactor = 100;
-
-  var nodeArray = [];
-  var originals = [6, 12, 15, 17, 20];
-
-  for (var i = 1; i <= coordsArray.length; i += 1) {
-    var isOriginal = false;
-    if (originals.includes(i)) {
-      isOriginal = true;
-    }
-    nodeArray.push({
-      id: i,
-      group: 'noService',
-      // label: i,
-      original: isOriginal,
-      x: coordsArray[i - 1][0] * scaleFactor,
-      y: coordsArray[i - 1][1] * scaleFactor
-    });
-  }
-
-  var edgePairs = [[1, 2], [1, 15], [1, 13], [2, 15], [2, 3], [2, 16], [3, 4], [3, 17], [5, 18], [5, 6], [6, 8], [6, 7], [7, 8], [8, 9], [9, 10], [9, 20], [10, 11], [10, 12], [11, 12], [12, 13], [13, 14], [14, 15], [14, 21], [15, 16], [16, 21], [17, 18], [18, 19], [18, 21], [19, 20], [20, 21], [4, 5], [4, 17], [12, 22], [14, 22]];
-
-  var edgeArray = [];
-
-  edgePairs.forEach(function (edgePair) {
-    return edgeArray.push({ from: edgePair[0], to: edgePair[1] });
-  });
-
-  return { nodeArray: nodeArray, edgeArray: edgeArray };
-  // setUpNetwork(nodeArray, edgeArray);
-};
-
-module.exports = {
-  allNodesHaveWifi: allNodesHaveWifi,
-  countHotspots: countHotspots,
-  getOptimalAnswer: getOptimalAnswer,
-  updateOptimalAnswer: updateOptimalAnswer,
-  resetAllNodes: resetAllNodes,
-  updateConnectedNodes: updateConnectedNodes,
-  processNodeClick: processNodeClick,
-  getData: getData,
-  setUpData: setUpData,
-  revealOriginalHotspots: revealOriginalHotspots,
-  useDefaultPuzzle: useDefaultPuzzle
-};
-
-/***/ }),
-/* 10 */,
-/* 11 */,
-/* 12 */,
-/* 13 */,
-/* 14 */,
-/* 15 */,
-/* 16 */,
-/* 17 */,
-/* 18 */,
-/* 19 */
+/***/ 90:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 /* WEBPACK VAR INJECTION */(function(fetch) {
 
-var vis = __webpack_require__(3);
+var vis = __webpack_require__(4);
 
-var Graph = __webpack_require__(9);
-var NetworkOptions = __webpack_require__(7);
-var setUpTitleLink = __webpack_require__(4);
+var Graph = __webpack_require__(11);
+var NetworkOptions = __webpack_require__(8);
+var setUpTitleLink = __webpack_require__(5);
 
 var container = null;
 var options = null;
@@ -54909,7 +54909,6 @@ var setUpAll = function setUpAll(_ref2) {
   setUpNetwork(nodes, edges);
   setUpRadio(approved);
   setUpClickHandlersForButtons(code, approved);
-  setUpTitleLink();
 };
 
 var handleResponseToPuzzleRequest = function handleResponseToPuzzleRequest(response, code) {
@@ -54917,7 +54916,6 @@ var handleResponseToPuzzleRequest = function handleResponseToPuzzleRequest(respo
     var contentType = response.headers.get('content-type');
     if (contentType && contentType.indexOf('application/json') !== -1) {
       return response.json().then(function (json) {
-        console.log('JSON', json.puzzle);
         setUpAll({
           nodes: json.puzzle.graph.nodes,
           edges: json.puzzle.graph.edges,
@@ -54946,7 +54944,8 @@ var usePuzzle = function usePuzzle(code) {
 module.exports = {
   usePuzzle: usePuzzle
 };
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ })
-/******/ ]);
+
+/******/ });

@@ -1605,6 +1605,18 @@ textarea {
   margin-right: 1em;
 }
 
-.login-container__input-label {
-  width: 20em;
+.login-container__login-instruct {
+  margin-bottom: 0.4em;
+}
+
+.login-container__login-submit {
+  margin-top: 0.4em;
+}
+
+.login-container__user-email {
+  width: 15em;
+}
+
+.login-container__user-password {
+  width: 15em;
 }

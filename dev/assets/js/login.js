@@ -1,6 +1,11 @@
+const validator = require('validator');
+
+const showErrorMessage = function showErrorMessage(message) {
+  const errorMessageDiv = document.querySelector('.login-container__error-message');
+  errorMessageDiv.textContent = message;
+};
 
 const attemptLogin = async function attemptLogin(email, password) {
-  console.log('in attempt',email,password);
   const domain = window.location.host;
 
   const loginRequestHeaders = new Headers({
@@ -38,18 +43,23 @@ const attemptLogin = async function attemptLogin(email, password) {
       window.location.href = `//${domain}/hotspot/master/X`;
     }
   } catch (e) {
-    throw new Error(e);
+    showErrorMessage('Login attempt failed. Enter a valid email and password.');
+    document.querySelector('.login-container__user-password').value = '';
   }
 };
 
 const setUpSubmitButton = function setUpSubmitButton() {
-  const submitButton = document.querySelector('.login-submit');
+  const submitButton = document.querySelector('.login-container__login-submit');
 
   submitButton.addEventListener('click', () => {
-    const email = document.getElementById('userEmail').value;
-    const password = document.getElementById('userPassword').value;
+    const email = document.querySelector('.login-container__user-email').value;
+    const password = document.querySelector('.login-container__user-password').value;
 
-    if (email && password) {
+    if (!validator.isEmail(email)) {
+      showErrorMessage('Please enter a valid email address.');
+    } else if (password === '') {
+      showErrorMessage('You must enter a password.');
+    } else {
       attemptLogin(email, password);
     }
   });

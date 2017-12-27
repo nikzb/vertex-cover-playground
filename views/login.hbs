@@ -10,15 +10,17 @@
   <div class='main-container'>
     {{> mainHeader}}
     <div class='login-container'>
+      <div class='login-container__login-instruct'>Sign In:</div>
       <div class='login-container__input-container'>
-        <label class='login-container__input-label' for="userEmail">Email: </label>
-        <input id="userEmail" type="email" required>
+        <!-- <label class='login-container__input-label' for="userEmail">Email: </label> -->
+        <input class="login-container__user-email" type="email" placeholder="email" required>
       </div>
       <div class='login-container__input-container'>
-        <label class='login-container__input-label' for="userPassword">Password: </label>
-        <input id="userPassword" type="password" required>
+        <!-- <label class='login-container__input-label' for="userPassword">Password: </label> -->
+        <input class="login-container__user-password" type="password" placeholder="password" required>
       </div>
-      <button class='login-submit' type='button'>Submit</button>
+      <button class='login-container__login-submit' type='button'>Submit</button>
+      <div class='login-container__error-message'></div>
     </div>
   </div>
 

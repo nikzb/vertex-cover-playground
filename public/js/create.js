@@ -64,11 +64,12 @@ var EntryPoint =
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 15);
+/******/ 	return __webpack_require__(__webpack_require__.s = 86);
 /******/ })
 /************************************************************************/
-/******/ ([
-/* 0 */
+/******/ ({
+
+/***/ 1:
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(process, Promise, global) {var require;/*** IMPORTS FROM imports-loader ***/
@@ -210,7 +211,7 @@ function flush() {
 function attemptVertx() {
   try {
     var r = require;
-    var vertx = __webpack_require__(6);
+    var vertx = __webpack_require__(7);
     vertxNext = vertx.runOnLoop || vertx.runOnContext;
     return useVertxTimer();
   } catch (e) {
@@ -1237,10 +1238,85 @@ return Promise;
 /*** EXPORTS FROM exports-loader ***/
 module.exports = global.Promise;
 }.call(global));
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5), __webpack_require__(0), __webpack_require__(1)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(6), __webpack_require__(1), __webpack_require__(2)))
 
 /***/ }),
-/* 1 */
+
+/***/ 10:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+// From https://codepen.io/gapcode/pen/vEJNZN
+
+/**
+ * detect IE
+ * returns version of IE or false, if browser is not Internet Explorer
+ */
+function detectIE() {
+  var ua = window.navigator.userAgent;
+
+  // Test values; Uncomment to check result …
+
+  // IE 10
+  // ua = 'Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; Trident/6.0)';
+
+  // IE 11
+  // ua = 'Mozilla/5.0 (Windows NT 6.3; Trident/7.0; rv:11.0) like Gecko';
+
+  // Edge 12 (Spartan)
+  // ua = 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36 Edge/12.0';
+
+  // Edge 13
+  // ua = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2486.0 Safari/537.36 Edge/13.10586';
+
+  var msie = ua.indexOf('MSIE ');
+  if (msie > 0) {
+    // IE 10 or older => return version number
+    return parseInt(ua.substring(msie + 5, ua.indexOf('.', msie)), 10);
+  }
+
+  var trident = ua.indexOf('Trident/');
+  if (trident > 0) {
+    // IE 11 => return version number
+    var rv = ua.indexOf('rv:');
+    return parseInt(ua.substring(rv + 3, ua.indexOf('.', rv)), 10);
+  }
+
+  var edge = ua.indexOf('Edge/');
+  if (edge > 0) {
+    // Edge (IE 12+) => return version number
+    return parseInt(ua.substring(edge + 5, ua.indexOf('.', edge)), 10);
+  }
+
+  // other browser
+  return false;
+}
+
+module.exports = function () {
+  var version = detectIE();
+  return version !== false && version < 12;
+};
+
+/***/ }),
+
+/***/ 15:
+/***/ (function(module, exports) {
+
+if (window.NodeList && !NodeList.prototype.forEach) {
+    NodeList.prototype.forEach = function (callback, thisArg) {
+        thisArg = thisArg || window;
+        for (var i = 0; i < this.length; i++) {
+            callback.call(thisArg, this[i], i, this);
+        }
+    };
+}
+
+
+/***/ }),
+
+/***/ 2:
 /***/ (function(module, exports) {
 
 var g;
@@ -1267,7 +1343,8 @@ module.exports = g;
 
 
 /***/ }),
-/* 2 */
+
+/***/ 3:
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(Promise, global) {/*** IMPORTS FROM imports-loader ***/
@@ -1739,10 +1816,222 @@ module.exports = g;
 /*** EXPORTS FROM exports-loader ***/
 module.exports = global.fetch;
 }.call(global));
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0), __webpack_require__(1)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1), __webpack_require__(2)))
 
 /***/ }),
-/* 3 */
+
+/***/ 30:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var vis = __webpack_require__(4);
+
+var nodes = null;
+var edges = null;
+var data = null;
+
+var getNode = function getNode(id) {
+  return nodes.get(id);
+};
+
+var getEdge = function getEdge(id) {
+  return edges.get(id);
+};
+
+var updateNode = function updateNode(node) {
+  nodes.update(node);
+};
+
+var getNodes = function getNodes() {
+  return nodes.get();
+};
+
+var getEdges = function getEdges() {
+  return edges.get();
+};
+
+var getData = function getData() {
+  return data;
+};
+
+// Just deletes a particular node - does not look at connections at all
+var deleteNode = function deleteNode(id) {
+  nodes.remove(id);
+};
+
+var deleteEdge = function deleteEdge(id) {
+  edges.remove(id);
+};
+
+var addNode = function addNode(newNode) {
+  nodes.add(newNode);
+};
+
+var getNumberOfHotspots = function getNumberOfHotspots() {
+  var nodesArray = nodes.get();
+  return nodesArray.reduce(function (sum, node) {
+    if (node.original) {
+      return sum + 1;
+    } else {
+      return sum;
+    }
+  }, 0);
+};
+
+var getNumberOfServicedNodes = function getNumberOfServicedNodes() {
+  var nodesArray = nodes.get();
+  return nodesArray.reduce(function (sum, node) {
+    if (node.original) {
+      return sum;
+    } else {
+      return sum + 1;
+    }
+  }, 0);
+};
+
+var reset = function reset() {
+  nodes = new vis.DataSet();
+  edges = new vis.DataSet();
+  data = { nodes: nodes, edges: edges };
+};
+
+// Remove nodes that are not connected to any other nodes
+var removeLonelyNodes = function removeLonelyNodes() {
+  var i = 0;
+
+  var nodesArray = nodes.get();
+
+  while (i < nodesArray.length) {
+    if (nodesArray[i].connectedToWithinCluster.length === 0) {
+      nodes.remove(nodesArray[i].id);
+    }
+    i += 1;
+  }
+
+  console.log(nodes.get());
+};
+
+var getSize = function getSize() {
+  var numHotspots = getNumberOfHotspots();
+  var size = void 0;
+  if (numHotspots <= 4) {
+    size = 'small';
+  } else if (numHotspots <= 7) {
+    size = 'medium';
+  } else if (numHotspots <= 10) {
+    size = 'large';
+  } else {
+    size = 'x-large';
+  }
+
+  return size;
+};
+
+var deleteEdgesTouchingNode = function deleteEdgesTouchingNode(nodeId) {
+  getEdges().forEach(function (edgeToCheck) {
+    if (edgeToCheck.from === nodeId || edgeToCheck.to === nodeId) {
+      deleteEdge(edgeToCheck.id);
+    }
+  });
+};
+
+var processDeleteNode = function processDeleteNode(id) {
+  var nodeToDelete = getNode(id);
+
+  if (nodeToDelete.group === 'hotspot') {
+    // Delete all the edges touching the serviced nodes this hotspot is connected to
+    nodeToDelete.connectedToWithinCluster.forEach(function (serviceNodeId) {
+      deleteEdgesTouchingNode(serviceNodeId);
+    });
+
+    // Delete all the service nodes connected to the hotspot we are deleting
+    nodeToDelete.connectedToWithinCluster.forEach(function (serviceNodeId) {
+      deleteNode(serviceNodeId);
+    });
+
+    // Delete the hotspot
+    deleteNode(id);
+  } else {
+    // must be a service node
+    // Must remove nodeId from the hotspots connectedToWithinCluster list
+    if (nodeToDelete.connectedToWithinCluster.length > 0) {
+      var hotspotId = nodeToDelete.connectedToWithinCluster[0];
+      var hotspot = getNode(hotspotId);
+      var index = hotspot.connectedToWithinCluster.indexOf(id);
+      hotspot.connectedToWithinCluster.splice(index, 1);
+      updateNode(hotspot);
+
+      // Delete all the edges touching the serviced node
+      deleteEdgesTouchingNode(id);
+    }
+
+    // Delete the service node
+    deleteNode(id);
+  }
+};
+
+var processDeleteEdge = function processDeleteEdge(id) {
+  var edgeToDelete = getEdge(id);
+
+  var fromNode = getNode(edgeToDelete.from);
+  var toNode = getNode(edgeToDelete.to);
+
+  // Check if is a cluster edge
+  if (fromNode.group === 'hotspot' || toNode.group === 'hotspot') {
+    // Deleting a cluster edge must also delete the serviced node
+    var serviceNodeId = void 0;
+    var hotspotId = void 0;
+
+    if (fromNode.group === 'hotspot') {
+      serviceNodeId = edgeToDelete.to;
+      hotspotId = edgeToDelete.from;
+    } else {
+      serviceNodeId = edgeToDelete.from;
+      hotspotId = edgeToDelete.to;
+    }
+
+    // Need to remove the id of the serviced node from the hotspot's connectedToWithinCluster list
+    var hotspot = getNode(hotspotId);
+    var index = hotspot.connectedToWithinCluster.indexOf(serviceNodeId);
+    hotspot.connectedToWithinCluster.splice(index, 1);
+    updateNode(hotspot);
+
+    // Need to delete all the edges that touch the service node that is about to get deleted
+    deleteEdgesTouchingNode(serviceNodeId);
+
+    // Delete the service node this edge touches
+    deleteNode(serviceNodeId);
+  } else {
+    // It is a joining edge (connecting clusters)
+    // Only have to delete the selected edge
+    deleteEdge(id);
+  }
+};
+
+module.exports = {
+  getNode: getNode,
+  getEdge: getEdge,
+  updateNode: updateNode,
+  getNodes: getNodes,
+  getEdges: getEdges,
+  getData: getData,
+  deleteNode: deleteNode,
+  deleteEdge: deleteEdge,
+  addNode: addNode,
+  reset: reset,
+  removeLonelyNodes: removeLonelyNodes,
+  getSize: getSize,
+  getNumberOfHotspots: getNumberOfHotspots,
+  getNumberOfServicedNodes: getNumberOfServicedNodes,
+  processDeleteNode: processDeleteNode,
+  processDeleteEdge: processDeleteEdge
+};
+
+/***/ }),
+
+/***/ 4:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -54087,7 +54376,8 @@ return /******/ (function(modules) { // webpackBootstrap
 ;
 
 /***/ }),
-/* 4 */
+
+/***/ 5:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -54113,7 +54403,8 @@ var setUpClickHandlerForTitle = function setUpClickHandlersForTitle() {
 module.exports = setUpClickHandlerForTitle;
 
 /***/ }),
-/* 5 */
+
+/***/ 6:
 /***/ (function(module, exports) {
 
 // shim for using process in browser
@@ -54299,13 +54590,15 @@ process.umask = function() { return 0; };
 
 
 /***/ }),
-/* 6 */
+
+/***/ 7:
 /***/ (function(module, exports) {
 
 /* (ignored) */
 
 /***/ }),
-/* 7 */
+
+/***/ 8:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -54523,307 +54816,22 @@ module.exports = {
 };
 
 /***/ }),
-/* 8 */
-/***/ (function(module, exports, __webpack_require__) {
 
-"use strict";
-
-
-// From https://codepen.io/gapcode/pen/vEJNZN
-
-/**
- * detect IE
- * returns version of IE or false, if browser is not Internet Explorer
- */
-function detectIE() {
-  var ua = window.navigator.userAgent;
-
-  // Test values; Uncomment to check result …
-
-  // IE 10
-  // ua = 'Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; Trident/6.0)';
-
-  // IE 11
-  // ua = 'Mozilla/5.0 (Windows NT 6.3; Trident/7.0; rv:11.0) like Gecko';
-
-  // Edge 12 (Spartan)
-  // ua = 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36 Edge/12.0';
-
-  // Edge 13
-  // ua = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2486.0 Safari/537.36 Edge/13.10586';
-
-  var msie = ua.indexOf('MSIE ');
-  if (msie > 0) {
-    // IE 10 or older => return version number
-    return parseInt(ua.substring(msie + 5, ua.indexOf('.', msie)), 10);
-  }
-
-  var trident = ua.indexOf('Trident/');
-  if (trident > 0) {
-    // IE 11 => return version number
-    var rv = ua.indexOf('rv:');
-    return parseInt(ua.substring(rv + 3, ua.indexOf('.', rv)), 10);
-  }
-
-  var edge = ua.indexOf('Edge/');
-  if (edge > 0) {
-    // Edge (IE 12+) => return version number
-    return parseInt(ua.substring(edge + 5, ua.indexOf('.', edge)), 10);
-  }
-
-  // other browser
-  return false;
-}
-
-module.exports = function () {
-  var version = detectIE();
-  return version !== false && version < 12;
-};
-
-/***/ }),
-/* 9 */,
-/* 10 */,
-/* 11 */,
-/* 12 */,
-/* 13 */
-/***/ (function(module, exports) {
-
-if (window.NodeList && !NodeList.prototype.forEach) {
-    NodeList.prototype.forEach = function (callback, thisArg) {
-        thisArg = thisArg || window;
-        for (var i = 0; i < this.length; i++) {
-            callback.call(thisArg, this[i], i, this);
-        }
-    };
-}
-
-
-/***/ }),
-/* 14 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var vis = __webpack_require__(3);
-
-var nodes = null;
-var edges = null;
-var data = null;
-
-var getNode = function getNode(id) {
-  return nodes.get(id);
-};
-
-var getEdge = function getEdge(id) {
-  return edges.get(id);
-};
-
-var updateNode = function updateNode(node) {
-  nodes.update(node);
-};
-
-var getNodes = function getNodes() {
-  return nodes.get();
-};
-
-var getEdges = function getEdges() {
-  return edges.get();
-};
-
-var getData = function getData() {
-  return data;
-};
-
-// Just deletes a particular node - does not look at connections at all
-var deleteNode = function deleteNode(id) {
-  nodes.remove(id);
-};
-
-var deleteEdge = function deleteEdge(id) {
-  edges.remove(id);
-};
-
-var addNode = function addNode(newNode) {
-  nodes.add(newNode);
-};
-
-var getNumberOfHotspots = function getNumberOfHotspots() {
-  var nodesArray = nodes.get();
-  return nodesArray.reduce(function (sum, node) {
-    if (node.original) {
-      return sum + 1;
-    } else {
-      return sum;
-    }
-  }, 0);
-};
-
-var getNumberOfServicedNodes = function getNumberOfServicedNodes() {
-  var nodesArray = nodes.get();
-  return nodesArray.reduce(function (sum, node) {
-    if (node.original) {
-      return sum;
-    } else {
-      return sum + 1;
-    }
-  }, 0);
-};
-
-var reset = function reset() {
-  nodes = new vis.DataSet();
-  edges = new vis.DataSet();
-  data = { nodes: nodes, edges: edges };
-};
-
-// Remove nodes that are not connected to any other nodes
-var removeLonelyNodes = function removeLonelyNodes() {
-  var i = 0;
-
-  var nodesArray = nodes.get();
-
-  while (i < nodesArray.length) {
-    if (nodesArray[i].connectedToWithinCluster.length === 0) {
-      nodes.remove(nodesArray[i].id);
-    }
-    i += 1;
-  }
-
-  console.log(nodes.get());
-};
-
-var getSize = function getSize() {
-  var numHotspots = getNumberOfHotspots();
-  var size = void 0;
-  if (numHotspots <= 4) {
-    size = 'small';
-  } else if (numHotspots <= 7) {
-    size = 'medium';
-  } else if (numHotspots <= 10) {
-    size = 'large';
-  } else {
-    size = 'x-large';
-  }
-
-  return size;
-};
-
-var deleteEdgesTouchingNode = function deleteEdgesTouchingNode(nodeId) {
-  getEdges().forEach(function (edgeToCheck) {
-    if (edgeToCheck.from === nodeId || edgeToCheck.to === nodeId) {
-      deleteEdge(edgeToCheck.id);
-    }
-  });
-};
-
-var processDeleteNode = function processDeleteNode(id) {
-  var nodeToDelete = getNode(id);
-
-  if (nodeToDelete.group === 'hotspot') {
-    // Delete all the edges touching the serviced nodes this hotspot is connected to
-    nodeToDelete.connectedToWithinCluster.forEach(function (serviceNodeId) {
-      deleteEdgesTouchingNode(serviceNodeId);
-    });
-
-    // Delete all the service nodes connected to the hotspot we are deleting
-    nodeToDelete.connectedToWithinCluster.forEach(function (serviceNodeId) {
-      deleteNode(serviceNodeId);
-    });
-
-    // Delete the hotspot
-    deleteNode(id);
-  } else {
-    // must be a service node
-    // Must remove nodeId from the hotspots connectedToWithinCluster list
-    if (nodeToDelete.connectedToWithinCluster.length > 0) {
-      var hotspotId = nodeToDelete.connectedToWithinCluster[0];
-      var hotspot = getNode(hotspotId);
-      var index = hotspot.connectedToWithinCluster.indexOf(id);
-      hotspot.connectedToWithinCluster.splice(index, 1);
-      updateNode(hotspot);
-
-      // Delete all the edges touching the serviced node
-      deleteEdgesTouchingNode(id);
-    }
-
-    // Delete the service node
-    deleteNode(id);
-  }
-};
-
-var processDeleteEdge = function processDeleteEdge(id) {
-  var edgeToDelete = getEdge(id);
-
-  var fromNode = getNode(edgeToDelete.from);
-  var toNode = getNode(edgeToDelete.to);
-
-  // Check if is a cluster edge
-  if (fromNode.group === 'hotspot' || toNode.group === 'hotspot') {
-    // Deleting a cluster edge must also delete the serviced node
-    var serviceNodeId = void 0;
-    var hotspotId = void 0;
-
-    if (fromNode.group === 'hotspot') {
-      serviceNodeId = edgeToDelete.to;
-      hotspotId = edgeToDelete.from;
-    } else {
-      serviceNodeId = edgeToDelete.from;
-      hotspotId = edgeToDelete.to;
-    }
-
-    // Need to remove the id of the serviced node from the hotspot's connectedToWithinCluster list
-    var hotspot = getNode(hotspotId);
-    var index = hotspot.connectedToWithinCluster.indexOf(serviceNodeId);
-    hotspot.connectedToWithinCluster.splice(index, 1);
-    updateNode(hotspot);
-
-    // Need to delete all the edges that touch the service node that is about to get deleted
-    deleteEdgesTouchingNode(serviceNodeId);
-
-    // Delete the service node this edge touches
-    deleteNode(serviceNodeId);
-  } else {
-    // It is a joining edge (connecting clusters)
-    // Only have to delete the selected edge
-    deleteEdge(id);
-  }
-};
-
-module.exports = {
-  getNode: getNode,
-  getEdge: getEdge,
-  updateNode: updateNode,
-  getNodes: getNodes,
-  getEdges: getEdges,
-  getData: getData,
-  deleteNode: deleteNode,
-  deleteEdge: deleteEdge,
-  addNode: addNode,
-  reset: reset,
-  removeLonelyNodes: removeLonelyNodes,
-  getSize: getSize,
-  getNumberOfHotspots: getNumberOfHotspots,
-  getNumberOfServicedNodes: getNumberOfServicedNodes,
-  processDeleteNode: processDeleteNode,
-  processDeleteEdge: processDeleteEdge
-};
-
-/***/ }),
-/* 15 */
+/***/ 86:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 /* WEBPACK VAR INJECTION */(function(fetch) {
 
-__webpack_require__(13);
-var vis = __webpack_require__(3);
+__webpack_require__(15);
+var vis = __webpack_require__(4);
 
-var browserIsIE = __webpack_require__(8);
-var graph = __webpack_require__(14);
-var NetworkOptions = __webpack_require__(7);
+var browserIsIE = __webpack_require__(10);
+var graph = __webpack_require__(30);
+var NetworkOptions = __webpack_require__(8);
 
 // Get title set up to link to main page
-var setUpTitleLink = __webpack_require__(4);
+var setUpTitleLink = __webpack_require__(5);
 
 setUpTitleLink();
 
@@ -55185,7 +55193,8 @@ var init = function init() {
 module.exports = {
   init: init
 };
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ })
-/******/ ]);
+
+/******/ });

@@ -19,7 +19,7 @@ router.post('/', async (req, res) => {
 router.post('/login', async (req, res) => {
   try {
     const body = _.pick(req.body, ['email', 'password']);
-    console.log(body);
+
     const user = await User.findByCredentials(body.email, body.password);
     const token = await user.generateAuthToken();
     res.header('x-auth', token).send(user);
