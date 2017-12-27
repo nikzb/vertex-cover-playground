@@ -9,7 +9,7 @@ const attemptLogin = async function attemptLogin(email, password) {
   const domain = window.location.host;
 
   const loginRequestHeaders = new Headers({
-    'Content-Type': 'application/json'
+    'Content-Type': 'application/json',
   });
 
   const loginRequestInit = {

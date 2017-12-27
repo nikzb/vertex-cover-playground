@@ -11,7 +11,10 @@
     <!-- {{> mainHeader}} -->
     <!-- <div class='middle-container'> -->
       <div class='status-select'>
-        <h2 class='status-select status-select__instruct'>Select the puzzles you want to view:</h2>
+        <div class='status-select__header'>
+          <h2 class='status-select status-select__instruct'>Select the puzzles you want to view:</h2>
+          <button class='status-select__sign-out pseudo-btn' name='sign-out'>Sign Out</button>
+        </div>
         <div class='status-select status-select__radio-container'>
           <input type='radio' class='status-select__radio' id='status-1' name='status' value='pending' checked>
           <label for='status-1' class='status-select__radio-label'>Pending</label>
@@ -47,6 +50,7 @@
           <button class='btn btn--delete-always-shown' type='button' name='delete-permanent'>Delete</button>
         </div>
       </div>
+
     <!-- </div> -->
   </div>
 

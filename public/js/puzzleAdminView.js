@@ -54856,6 +54856,37 @@ var setUpRadio = function setUpRadio(approved) {
   });
 };
 
+var setUpSignOutButton = function setUpSignOutButton() {
+  var signOutButton = document.querySelector('button[name="sign-out"]');
+
+  signOutButton.addEventListener('click', async function () {
+    var signOutRequestHeaders = new Headers({
+      'x-auth': window.localStorage.getItem('hotspotAuthToken')
+    });
+
+    var signOutRequestInit = {
+      method: 'DELETE',
+      headers: signOutRequestHeaders
+    };
+
+    var signOutRequest = new Request('//' + domain + '/users/token', signOutRequestInit);
+
+    try {
+      var response = await fetch(signOutRequest);
+
+      if (!response.ok) {
+        throw new Error('Error with signing out');
+      }
+
+      window.localStorage.removeItem('hotspotAuthToken');
+
+      window.location.href = '//' + domain + '/';
+    } catch (e) {
+      throw new Error(e);
+    }
+  });
+};
+
 var setUpClickHandlersForButtons = function setUpClickHandlersForButtons(code, approved) {
   var approveButton = document.querySelector('button[name="approve"]');
   var disapproveButton = document.querySelector('button[name="disapprove"]');
@@ -54897,6 +54928,8 @@ var setUpClickHandlersForButtons = function setUpClickHandlersForButtons(code, a
     // pull up the next puzzle that is pending approval
     nextPuzzle(code, 'back');
   });
+
+  setUpSignOutButton();
 };
 
 var setUpAll = function setUpAll(_ref2) {

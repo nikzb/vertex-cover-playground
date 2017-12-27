@@ -3,6 +3,7 @@ const _ = require('lodash');
 
 const router = express.Router();
 const { User } = require('../models/user');
+const { authenticateAdmin } = require('../middleware/authenticate');
 
 router.post('/', async (req, res) => {
   try {
@@ -23,6 +24,15 @@ router.post('/login', async (req, res) => {
     const user = await User.findByCredentials(body.email, body.password);
     const token = await user.generateAuthToken();
     res.header('x-auth', token).send(user);
+  } catch (e) {
+    res.status(400).send();
+  }
+});
+
+router.delete('/token', authenticateAdmin, async (req, res) => {
+  try {
+    await req.user.removeToken(req.token);
+    res.status(200).send();
   } catch (e) {
     res.status(400).send();
   }

@@ -37,4 +37,9 @@
   &__radio-label {
     margin-right: 1em;
   }
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+  }
 }
