@@ -3,7 +3,7 @@ const _ = require('lodash');
 
 const router = express.Router();
 const { User } = require('../models/user');
-const { authenticateAdmin } = require('../middleware/authenticate');
+const { authenticate } = require('../middleware/authenticate');
 
 router.post('/', async (req, res) => {
   try {
@@ -29,7 +29,7 @@ router.post('/login', async (req, res) => {
   }
 });
 
-router.delete('/token', authenticateAdmin, async (req, res) => {
+router.delete('/token', authenticate, async (req, res) => {
   try {
     await req.user.removeToken(req.token);
     res.status(200).send();
