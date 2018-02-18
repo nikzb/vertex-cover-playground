@@ -55252,7 +55252,6 @@ var usePuzzle = function usePuzzle(code, isNew) {
     document.querySelector('.middle-container').style.display = 'none';
     return;
   }
-
   if (code === 'CODE') {
     var arrays = Graph.useDefaultPuzzle();
     setUpAll({

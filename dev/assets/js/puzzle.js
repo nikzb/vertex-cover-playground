@@ -147,13 +147,12 @@ const handleResponseToPuzzleRequest = function handleResponseToPuzzleRequest(res
   throw new Error('Error in network response');
 };
 
-const usePuzzle = function usePuzzle(code, isNew) {
+const usePuzzle = function usePuzzle(code, isNew) {   
   if (browserIsIE()) {
     document.querySelector('.main-container__no-ie').style.display = 'block';
     document.querySelector('.middle-container').style.display = 'none';
     return;
   }
-
   if (code === 'CODE') {
     const arrays = Graph.useDefaultPuzzle();
     setUpAll({
